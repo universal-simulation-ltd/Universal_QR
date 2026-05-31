@@ -1,0 +1,22 @@
+# Cloudflare Pages rewrites — Universal QRs is served under /qr/ but the built
+# files in dist/ are flat (Vite's `base` only rewrites URLs INSIDE the HTML; it
+# does not place files in dist/qr/).
+#
+# 200 status = transparent rewrite (URL bar unchanged). Specific rules first,
+# broad SPA fallback last.
+
+# Service-worker + PWA artefacts.
+/qr/sw.js                /sw.js                200
+/qr/registerSW.js        /registerSW.js        200
+/qr/manifest.webmanifest /manifest.webmanifest 200
+/qr/workbox-*            /workbox-:splat       200
+
+# Hashed asset bundles.
+/qr/assets/*             /assets/:splat        200
+
+# Static files referenced from index.html / app code (BASE_URL-prefixed).
+/qr/favicon.svg          /favicon.svg          200
+/qr/unisim-icon.png      /unisim-icon.png      200
+
+# SPA fallback — everything else under /qr/ serves the shell.
+/qr/*                    /index.html           200

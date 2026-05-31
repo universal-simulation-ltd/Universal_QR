@@ -1,0 +1,134 @@
+import QRCodeStyling from 'qr-code-styling'
+import { buildQrOptions, cornerStampGeometry, showsCornerMark, type ExportFormat, type QrConfig } from './qr'
+import { UNISIM_MARK } from './unisimMark'
+
+/** Slugify the QR's name into a safe filename stem. */
+export function fileStem(name: string): string {
+  const slug = name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+  return slug || 'qr-code'
+}
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => resolve(img)
+    img.onerror = () => reject(new Error('Failed to load image'))
+    img.src = src
+  })
+}
+
+function triggerDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  // Give the browser a tick to start the download before revoking.
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+const MIME: Record<Exclude<ExportFormat, 'svg'>, string> = {
+  png: 'image/png',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp'
+}
+
+/** Render `config` to `format` and start a browser download. Bakes the optional
+ *  corner UNI·SIM stamp into the output so it matches the live preview. */
+export async function downloadQr(config: QrConfig, format: ExportFormat): Promise<void> {
+  const stem = fileStem(config.name)
+
+  if (format === 'svg') {
+    const qr = new QRCodeStyling(buildQrOptions(config, 'svg'))
+    const raw = (await qr.getRawData('svg')) as Blob | null
+    if (!raw) throw new Error('Could not render SVG')
+    let svg = await raw.text()
+    if (showsCornerMark(config)) {
+      const { badge, x, y } = cornerStampGeometry(config.size, config.margin)
+      const stamp = `<image href="${UNISIM_MARK}" x="${x}" y="${y}" width="${badge}" height="${badge}" />`
+      svg = svg.replace('</svg>', `${stamp}</svg>`)
+    }
+    triggerDownload(new Blob([svg], { type: 'image/svg+xml' }), `${stem}.svg`)
+    return
+  }
+
+  // Raster: render to a clean PNG, then composite onto our own canvas so we can
+  // (a) flatten onto white for JPEG, and (b) stamp the corner mark.
+  const qr = new QRCodeStyling(buildQrOptions(config, 'canvas'))
+  const raw = (await qr.getRawData('png')) as Blob | null
+  if (!raw) throw new Error('Could not render QR code')
+  const qrImg = await loadImage(URL.createObjectURL(raw))
+
+  const size = config.size
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Canvas not supported')
+
+  // JPEG has no alpha — flatten transparency onto white so it doesn't go black.
+  if (format === 'jpeg') {
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, size, size)
+  }
+  ctx.drawImage(qrImg, 0, 0, size, size)
+  URL.revokeObjectURL(qrImg.src)
+
+  if (showsCornerMark(config)) {
+    const { badge, x, y } = cornerStampGeometry(size, config.margin)
+    const mark = await loadImage(UNISIM_MARK)
+    ctx.drawImage(mark, x, y, badge, badge)
+  }
+
+  const blob: Blob = await new Promise((resolve, reject) =>
+    canvas.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error('Export failed'))),
+      MIME[format],
+      0.92
+    )
+  )
+  triggerDownload(blob, `${stem}.${format}`)
+}
+
+/** Copy the rendered QR (PNG, with corner stamp) to the clipboard. Returns
+ *  false when the browser blocks clipboard image writes. */
+export async function copyQrToClipboard(config: QrConfig): Promise<boolean> {
+  if (!navigator.clipboard || typeof ClipboardItem === 'undefined') return false
+  const qr = new QRCodeStyling(buildQrOptions(config, 'canvas'))
+  const raw = (await qr.getRawData('png')) as Blob | null
+  if (!raw) return false
+
+  let out = raw
+  if (showsCornerMark(config)) {
+    const qrImg = await loadImage(URL.createObjectURL(raw))
+    const size = config.size
+    const canvas = document.createElement('canvas')
+    canvas.width = size
+    canvas.height = size
+    const ctx = canvas.getContext('2d')
+    if (ctx) {
+      ctx.drawImage(qrImg, 0, 0, size, size)
+      const { badge, x, y } = cornerStampGeometry(size, config.margin)
+      const mark = await loadImage(UNISIM_MARK)
+      ctx.drawImage(mark, x, y, badge, badge)
+      out = await new Promise<Blob>((resolve, reject) =>
+        canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('copy failed'))), 'image/png')
+      )
+    }
+    URL.revokeObjectURL(qrImg.src)
+  }
+
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': out })])
+    return true
+  } catch {
+    return false
+  }
+}
