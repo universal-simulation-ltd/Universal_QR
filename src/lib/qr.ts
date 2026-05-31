@@ -82,7 +82,7 @@ export const EC_LEVELS: { value: ErrorCorrectionLevel; label: string }[] = [
 ]
 
 export const DEFAULT_CONFIG: QrConfig = {
-  name: 'My QR code',
+  name: '',
   data: 'https://www.unisim.co.uk',
   size: 320,
   margin: 12,
@@ -169,6 +169,22 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
     }
   }
 ]
+
+/** Best-effort hostname from the encoded data (empty for non-URL text). */
+export function hostnameOf(data: string): string {
+  try {
+    return new URL(data.trim()).hostname.replace(/^www\./, '')
+  } catch {
+    return ''
+  }
+}
+
+/** The label shown under the preview and used as the export filename. Falls
+ *  back to the URL's hostname when the user hasn't named the code (e.g. in
+ *  Simple mode, where there's no name field). */
+export function qrDisplayName(config: QrConfig): string {
+  return config.name.trim() || hostnameOf(config.data) || 'QR code'
+}
 
 /** Resolve the image (data URI) that belongs in the centre of the QR, if any. */
 export function centerImage(config: QrConfig): string | undefined {

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Controls from './Controls'
 import QrPreview from './QrPreview'
-import { useQrStore } from '../../stores/qrStore'
+import { useQrStore, type StudioMode } from '../../stores/qrStore'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
 import type { ExportFormat } from '../../lib/qr'
 
@@ -14,6 +14,8 @@ const FORMATS: { value: ExportFormat; label: string }[] = [
 
 export default function QrStudio() {
   const config = useQrStore((s) => s.config)
+  const mode = useQrStore((s) => s.mode)
+  const setMode = useQrStore((s) => s.setMode)
   const [format, setFormat] = useState<ExportFormat>('png')
   const [busy, setBusy] = useState(false)
   const [copied, setCopied] = useState<'idle' | 'ok' | 'fail'>('idle')
@@ -55,8 +57,9 @@ export default function QrStudio() {
 
         <div className="mt-6 grid lg:grid-cols-[minmax(0,1fr)_360px] gap-6 lg:gap-10 items-start">
           {/* Controls */}
-          <div className="order-2 lg:order-1">
-            <Controls />
+          <div className="order-2 lg:order-1 space-y-4">
+            <ModeToggle mode={mode} setMode={setMode} />
+            {mode === 'simple' ? <SimplePanel onAdvanced={() => setMode('advanced')} /> : <Controls />}
           </div>
 
           {/* Preview + export */}
@@ -117,5 +120,64 @@ export default function QrStudio() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Segmented Simple / Advanced switch.
+function ModeToggle({ mode, setMode }: { mode: StudioMode; setMode: (m: StudioMode) => void }) {
+  return (
+    <div className="inline-flex p-1 bg-slate-200/70 rounded-xl" role="tablist" aria-label="Editor mode">
+      {(['simple', 'advanced'] as const).map((m) => (
+        <button
+          key={m}
+          type="button"
+          role="tab"
+          aria-selected={mode === m}
+          onClick={() => setMode(m)}
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            mode === m ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          {m === 'simple' ? 'Simple' : 'Advanced'}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// Simple mode: just the website address. Everything else uses sensible
+// defaults (rounded modules, UNI·SIM icon in the centre).
+function SimplePanel({ onAdvanced }: { onAdvanced: () => void }) {
+  const data = useQrStore((s) => s.config.data)
+  const update = useQrStore((s) => s.update)
+  return (
+    <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
+      <label htmlFor="simple-url" className="block font-semibold text-slate-900">
+        Website address
+      </label>
+      <p className="mt-0.5 mb-3 text-sm text-slate-500">
+        Paste the link your QR code should open.
+      </p>
+      <input
+        id="simple-url"
+        type="url"
+        inputMode="url"
+        value={data}
+        onChange={(e) => update({ data: e.target.value })}
+        placeholder="https://example.com"
+        className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500"
+      />
+      <p className="mt-3 text-xs text-slate-500">
+        Want custom colours, shapes or your own logo?{' '}
+        <button
+          type="button"
+          onClick={onAdvanced}
+          className="font-medium text-indigo-600 hover:text-indigo-700 underline-offset-2 hover:underline"
+        >
+          Switch to Advanced
+        </button>
+        .
+      </p>
+    </section>
   )
 }

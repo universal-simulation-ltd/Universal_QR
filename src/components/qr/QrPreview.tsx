@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import QRCodeStyling from 'qr-code-styling'
 import { useQrStore } from '../../stores/qrStore'
-import { buildQrOptions, cornerStampGeometry, showsCornerMark } from '../../lib/qr'
+import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark } from '../../lib/qr'
 import { UNISIM_MARK } from '../../lib/unisimMark'
 
 export default function QrPreview() {
@@ -52,20 +52,20 @@ export default function QrPreview() {
       >
         {/* Tight wrapper so the corner-stamp % coordinates line up with the canvas */}
         <div className="relative leading-[0] qr-pop">
-          <div ref={holderRef} aria-label={`QR code for ${config.name}`} role="img" />
+          <div ref={holderRef} aria-label={`QR code for ${qrDisplayName(config)}`} role="img" />
 
           {stamp && (
-            <img
-              src={UNISIM_MARK}
-              alt=""
+            <div
               aria-hidden="true"
-              className="absolute aspect-square rounded-lg shadow-md ring-1 ring-black/5"
+              className="absolute aspect-square rounded-lg shadow-md ring-1 ring-black/5 bg-white p-[8%]"
               style={{
                 width: `${badgePct}%`,
                 right: `${insetPct}%`,
                 bottom: `${insetPct}%`
               }}
-            />
+            >
+              <img src={UNISIM_MARK} alt="" className="w-full h-full object-contain" />
+            </div>
           )}
 
           {!hasData && (
@@ -79,7 +79,7 @@ export default function QrPreview() {
       </div>
 
       <div className="text-center min-w-0 max-w-[360px]">
-        <div className="font-semibold text-slate-900 truncate">{config.name || 'Untitled QR'}</div>
+        <div className="font-semibold text-slate-900 truncate">{qrDisplayName(config)}</div>
         {hasData && (
           <div className="text-xs text-slate-500 truncate" title={config.data}>
             {config.data}
