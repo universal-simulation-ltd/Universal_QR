@@ -4,7 +4,7 @@ import ProductLogo from './components/Header/ProductLogo'
 import QrStudio from './components/qr/QrStudio'
 import { SUITE_PRODUCTS } from './lib/suiteProducts'
 
-const REPO_URL = 'https://github.com/universal-simulation-ltd/Universal_QRs'
+const REPO_URL = 'https://github.com/universal-simulation-ltd/Universal_QR'
 
 export default function App() {
   return (
@@ -38,7 +38,7 @@ export default function App() {
             href={REPO_URL}
             target="_blank"
             rel="noreferrer"
-            aria-label="Universal QRs on GitHub"
+            aria-label="Universal QR on GitHub"
             title="View source on GitHub"
             className="sm:ml-auto inline-flex items-center gap-1.5 text-slate-600 hover:text-slate-900 transition-colors"
           >

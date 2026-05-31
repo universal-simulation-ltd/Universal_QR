@@ -12,7 +12,7 @@ if (import.meta.env.DEV) {
   }
 }
 
-// Universal QRs is a fully anonymous, offline tool — it never authenticates or
+// Universal QR is a fully anonymous, offline tool — it never authenticates or
 // talks to Supabase. We still mount <UniversalProvider> because the shared
 // navbar reads language state from its context, so we hand it harmless
 // placeholders (the client is constructed but never called) and omit

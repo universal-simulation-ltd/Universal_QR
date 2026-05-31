@@ -1,4 +1,4 @@
-# Cloudflare Pages rewrites — Universal QRs is served under /qr/ but the built
+# Cloudflare Pages rewrites — Universal QR is served under /qr/ but the built
 # files in dist/ are flat (Vite's `base` only rewrites URLs INSIDE the HTML; it
 # does not place files in dist/qr/).
 #

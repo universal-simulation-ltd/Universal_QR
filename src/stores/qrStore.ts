@@ -31,7 +31,7 @@ export const useQrStore = create<QrState>()(
       reset: () => set((s) => ({ config: DEFAULT_CONFIG, mode: s.mode }))
     }),
     {
-      name: 'universal-qrs:config',
+      name: 'universal-qr:config',
       version: 1
     }
   )

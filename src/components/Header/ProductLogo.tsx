@@ -1,11 +1,11 @@
-// Universal QRs wordmark — the click target the SuiteSwitcher dropdown attaches
+// Universal QR wordmark — the click target the SuiteSwitcher dropdown attaches
 // to inside <UniversalAppsNavBar />.
 export default function ProductLogo() {
   return (
     <a
       href="/"
       className="inline-flex items-center gap-2 text-slate-900 no-underline px-1 py-0.5 rounded-md hover:bg-slate-50"
-      aria-label="Universal QRs — home"
+      aria-label="Universal QR — home"
     >
       <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-indigo-600 text-white">
         <svg viewBox="0 0 16 16" className="w-4 h-4" aria-hidden="true" fill="currentColor">
@@ -19,7 +19,7 @@ export default function ProductLogo() {
         </svg>
       </span>
       <span className="hidden sm:inline font-semibold tracking-tight text-[15px]">
-        Universal QRs
+        Universal QR
       </span>
     </a>
   )

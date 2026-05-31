@@ -29,10 +29,10 @@ const QR_GLYPH = (
   </svg>
 )
 
-/** The Universal QRs entry in the suite product switcher. */
+/** The Universal QR entry in the suite product switcher. */
 export const QR_PRODUCT: SuiteProduct = {
   id: 'qr',
-  name: 'Universal QRs',
+  name: 'Universal QR',
   desc: 'Design branded, styled QR codes in-browser',
   href: 'https://opensource.unisim.co.uk/qr',
   glyph: QR_GLYPH
@@ -40,7 +40,7 @@ export const QR_PRODUCT: SuiteProduct = {
 
 // Full catalogue shown in the navbar dropdown: the canonical Universal Apps,
 // with the QR generator slotted in after Universal Exports. The SDK's default
-// list doesn't yet include QRs, so we extend it here rather than wait for an
+// list doesn't yet include QR, so we extend it here rather than wait for an
 // SDK release.
 export const SUITE_PRODUCTS: SuiteProduct[] = (() => {
   const out = [...DEFAULT_UNIVERSAL_APPS_PRODUCTS]

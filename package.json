@@ -1,10 +1,10 @@
 {
-  "name": "universal-qrs",
+  "name": "universal-qr",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "license": "MIT",
-  "description": "Universal QRs — design branded, styled QR codes entirely in your browser.",
+  "description": "Universal QR — design branded, styled QR codes entirely in your browser.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

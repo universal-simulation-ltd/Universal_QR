@@ -1,4 +1,4 @@
-# Universal QRs
+# Universal QR
 
 > Design branded, styled QR codes that just work — free and open source.
 

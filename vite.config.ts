@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import pkg from './package.json' with { type: 'json' }
 
-// Universal QRs is served at opensource.unisim.co.uk/qr in production.
+// Universal QR is served at opensource.unisim.co.uk/qr in production.
 // `base` + PWA scope derive from Vite's `mode`; local dev stays `/`.
 export default defineConfig(({ mode }) => {
   const BASE_PATH = mode === 'production' ? '/qr/' : '/'
@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
         registerType: 'autoUpdate',
         includeAssets: ['favicon.svg'],
         manifest: {
-          name: 'Universal QRs',
+          name: 'Universal QR',
           short_name: 'UniQR',
           description: 'Design branded, styled QR codes — works offline',
           theme_color: '#0f172a',
