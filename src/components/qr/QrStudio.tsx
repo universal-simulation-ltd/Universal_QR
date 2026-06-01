@@ -47,7 +47,7 @@ export default function QrStudio() {
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
         <header className="max-w-2xl">
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
-            QR codes that <span className="text-orange-600">look like you</span>.
+            QR codes that <span className="text-orange-600">just work</span>.
           </h1>
           <p className="mt-2 text-slate-600">
             Pick your colours, shape the modules, drop in a logo — it renders live and never leaves
