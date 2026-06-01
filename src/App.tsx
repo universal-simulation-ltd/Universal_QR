@@ -2,7 +2,6 @@ import { UniversalAppsNavBar } from '@unisim/sdk'
 import AppMenu from './components/Header/AppMenu'
 import ProductLogo from './components/Header/ProductLogo'
 import QrStudio from './components/qr/QrStudio'
-import { SUITE_PRODUCTS } from './lib/suiteProducts'
 
 const REPO_URL = 'https://github.com/universal-simulation-ltd/Universal_QR'
 
@@ -13,7 +12,6 @@ export default function App() {
         product="qr"
         productLogo={<ProductLogo />}
         fileMenu={<AppMenu />}
-        products={SUITE_PRODUCTS}
         suiteSwitcherIconSrc={`${import.meta.env.BASE_URL}unisim-icon.png`}
       />
 
