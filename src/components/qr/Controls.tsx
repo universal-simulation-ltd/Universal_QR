@@ -4,12 +4,10 @@ import {
   CORNER_DOT_TYPES,
   CORNER_SQUARE_TYPES,
   DOT_TYPES,
-  EC_LEVELS,
   PRESETS,
   type CornerDotType,
   type CornerSquareType,
-  type DotType,
-  type ErrorCorrectionLevel
+  type DotType
 } from '../../lib/qr'
 
 export default function Controls() {
@@ -174,29 +172,6 @@ export default function Controls() {
           suffix=" px"
           onChange={(v) => update({ margin: v })}
         />
-        <div>
-          <FieldLabel>Error correction</FieldLabel>
-          <div className="flex gap-1.5">
-            {EC_LEVELS.map((lvl) => (
-              <button
-                key={lvl.value}
-                type="button"
-                onClick={() => update({ ecLevel: lvl.value as ErrorCorrectionLevel })}
-                className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                  config.ecLevel === lvl.value
-                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                }`}
-              >
-                {lvl.label}
-              </button>
-            ))}
-          </div>
-          <p className="mt-1.5 text-xs text-slate-500">
-            Higher levels survive more obstruction — keep at <strong>Q</strong> or{' '}
-            <strong>H</strong> when using a logo.
-          </p>
-        </div>
       </Section>
 
       {/* ── Logo & branding ─────────────────────────────────────────────── */}
