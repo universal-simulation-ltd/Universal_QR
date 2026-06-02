@@ -93,7 +93,7 @@ export default function Controls() {
           onChange={(v) => update({ useGradient: v })}
         />
         {config.useGradient && (
-          <div className="pl-1 space-y-3 border-l-2 border-indigo-100 ml-1">
+          <div className="pl-1 space-y-3 border-l-2 border-orange-100 ml-1">
             <div className="pl-3 space-y-3">
               <Swatch
                 label="Gradient end"
@@ -188,7 +188,7 @@ export default function Controls() {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="text-xs font-medium text-slate-600 hover:text-indigo-700 px-2 py-1"
+              className="text-xs font-medium text-slate-600 hover:text-orange-700 px-2 py-1"
             >
               Replace
             </button>
@@ -204,7 +204,7 @@ export default function Controls() {
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 text-sm font-medium text-slate-600 hover:border-indigo-400 hover:bg-indigo-50/40 hover:text-indigo-700 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 text-sm font-medium text-slate-600 hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-700 transition-colors"
           >
             <span aria-hidden="true">🖼</span> Upload a logo (PNG, JPG, SVG)
           </button>
@@ -291,7 +291,7 @@ function TextField({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500"
+        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500"
       />
     </div>
   )
@@ -351,7 +351,7 @@ function Toggle({
           aria-checked={checked}
           onClick={() => onChange(!checked)}
           className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-            checked ? 'bg-indigo-600' : 'bg-slate-300'
+            checked ? 'bg-orange-600' : 'bg-slate-300'
           }`}
         >
           <span
@@ -399,7 +399,7 @@ function RangeField({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-indigo-600"
+        className="w-full accent-orange-600"
       />
     </div>
   )
@@ -429,7 +429,7 @@ function OptionRow({
             onClick={() => onChange(opt.value)}
             className={`min-w-0 px-2 py-1.5 rounded-lg text-xs font-medium leading-tight break-words border transition-colors ${
               value === opt.value
-                ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                ? 'border-orange-500 bg-orange-50 text-orange-700'
                 : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
             }`}
           >

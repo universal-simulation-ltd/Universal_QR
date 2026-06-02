@@ -77,7 +77,7 @@ export default function QrStudio() {
                       onClick={() => setFormat(f.value)}
                       className={`px-2 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                         format === f.value
-                          ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                          ? 'border-orange-500 bg-orange-50 text-orange-700'
                           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
                       }`}
                     >
@@ -91,7 +91,7 @@ export default function QrStudio() {
                 type="button"
                 onClick={onDownload}
                 disabled={!hasData || busy}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold shadow-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-orange-600 text-white text-sm font-semibold shadow-sm hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 16h12" />
@@ -103,7 +103,7 @@ export default function QrStudio() {
                 type="button"
                 onClick={onCopy}
                 disabled={!hasData}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:border-indigo-400 hover:bg-indigo-50/40 disabled:opacity-50 transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 disabled:opacity-50 transition-colors"
               >
                 {copied === 'ok'
                   ? '✓ Copied to clipboard'
@@ -165,14 +165,14 @@ function SimplePanel({ onAdvanced }: { onAdvanced: () => void }) {
         value={data}
         onChange={(e) => update({ data: e.target.value })}
         placeholder="https://example.com"
-        className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500"
+        className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500"
       />
       <p className="mt-3 text-xs text-slate-500">
         Want custom colours, shapes or your own logo?{' '}
         <button
           type="button"
           onClick={onAdvanced}
-          className="font-medium text-indigo-600 hover:text-indigo-700 underline-offset-2 hover:underline"
+          className="font-medium text-orange-600 hover:text-orange-700 underline-offset-2 hover:underline"
         >
           Switch to Advanced
         </button>
