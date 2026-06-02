@@ -57,13 +57,13 @@ export default function QrStudio() {
 
         <div className="mt-6 grid lg:grid-cols-[minmax(0,1fr)_360px] gap-6 lg:gap-10 items-start">
           {/* Controls */}
-          <div className="order-2 lg:order-1 space-y-4">
+          <div className="order-1 lg:order-1 space-y-4">
             <ModeToggle mode={mode} setMode={setMode} />
             {mode === 'simple' ? <SimplePanel onAdvanced={() => setMode('advanced')} /> : <Controls />}
           </div>
 
           {/* Preview + export */}
-          <div className="order-1 lg:order-2 lg:sticky lg:top-6 space-y-4">
+          <div className="order-2 lg:order-2 lg:sticky lg:top-6 space-y-4">
             <QrPreview />
 
             <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
