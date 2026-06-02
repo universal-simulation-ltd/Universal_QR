@@ -50,7 +50,7 @@ export default function AppMenu() {
                 clearLogo()
                 setOpen(false)
               }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-indigo-50 hover:text-indigo-700 text-sm"
+              className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-orange-50 hover:text-orange-700 text-sm"
             >
               <span aria-hidden="true">🧹</span>
               <span className="flex-1 text-left font-medium">Remove logo</span>
