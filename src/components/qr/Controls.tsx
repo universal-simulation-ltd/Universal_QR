@@ -4,12 +4,10 @@ import {
   CORNER_DOT_TYPES,
   CORNER_SQUARE_TYPES,
   DOT_TYPES,
-  EC_LEVELS,
   PRESETS,
   type CornerDotType,
   type CornerSquareType,
-  type DotType,
-  type ErrorCorrectionLevel
+  type DotType
 } from '../../lib/qr'
 
 export default function Controls() {
@@ -62,7 +60,7 @@ export default function Controls() {
               key={p.name}
               type="button"
               onClick={() => applyPatch(p.patch)}
-              className="px-3 py-1.5 rounded-full text-sm font-medium border border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+              className="px-3 py-1.5 rounded-full text-sm font-medium border border-slate-200 bg-white hover:border-orange-400 hover:bg-orange-50 hover:text-orange-700 transition-colors"
             >
               {p.name}
             </button>
@@ -140,7 +138,7 @@ export default function Controls() {
           options={DOT_TYPES}
           onChange={(v) => update({ dotType: v as DotType })}
         />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <OptionRow
             label="Corner frame"
             value={config.cornerSquareType}
@@ -174,29 +172,6 @@ export default function Controls() {
           suffix=" px"
           onChange={(v) => update({ margin: v })}
         />
-        <div>
-          <FieldLabel>Error correction</FieldLabel>
-          <div className="flex gap-1.5">
-            {EC_LEVELS.map((lvl) => (
-              <button
-                key={lvl.value}
-                type="button"
-                onClick={() => update({ ecLevel: lvl.value as ErrorCorrectionLevel })}
-                className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                  config.ecLevel === lvl.value
-                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                }`}
-              >
-                {lvl.label}
-              </button>
-            ))}
-          </div>
-          <p className="mt-1.5 text-xs text-slate-500">
-            Higher levels survive more obstruction — keep at <strong>Q</strong> or{' '}
-            <strong>H</strong> when using a logo.
-          </p>
-        </div>
       </Section>
 
       {/* ── Logo & branding ─────────────────────────────────────────────── */}
@@ -452,7 +427,7 @@ function OptionRow({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`px-2 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+            className={`min-w-0 px-2 py-1.5 rounded-lg text-xs font-medium leading-tight break-words border transition-colors ${
               value === opt.value
                 ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
                 : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'

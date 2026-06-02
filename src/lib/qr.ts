@@ -16,8 +16,8 @@ export interface QrConfig {
   size: number
   /** Quiet-zone margin in px. */
   margin: number
-  /** QR error-correction level. Higher = more of the code can be obscured by a
-   *  logo and still scan, at the cost of a denser code. */
+  /** QR error-correction level. Fixed at 'H' (the highest) so the code stays
+   *  scannable even when a centre logo obscures part of it. */
   ecLevel: ErrorCorrectionLevel
 
   // ── Colours ─────────────────────────────────────────────────────────────--
@@ -74,19 +74,12 @@ export const CORNER_DOT_TYPES: { value: CornerDotType; label: string }[] = [
   { value: 'dot', label: 'Dot' }
 ]
 
-export const EC_LEVELS: { value: ErrorCorrectionLevel; label: string }[] = [
-  { value: 'L', label: 'L · 7%' },
-  { value: 'M', label: 'M · 15%' },
-  { value: 'Q', label: 'Q · 25%' },
-  { value: 'H', label: 'H · 30%' }
-]
-
 export const DEFAULT_CONFIG: QrConfig = {
   name: '',
   data: 'https://www.unisim.co.uk',
   size: 320,
   margin: 12,
-  // Default high so the centre logo never breaks scanning out of the box.
+  // Always highest correction so a centre logo never breaks scanning.
   ecLevel: 'H',
   fgColor: '#0f172a',
   bgColor: '#ffffff',
