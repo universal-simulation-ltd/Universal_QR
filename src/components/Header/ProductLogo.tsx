@@ -7,7 +7,7 @@ export default function ProductLogo() {
       className="inline-flex items-center gap-2 text-slate-900 no-underline px-1 py-0.5 rounded-md hover:bg-slate-50"
       aria-label="Universal QR — home"
     >
-      <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-indigo-600 text-white">
+      <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-orange-600 text-white">
         <svg viewBox="0 0 16 16" className="w-4 h-4" aria-hidden="true" fill="currentColor">
           <path d="M1.5 1.5h5v5h-5zM3 3v2h2V3z" fillRule="evenodd" />
           <path d="M9.5 1.5h5v5h-5zM11 3v2h2V3z" fillRule="evenodd" />

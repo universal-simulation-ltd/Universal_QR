@@ -7,7 +7,7 @@ const REPO_URL = 'https://github.com/universal-simulation-ltd/Universal_QR'
 
 export default function App() {
   return (
-    <div className="flex flex-col h-full bg-slate-100">
+    <div className="flex flex-col min-h-full bg-slate-100">
       <UniversalAppsNavBar
         product="qr"
         productLogo={<ProductLogo />}
@@ -15,7 +15,7 @@ export default function App() {
         suiteSwitcherIconSrc={`${import.meta.env.BASE_URL}unisim-icon.png`}
       />
 
-      <main className="flex-1 min-h-0">
+      <main className="flex-1">
         <QrStudio />
       </main>
 

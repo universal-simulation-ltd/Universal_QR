@@ -43,7 +43,7 @@ export default function QrStudio() {
   }
 
   return (
-    <div className="h-full overflow-auto">
+    <div>
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
         <header className="max-w-2xl">
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
