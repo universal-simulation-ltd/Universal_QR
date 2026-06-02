@@ -1,14 +1,10 @@
 @import "tailwindcss";
 
+/* No fixed height on html/body: the page grows with its content and the whole
+   document scrolls naturally, so the footer sits at the bottom of the page
+   (revealed by scrolling) rather than pinned to the bottom of the screen. */
 html, body {
-  height: 100%;
   margin: 0;
-}
-
-/* min-height (not a fixed height) so the page grows with its content and the
-   document — including the footer — scrolls naturally on small screens. */
-#root {
-  min-height: 100%;
 }
 
 body {

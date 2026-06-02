@@ -7,7 +7,7 @@ const REPO_URL = 'https://github.com/universal-simulation-ltd/Universal_QR'
 
 export default function App() {
   return (
-    <div className="flex flex-col min-h-full bg-slate-100">
+    <div className="flex flex-col min-h-screen bg-slate-100">
       <UniversalAppsNavBar
         product="qr"
         productLogo={<ProductLogo />}
