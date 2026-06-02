@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useQrStore } from '../../stores/qrStore'
 
-// The per-app "File" dropdown that slots into <UniversalAppsNavBar />.
+// The per-app "Actions" dropdown that slots into <UniversalAppsNavBar />.
 // Holds reset / clear-logo actions; stays in sync with the store.
 export default function AppMenu() {
   const config = useQrStore((s) => s.config)
@@ -36,7 +36,7 @@ export default function AppMenu() {
         aria-expanded={open}
         className="h-8 px-3 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium ring-1 ring-slate-200 flex items-center gap-1.5"
       >
-        File
+        Actions
         <svg viewBox="0 0 12 12" className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true">
           <path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>

@@ -1,15 +1,29 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import QRCodeStyling from 'qr-code-styling'
 import { useQrStore } from '../../stores/qrStore'
 import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark } from '../../lib/qr'
+import { downloadQr } from '../../lib/download'
 import { UNISIM_MARK } from '../../lib/unisimMark'
 
 export default function QrPreview() {
   const config = useQrStore((s) => s.config)
   const holderRef = useRef<HTMLDivElement>(null)
   const qrRef = useRef<QRCodeStyling | null>(null)
+  const [downloading, setDownloading] = useState(false)
 
   const hasData = config.data.trim().length > 0
+
+  async function handlePreviewClick() {
+    if (!hasData || downloading) return
+    setDownloading(true)
+    try {
+      await downloadQr(config, 'png')
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   // Create the instance once and mount its canvas into the holder.
   useEffect(() => {
@@ -45,10 +59,20 @@ export default function QrPreview() {
   return (
     <div className="flex flex-col items-center gap-4">
       <div
-        className={`relative w-full max-w-[360px] rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-200 ${
+        className={`relative w-full max-w-[360px] rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-200 group ${
           config.bgTransparent ? 'checker-bg' : ''
-        }`}
+        } ${hasData ? 'cursor-pointer' : ''}`}
         style={config.bgTransparent ? undefined : { background: config.bgColor }}
+        onClick={handlePreviewClick}
+        role={hasData ? 'button' : undefined}
+        tabIndex={hasData ? 0 : undefined}
+        aria-label={hasData ? 'Download QR code as PNG' : undefined}
+        onKeyDown={(e) => {
+          if (hasData && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault()
+            handlePreviewClick()
+          }
+        }}
       >
         {/* Tight wrapper so the corner-stamp % coordinates line up with the canvas */}
         <div className="relative leading-[0] qr-pop">
@@ -73,6 +97,20 @@ export default function QrPreview() {
               <p className="text-sm text-slate-500">
                 Enter a URL or some text to generate your QR code.
               </p>
+            </div>
+          )}
+
+          {hasData && (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-slate-900/70 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"
+            >
+              <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-md">
+                <svg viewBox="0 0 16 16" className="w-4 h-4" aria-hidden="true">
+                  <path d="M8 1 V10 M4 7 L8 11 L12 7 M2 13 H14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                {downloading ? 'Downloading…' : 'Download PNG'}
+              </span>
             </div>
           )}
         </div>

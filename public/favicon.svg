@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#0f172a"/>
+  <rect width="64" height="64" rx="12" fill="#fe8c01"/>
   <!-- Three finder patterns -->
   <g fill="#fff">
     <path d="M10 10h16v16H10zM14 14v8h8v-8z" fill-rule="evenodd"/>
@@ -7,9 +7,9 @@
     <path d="M10 38h16v16H10zM14 42v8h8v-8z" fill-rule="evenodd"/>
   </g>
   <!-- Inner finder dots -->
-  <rect x="16" y="16" width="4" height="4" fill="#ea580c"/>
-  <rect x="44" y="16" width="4" height="4" fill="#ea580c"/>
-  <rect x="16" y="44" width="4" height="4" fill="#ea580c"/>
+  <rect x="16" y="16" width="4" height="4" fill="#0f172a"/>
+  <rect x="44" y="16" width="4" height="4" fill="#0f172a"/>
+  <rect x="16" y="44" width="4" height="4" fill="#0f172a"/>
   <!-- Data modules -->
   <g fill="#fff">
     <rect x="32" y="14" width="4" height="4"/>
@@ -23,5 +23,5 @@
     <rect x="40" y="48" width="4" height="4"/>
   </g>
   <!-- UNI SIM accent module -->
-  <rect x="48" y="40" width="4" height="4" fill="#ea580c"/>
+  <rect x="48" y="40" width="4" height="4" fill="#0f172a"/>
 </svg>
