@@ -77,7 +77,7 @@ export const CORNER_DOT_TYPES: { value: CornerDotType; label: string }[] = [
 export const DEFAULT_CONFIG: QrConfig = {
   name: '',
   data: 'https://www.unisim.co.uk',
-  size: 320,
+  size: 512,
   margin: 12,
   // Always highest correction so a centre logo never breaks scanning.
   ecLevel: 'H',
