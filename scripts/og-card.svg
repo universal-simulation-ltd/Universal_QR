@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fe8c01"/>
+      <stop offset="1" stop-color="#fbbf24"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Subtle corner glow -->
+  <circle cx="1050" cy="120" r="320" fill="#fe8c01" opacity="0.08"/>
+  <circle cx="120" cy="560" r="260" fill="#fe8c01" opacity="0.06"/>
+
+  <!-- ===== Left: text block ===== -->
+  <!-- Eyebrow / suite label -->
+  <text x="80" y="150" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" letter-spacing="3" fill="#fe8c01">UNIVERSAL APPS · UNI·SIM</text>
+
+  <!-- Title -->
+  <text x="78" y="258" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="92" font-weight="800" fill="#f8fafc">Universal QR</text>
+
+  <!-- Subtitle -->
+  <text x="80" y="332" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="40" font-weight="600" fill="#cbd5e1">Design branded QR codes</text>
+  <text x="80" y="384" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="40" font-weight="600" fill="#cbd5e1">— right in your browser.</text>
+
+  <!-- Feature chips -->
+  <g font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="24" font-weight="600">
+    <rect x="80" y="438" width="190" height="52" rx="26" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+    <text x="175" y="472" text-anchor="middle" fill="#e2e8f0">Custom colours</text>
+
+    <rect x="286" y="438" width="156" height="52" rx="26" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+    <text x="364" y="472" text-anchor="middle" fill="#e2e8f0">Your logo</text>
+
+    <rect x="458" y="438" width="120" height="52" rx="26" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+    <text x="518" y="472" text-anchor="middle" fill="#e2e8f0">Offline</text>
+  </g>
+
+  <!-- URL footer -->
+  <text x="80" y="556" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#94a3b8">opensource.unisim.co.uk/qr · Free &amp; open source</text>
+
+  <!-- ===== Right: QR mark ===== -->
+  <g transform="translate(792, 143)">
+    <!-- Card backing -->
+    <rect x="0" y="0" width="344" height="344" rx="40" fill="url(#accent)"/>
+    <!-- QR motif (scaled from favicon, viewBox 64 -> 280, offset 32) -->
+    <g transform="translate(32,32) scale(4.375)">
+      <!-- Three finder patterns -->
+      <g fill="#fff">
+        <path d="M10 10h16v16H10zM14 14v8h8v-8z" fill-rule="evenodd"/>
+        <path d="M38 10h16v16H38zM42 14v8h8v-8z" fill-rule="evenodd"/>
+        <path d="M10 38h16v16H10zM14 42v8h8v-8z" fill-rule="evenodd"/>
+      </g>
+      <!-- Inner finder dots -->
+      <rect x="16" y="16" width="4" height="4" fill="#0f172a"/>
+      <rect x="44" y="16" width="4" height="4" fill="#0f172a"/>
+      <rect x="16" y="44" width="4" height="4" fill="#0f172a"/>
+      <!-- Data modules -->
+      <g fill="#fff">
+        <rect x="32" y="14" width="4" height="4"/>
+        <rect x="32" y="22" width="4" height="4"/>
+        <rect x="32" y="32" width="4" height="4"/>
+        <rect x="40" y="32" width="4" height="4"/>
+        <rect x="48" y="32" width="4" height="4"/>
+        <rect x="32" y="40" width="4" height="4"/>
+        <rect x="40" y="40" width="4" height="4"/>
+        <rect x="48" y="48" width="4" height="4"/>
+        <rect x="40" y="48" width="4" height="4"/>
+      </g>
+      <!-- UNI SIM accent module -->
+      <rect x="48" y="40" width="4" height="4" fill="#0f172a"/>
+    </g>
+  </g>
+</svg>

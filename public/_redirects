@@ -17,6 +17,14 @@
 # Static files referenced from index.html / app code (BASE_URL-prefixed).
 /qr/favicon.svg          /favicon.svg          200
 /qr/unisim-icon.png      /unisim-icon.png      200
+/qr/og-image.png         /og-image.png         200
+/qr/icon-180.png         /icon-180.png         200
+/qr/icon-192.png         /icon-192.png         200
+/qr/icon-512.png         /icon-512.png         200
+
+# SEO crawler files.
+/qr/robots.txt           /robots.txt           200
+/qr/sitemap.xml          /sitemap.xml          200
 
 # SPA fallback — everything else under /qr/ serves the shell.
 /qr/*                    /index.html           200
