@@ -99,7 +99,15 @@ export const DEFAULT_CONFIG: QrConfig = {
   unisimMark: true
 }
 
-/** One-click starting points shown as a row of chips above the controls. */
+/** One-click starting points shown as a row of chips above the controls.
+ *
+ *  Every preset sets an explicit, opaque background alongside its module
+ *  colours. A preset patch is merged onto the user's current config, so if it
+ *  only specified foreground colours it could land dark-on-dark (e.g. the
+ *  default background is black) and leave the QR unscannable. Pinning the
+ *  background here guarantees each preset keeps a strong module↔background
+ *  contrast ratio — comfortably above what a scanner needs — no matter what the
+ *  user had selected before. */
 export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
   {
     name: 'Classic',
@@ -108,6 +116,8 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       cornerSquareType: 'square',
       cornerDotType: 'square',
       fgColor: '#000000',
+      bgColor: '#ffffff',
+      bgTransparent: false,
       useGradient: false,
       matchCornerColor: true
     }
@@ -119,6 +129,8 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       cornerSquareType: 'extra-rounded',
       cornerDotType: 'dot',
       fgColor: '#0f172a',
+      bgColor: '#ffffff',
+      bgTransparent: false,
       useGradient: false,
       matchCornerColor: true
     }
@@ -130,6 +142,8 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       cornerSquareType: 'dot',
       cornerDotType: 'dot',
       fgColor: '#1e293b',
+      bgColor: '#ffffff',
+      bgTransparent: false,
       useGradient: false,
       matchCornerColor: false,
       cornerColor: '#4f46e5'
@@ -145,6 +159,8 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       fgColor: '#4f46e5',
       gradientColor: '#9333ea',
       gradientRotation: 45,
+      bgColor: '#ffffff',
+      bgTransparent: false,
       matchCornerColor: true
     }
   },
@@ -158,6 +174,10 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       fgColor: '#ea580c',
       gradientColor: '#db2777',
       gradientRotation: 30,
+      // Warm modules sit on a deep dusk background — both gradient stops keep a
+      // ~4:1+ contrast here, far stronger than the ~3.7:1 they'd manage on white.
+      bgColor: '#1a1025',
+      bgTransparent: false,
       matchCornerColor: true
     }
   }
