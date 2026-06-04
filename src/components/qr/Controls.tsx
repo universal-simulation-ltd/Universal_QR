@@ -131,7 +131,7 @@ export default function Controls() {
       </Section>
 
       {/* ── Shape & size ────────────────────────────────────────────────── */}
-      <Section title="Shape &amp; size" desc="Module rounding, corner styling and dimensions.">
+      <Section title="Shape & size" desc="Module rounding, corner styling and dimensions.">
         <OptionRow
           label="Module style"
           value={config.dotType}
@@ -175,7 +175,7 @@ export default function Controls() {
       </Section>
 
       {/* ── Logo & branding ─────────────────────────────────────────────── */}
-      <Section title="Logo &amp; branding" desc="Drop your brand mark into the centre.">
+      <Section title="Logo & branding" desc="Drop your brand mark into the centre.">
         <input ref={fileRef} type="file" accept="image/*,.svg" hidden onChange={onLogoPick} />
         {config.logoDataUrl ? (
           <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-slate-50">
@@ -256,10 +256,14 @@ export default function Controls() {
 
 // ── Reusable field primitives ──────────────────────────────────────────────
 
+// `title` is rendered as plain text. It used to use dangerouslySetInnerHTML to
+// decode an `&amp;` entity in a couple of titles — that's an XSS footgun the
+// moment anyone passes dynamic text, for zero benefit. Titles are now literal
+// strings with a real "&".
 function Section({ title, desc, children }: { title: string; desc?: string; children: ReactNode }) {
   return (
     <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
-      <h2 className="font-semibold text-slate-900" dangerouslySetInnerHTML={{ __html: title }} />
+      <h2 className="font-semibold text-slate-900">{title}</h2>
       {desc && <p className="mt-0.5 mb-3 text-xs text-slate-500">{desc}</p>}
       <div className={desc ? 'space-y-3' : 'mt-3 space-y-3'}>{children}</div>
     </section>
