@@ -5,9 +5,13 @@ import { VitePWA } from 'vite-plugin-pwa'
 import pkg from './package.json' with { type: 'json' }
 
 // Universal QR is served at opensource.unisim.co.uk/qr in production.
-// `base` + PWA scope derive from Vite's `mode`; local dev stays `/`.
+// `base` + PWA scope derive from Vite's `mode`; local dev stays `/`. The
+// `desktop` mode targets the Electron build, which loads index.html over
+// `file://`, so assets must resolve relative to it (`./`) and the PWA service
+// worker is skipped (it cannot register under a `file://` origin).
 export default defineConfig(({ mode }) => {
-  const BASE_PATH = mode === 'production' ? '/qr/' : '/'
+  const isDesktop = mode === 'desktop'
+  const BASE_PATH = isDesktop ? './' : mode === 'production' ? '/qr/' : '/'
   return {
     base: BASE_PATH,
     define: {
@@ -26,7 +30,9 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(),
-      VitePWA({
+      // The PWA service worker is for the hosted web app only — under Electron's
+      // `file://` origin it cannot register and is unnecessary, so skip it.
+      ...(isDesktop ? [] : [VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'og-image.png'],
         manifest: {
@@ -50,7 +56,7 @@ export default defineConfig(({ mode }) => {
           navigateFallback: `${BASE_PATH}index.html`,
         },
         devOptions: { enabled: false }
-      })
+      })]),
     ]
   }
 })
