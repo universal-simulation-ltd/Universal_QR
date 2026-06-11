@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import Controls from './Controls'
 import QrPreview from './QrPreview'
-import SaveToAccount from './SaveToAccount'
 import { useQrStore, type StudioMode } from '../../stores/qrStore'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
 import type { ExportFormat } from '../../lib/qr'
@@ -112,8 +111,6 @@ export default function QrStudio() {
                     ? 'Copy not supported — use Download'
                     : 'Copy PNG to clipboard'}
               </button>
-
-              <SaveToAccount disabled={!hasData} />
 
               <p className="text-xs text-slate-500 text-center">
                 Always scan-test before printing at small sizes.

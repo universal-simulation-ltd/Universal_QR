@@ -11,7 +11,6 @@ export default function App() {
       <UniversalAppsNavBar
         product="qr"
         productLogo={<ProductLogo />}
-        productHomeHref={import.meta.env.BASE_URL}
         fileMenu={<AppMenu />}
         suiteSwitcherIconSrc={`${import.meta.env.BASE_URL}unisim-icon.png`}
       />

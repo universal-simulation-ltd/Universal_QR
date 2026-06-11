@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { useQrStore } from '../../stores/qrStore'
 import {
   CORNER_DOT_TYPES,
@@ -43,13 +43,7 @@ export default function Controls() {
           onChange={(v) => update({ name: v })}
           placeholder="My QR code"
         />
-        <TextField
-          label="URL or text"
-          value={config.data}
-          onChange={(v) => update({ data: v })}
-          placeholder="https://example.com"
-          type="url"
-        />
+        <ContentBuilder data={config.data} update={update} />
       </Section>
 
       {/* ── Presets ─────────────────────────────────────────────────────── */}
@@ -441,6 +435,171 @@ function OptionRow({
           </button>
         ))}
       </div>
+    </div>
+  )
+}
+
+// ── Content-type builder ──────────────────────────────────────────────────
+// The QR encodes a single string (config.data). For anything richer than a
+// link we compose the standard QR payload (Wi-Fi, mailto:, tel:, SMSTO:, vCard,
+// geo:, VEVENT) from a few fields and write the result into config.data.
+const CONTENT_KINDS = [
+  { id: 'text', label: 'Link / text' },
+  { id: 'wifi', label: 'Wi-Fi' },
+  { id: 'email', label: 'Email' },
+  { id: 'phone', label: 'Phone' },
+  { id: 'sms', label: 'SMS' },
+  { id: 'vcard', label: 'Contact' },
+  { id: 'geo', label: 'Location' },
+  { id: 'event', label: 'Event' }
+] as const
+type ContentKind = (typeof CONTENT_KINDS)[number]['id']
+
+// Escape the Wi-Fi/vCard reserved characters: \ ; , : "
+const escMeca = (s: string) => (s || '').replace(/([\\;,:"])/g, '\\$1')
+// datetime-local "YYYY-MM-DDTHH:MM" → iCal "YYYYMMDDTHHMMSS"
+const icalDate = (s: string) => {
+  if (!s) return ''
+  const c = s.replace(/[-:]/g, '')
+  return c.length === 13 ? `${c}00` : c
+}
+
+function composeContent(kind: ContentKind, f: Record<string, string>): string {
+  switch (kind) {
+    case 'wifi': {
+      if (!f.ssid) return ''
+      const auth = f.password ? 'WPA' : 'nopass'
+      return `WIFI:T:${auth};S:${escMeca(f.ssid)};${f.password ? `P:${escMeca(f.password)};` : ''}${f.hidden === 'true' ? 'H:true;' : ''};`
+    }
+    case 'email': {
+      if (!f.to) return ''
+      const params: string[] = []
+      if (f.subject) params.push(`subject=${encodeURIComponent(f.subject)}`)
+      if (f.body) params.push(`body=${encodeURIComponent(f.body)}`)
+      return `mailto:${f.to.trim()}${params.length ? `?${params.join('&')}` : ''}`
+    }
+    case 'phone':
+      return f.phone ? `tel:${f.phone.replace(/\s+/g, '')}` : ''
+    case 'sms': {
+      if (!f.phone) return ''
+      return `SMSTO:${f.phone.replace(/\s+/g, '')}:${f.message || ''}`
+    }
+    case 'vcard': {
+      if (!f.firstName && !f.lastName && !f.phone2 && !f.email2) return ''
+      const full = [f.firstName, f.lastName].filter(Boolean).join(' ')
+      const lines = ['BEGIN:VCARD', 'VERSION:3.0', `N:${f.lastName || ''};${f.firstName || ''}`, `FN:${full}`]
+      if (f.org) lines.push(`ORG:${f.org}`)
+      if (f.phone2) lines.push(`TEL:${f.phone2}`)
+      if (f.email2) lines.push(`EMAIL:${f.email2}`)
+      if (f.url) lines.push(`URL:${f.url}`)
+      lines.push('END:VCARD')
+      return lines.join('\n')
+    }
+    case 'geo':
+      return f.lat && f.lng ? `geo:${f.lat.trim()},${f.lng.trim()}` : ''
+    case 'event': {
+      if (!f.title && !f.start) return ''
+      const lines = ['BEGIN:VEVENT', `SUMMARY:${f.title || ''}`]
+      if (f.location) lines.push(`LOCATION:${f.location}`)
+      if (f.start) lines.push(`DTSTART:${icalDate(f.start)}`)
+      if (f.end) lines.push(`DTEND:${icalDate(f.end)}`)
+      if (f.desc) lines.push(`DESCRIPTION:${f.desc}`)
+      lines.push('END:VEVENT')
+      return lines.join('\n')
+    }
+    default:
+      return ''
+  }
+}
+
+function ContentBuilder({ data, update }: { data: string; update: (patch: { data: string }) => void }) {
+  const [kind, setKind] = useState<ContentKind>('text')
+  const [f, setF] = useState<Record<string, string>>({})
+
+  function setField(key: string, val: string) {
+    const next = { ...f, [key]: val }
+    setF(next)
+    update({ data: composeContent(kind, next) })
+  }
+  function changeKind(k: ContentKind) {
+    setKind(k)
+    if (k !== 'text') update({ data: composeContent(k, f) })
+  }
+
+  return (
+    <div className="space-y-3">
+      <OptionRow
+        label="Type"
+        value={kind}
+        options={CONTENT_KINDS as unknown as { value: string; label: string }[]}
+        onChange={(v) => changeKind(v as ContentKind)}
+      />
+
+      {kind === 'text' && (
+        <TextField label="URL or text" value={data} onChange={(v) => update({ data: v })} placeholder="https://example.com" type="url" />
+      )}
+
+      {kind === 'wifi' && (
+        <>
+          <TextField label="Network name (SSID)" value={f.ssid || ''} onChange={(v) => setField('ssid', v)} placeholder="MyWiFi" />
+          <TextField label="Password" value={f.password || ''} onChange={(v) => setField('password', v)} placeholder="leave blank if open" />
+          <label className="flex items-center gap-2 text-sm text-slate-600">
+            <input type="checkbox" checked={f.hidden === 'true'} onChange={(e) => setField('hidden', e.target.checked ? 'true' : '')} />
+            Hidden network
+          </label>
+        </>
+      )}
+
+      {kind === 'email' && (
+        <>
+          <TextField label="To" value={f.to || ''} onChange={(v) => setField('to', v)} placeholder="name@example.com" type="email" />
+          <TextField label="Subject" value={f.subject || ''} onChange={(v) => setField('subject', v)} placeholder="Optional" />
+          <TextField label="Message" value={f.body || ''} onChange={(v) => setField('body', v)} placeholder="Optional" />
+        </>
+      )}
+
+      {kind === 'phone' && (
+        <TextField label="Phone number" value={f.phone || ''} onChange={(v) => setField('phone', v)} placeholder="+44 7700 900000" type="tel" />
+      )}
+
+      {kind === 'sms' && (
+        <>
+          <TextField label="Phone number" value={f.phone || ''} onChange={(v) => setField('phone', v)} placeholder="+44 7700 900000" type="tel" />
+          <TextField label="Message" value={f.message || ''} onChange={(v) => setField('message', v)} placeholder="Optional pre-filled text" />
+        </>
+      )}
+
+      {kind === 'vcard' && (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            <TextField label="First name" value={f.firstName || ''} onChange={(v) => setField('firstName', v)} placeholder="Jane" />
+            <TextField label="Last name" value={f.lastName || ''} onChange={(v) => setField('lastName', v)} placeholder="Doe" />
+          </div>
+          <TextField label="Organisation" value={f.org || ''} onChange={(v) => setField('org', v)} placeholder="Optional" />
+          <TextField label="Phone" value={f.phone2 || ''} onChange={(v) => setField('phone2', v)} placeholder="+44 7700 900000" type="tel" />
+          <TextField label="Email" value={f.email2 || ''} onChange={(v) => setField('email2', v)} placeholder="name@example.com" type="email" />
+          <TextField label="Website" value={f.url || ''} onChange={(v) => setField('url', v)} placeholder="https://example.com" type="url" />
+        </>
+      )}
+
+      {kind === 'geo' && (
+        <div className="grid grid-cols-2 gap-3">
+          <TextField label="Latitude" value={f.lat || ''} onChange={(v) => setField('lat', v)} placeholder="51.5074" />
+          <TextField label="Longitude" value={f.lng || ''} onChange={(v) => setField('lng', v)} placeholder="-0.1278" />
+        </div>
+      )}
+
+      {kind === 'event' && (
+        <>
+          <TextField label="Title" value={f.title || ''} onChange={(v) => setField('title', v)} placeholder="Team meeting" />
+          <TextField label="Location" value={f.location || ''} onChange={(v) => setField('location', v)} placeholder="Optional" />
+          <div className="grid grid-cols-2 gap-3">
+            <TextField label="Starts" value={f.start || ''} onChange={(v) => setField('start', v)} type="datetime-local" />
+            <TextField label="Ends" value={f.end || ''} onChange={(v) => setField('end', v)} type="datetime-local" />
+          </div>
+          <TextField label="Description" value={f.desc || ''} onChange={(v) => setField('desc', v)} placeholder="Optional" />
+        </>
+      )}
     </div>
   )
 }
