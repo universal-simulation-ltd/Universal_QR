@@ -69,6 +69,31 @@ npm run typecheck  # type-check only
 The app is a single static bundle. In production it's served under `/qr/` (see
 `vite.config.ts` and `public/_redirects`); local dev runs at the root.
 
+## Desktop app (Windows)
+
+The same client-side app can be packaged as a native desktop app with
+[Electron](https://www.electronjs.org/). The Electron main process lives in
+[`electron/main.cjs`](electron/main.cjs) and loads the built bundle; the
+`desktop` Vite mode builds with a relative `base` (`./`) and without the PWA
+service worker so assets resolve over `file://`.
+
+```sh
+npm run build:desktop   # build the web bundle for Electron (dist/)
+npm run electron        # run the packaged-style app against that build
+npm run dist:win        # build + produce a Windows installer in release/
+```
+
+`npm run dist:win` emits an NSIS `.exe` installer under `release/`. **It must
+run on Windows** (or Linux/macOS with Wine) because electron-builder packages a
+platform-native binary; cross-building from a plain Linux host won't produce a
+working Windows `.exe`. The first run downloads the Electron binary (~100 MB).
+
+To cut a release, push a `v*` tag — the
+[`build-windows`](.github/workflows/build-windows.yml) workflow builds the
+installer on `windows-latest` and attaches it to the matching GitHub Release.
+Manual `workflow_dispatch` also works for ad-hoc builds; the installer is
+uploaded as a workflow artifact in that case.
+
 ## License
 
 [MIT](LICENSE) © 2026 James Markey / Universal Simulation Ltd
