@@ -531,7 +531,7 @@ function ContentBuilder({ data, update }: { data: string; update: (patch: { data
       <OptionRow
         label="Type"
         value={kind}
-        options={CONTENT_KINDS as unknown as { value: string; label: string }[]}
+        options={CONTENT_KINDS.map((k) => ({ value: k.id, label: k.label }))}
         onChange={(v) => changeKind(v as ContentKind)}
       />
 
