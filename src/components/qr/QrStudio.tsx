@@ -1,10 +1,25 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Controls from './Controls'
 import QrPreview from './QrPreview'
 import SavePanel from './SavePanel'
 import { useQrStore, type StudioMode } from '../../stores/qrStore'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
-import type { ExportFormat } from '../../lib/qr'
+import { DEFAULT_CONFIG, PRESETS, type ExportFormat, type QrConfig } from '../../lib/qr'
+
+// Which config keys belong to the Branding and Advanced tabs (used to show
+// the orange "changed" indicator on the tab).
+const BRANDING_KEYS: (keyof QrConfig)[] = [
+  'fgColor', 'bgColor', 'bgTransparent', 'useGradient', 'gradientColor',
+  'gradientRotation', 'matchCornerColor', 'cornerColor',
+  'logoDataUrl', 'logoSize', 'logoMargin', 'hideBackgroundDots', 'unisimMark',
+]
+const ADVANCED_KEYS: (keyof QrConfig)[] = [
+  'dotType', 'cornerSquareType', 'cornerDotType', 'size', 'margin',
+]
+
+function hasChangedFrom(config: QrConfig, keys: (keyof QrConfig)[]): boolean {
+  return keys.some((k) => JSON.stringify(config[k]) !== JSON.stringify(DEFAULT_CONFIG[k]))
+}
 
 const FORMATS: { value: ExportFormat; label: string }[] = [
   { value: 'png', label: 'PNG' },
@@ -17,11 +32,14 @@ export default function QrStudio() {
   const config = useQrStore((s) => s.config)
   const mode = useQrStore((s) => s.mode)
   const setMode = useQrStore((s) => s.setMode)
+  const reset = useQrStore((s) => s.reset)
   const [format, setFormat] = useState<ExportFormat>('png')
   const [busy, setBusy] = useState(false)
   const [copied, setCopied] = useState<'idle' | 'ok' | 'fail'>('idle')
 
   const hasData = config.data.trim().length > 0
+  const brandingChanged = hasChangedFrom(config, BRANDING_KEYS)
+  const advancedChanged = hasChangedFrom(config, ADVANCED_KEYS)
 
   async function onDownload() {
     if (!hasData || busy) return
@@ -59,8 +77,26 @@ export default function QrStudio() {
         <div className="mt-6 grid lg:grid-cols-[minmax(0,1fr)_360px] gap-6 lg:gap-10 items-start">
           {/* Controls */}
           <div className="order-1 lg:order-1 space-y-4">
-            <ModeToggle mode={mode} setMode={setMode} />
-            {mode === 'simple' ? <SimplePanel onAdvanced={() => setMode('advanced')} /> : <Controls />}
+            <div className="flex items-center gap-3 flex-wrap">
+              <ModeToggle
+                mode={mode}
+                setMode={setMode}
+                brandingChanged={brandingChanged}
+                advancedChanged={advancedChanged}
+              />
+              {(brandingChanged || advancedChanged) && (
+                <button
+                  type="button"
+                  onClick={reset}
+                  className="text-xs font-medium text-slate-500 hover:text-orange-600 border border-slate-200 px-3 py-1.5 rounded-lg hover:border-orange-300 transition-colors"
+                >
+                  Reset all
+                </button>
+              )}
+            </div>
+            {mode === 'simple' && <SimplePanel onBranding={() => setMode('branding')} onAdvanced={() => setMode('advanced')} />}
+            {mode === 'branding' && <BrandingPanel />}
+            {mode === 'advanced' && <Controls />}
           </div>
 
           {/* Preview + export */}
@@ -126,31 +162,58 @@ export default function QrStudio() {
   )
 }
 
-// Segmented Simple / Advanced switch.
-function ModeToggle({ mode, setMode }: { mode: StudioMode; setMode: (m: StudioMode) => void }) {
+// Three-tab Simple / Branding / Advanced switcher.
+// Branding and Advanced tabs show an orange ring if their settings have been
+// changed from the defaults, so the user can see at a glance what's been tweaked.
+function ModeToggle({
+  mode,
+  setMode,
+  brandingChanged,
+  advancedChanged,
+}: {
+  mode: StudioMode
+  setMode: (m: StudioMode) => void
+  brandingChanged: boolean
+  advancedChanged: boolean
+}) {
+  const tabs: { id: StudioMode; label: string; changed?: boolean }[] = [
+    { id: 'simple', label: 'Simple' },
+    { id: 'branding', label: 'Branding', changed: brandingChanged },
+    { id: 'advanced', label: 'Advanced', changed: advancedChanged },
+  ]
   return (
     <div className="inline-flex p-1 bg-slate-200/70 rounded-xl" role="tablist" aria-label="Editor mode">
-      {(['simple', 'advanced'] as const).map((m) => (
+      {tabs.map((t) => (
         <button
-          key={m}
+          key={t.id}
           type="button"
           role="tab"
-          aria-selected={mode === m}
-          onClick={() => setMode(m)}
-          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-            mode === m ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
-          }`}
+          aria-selected={mode === t.id}
+          onClick={() => setMode(t.id)}
+          className={`relative px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            mode === t.id
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-600 hover:text-slate-900'
+          } ${t.changed && mode !== t.id ? 'ring-2 ring-orange-400' : ''}`}
         >
-          {m === 'simple' ? 'Simple' : 'Advanced'}
+          {t.label}
+          {t.changed && (
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-500 ring-2 ring-white" aria-hidden="true" />
+          )}
         </button>
       ))}
     </div>
   )
 }
 
-// Simple mode: just the website address. Everything else uses sensible
-// defaults (rounded modules, UNI·SIM icon in the centre).
-function SimplePanel({ onAdvanced }: { onAdvanced: () => void }) {
+// Simple mode: just paste a URL and go.
+function SimplePanel({
+  onBranding,
+  onAdvanced,
+}: {
+  onBranding: () => void
+  onAdvanced: () => void
+}) {
   const data = useQrStore((s) => s.config.data)
   const update = useQrStore((s) => s.update)
   return (
@@ -171,16 +234,187 @@ function SimplePanel({ onAdvanced }: { onAdvanced: () => void }) {
         className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500"
       />
       <p className="mt-3 text-xs text-slate-500">
-        Want custom colours, shapes or your own logo?{' '}
+        Want to add your logo and brand colours?{' '}
+        <button
+          type="button"
+          onClick={onBranding}
+          className="font-medium text-orange-600 hover:text-orange-700 underline-offset-2 hover:underline"
+        >
+          Branding
+        </button>
+        {' '}— or for full control:{' '}
         <button
           type="button"
           onClick={onAdvanced}
           className="font-medium text-orange-600 hover:text-orange-700 underline-offset-2 hover:underline"
         >
-          Switch to Advanced
+          Advanced
         </button>
         .
       </p>
     </section>
+  )
+}
+
+// Branding mode: colours, gradient and logo only — the most common customisation.
+function BrandingPanel() {
+  const config = useQrStore((s) => s.config)
+  const update = useQrStore((s) => s.update)
+  const applyPatch = useQrStore((s) => s.applyPatch)
+  const setLogo = useQrStore((s) => s.setLogo)
+  const clearLogo = useQrStore((s) => s.clearLogo)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  function onLogoPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      alert('Please choose an image file (PNG, JPG, or SVG).')
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (typeof reader.result === 'string') setLogo(reader.result)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* URL input so users don't have to switch back to Simple */}
+      <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
+        <label htmlFor="branding-url" className="block font-semibold text-slate-900">Website address</label>
+        <p className="mt-0.5 mb-3 text-sm text-slate-500">The link your QR code opens.</p>
+        <input
+          id="branding-url"
+          type="url"
+          inputMode="url"
+          value={config.data}
+          onChange={(e) => update({ data: e.target.value })}
+          placeholder="https://example.com"
+          className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500"
+        />
+      </section>
+
+      {/* Style presets */}
+      <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
+        <h2 className="font-semibold text-slate-900">Style presets</h2>
+        <p className="mt-0.5 mb-3 text-xs text-slate-500">A starting point — tweak the colours and logo below.</p>
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map((p) => (
+            <button
+              key={p.name}
+              type="button"
+              onClick={() => applyPatch(p.patch)}
+              className="px-3 py-1.5 rounded-full text-sm font-medium border border-slate-200 bg-white hover:border-orange-400 hover:bg-orange-50 hover:text-orange-700 transition-colors"
+            >
+              {p.name}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Colours */}
+      <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
+        <h2 className="font-semibold text-slate-900">Colours</h2>
+        <div className="mt-3 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <BrandSwatch label="Modules" value={config.fgColor} onChange={(v) => update({ fgColor: v })} />
+            <BrandSwatch label="Background" value={config.bgColor} onChange={(v) => update({ bgColor: v })} disabled={config.bgTransparent} />
+          </div>
+          <BrandToggle label="Transparent background" checked={config.bgTransparent} onChange={(v) => update({ bgTransparent: v })} hint="Export a PNG/SVG with no background fill." />
+          <BrandToggle label="Gradient modules" checked={config.useGradient} onChange={(v) => update({ useGradient: v })} />
+          {config.useGradient && (
+            <div className="pl-4 space-y-3 border-l-2 border-orange-100">
+              <BrandSwatch label="Gradient end" value={config.gradientColor} onChange={(v) => update({ gradientColor: v })} />
+              <BrandRange label="Gradient angle" value={config.gradientRotation} min={0} max={360} step={5} suffix="°" onChange={(v) => update({ gradientRotation: v })} />
+            </div>
+          )}
+          <BrandToggle label="Two-tone corners" checked={!config.matchCornerColor} onChange={(v) => update({ matchCornerColor: !v })} hint="Give the three finder corners their own colour." />
+          {!config.matchCornerColor && (
+            <div className="pl-4">
+              <BrandSwatch label="Corner colour" value={config.cornerColor} onChange={(v) => update({ cornerColor: v })} />
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Logo & branding */}
+      <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
+        <h2 className="font-semibold text-slate-900">Logo & branding</h2>
+        <div className="mt-3 space-y-3">
+          <input ref={fileRef} type="file" accept="image/*,.svg" hidden onChange={onLogoPick} />
+          {config.logoDataUrl ? (
+            <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-slate-50">
+              <img src={config.logoDataUrl} alt="Logo preview" className="w-12 h-12 rounded-lg object-contain bg-white ring-1 ring-slate-200 p-1" />
+              <div className="flex-1 text-sm text-slate-600">Custom logo added</div>
+              <button type="button" onClick={() => fileRef.current?.click()} className="text-xs font-medium text-slate-600 hover:text-orange-700 px-2 py-1">Replace</button>
+              <button type="button" onClick={clearLogo} className="text-xs font-medium text-red-600 hover:text-red-700 px-2 py-1">Remove</button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 text-sm font-medium text-slate-600 hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-700 transition-colors"
+            >
+              <span aria-hidden="true">🖼</span> Upload a logo (PNG, JPG, SVG)
+            </button>
+          )}
+          {config.logoDataUrl && (
+            <>
+              <BrandRange label="Logo size" value={Math.round(config.logoSize * 100)} min={10} max={50} step={1} suffix="%" onChange={(v) => update({ logoSize: v / 100 })} />
+              <BrandRange label="Logo padding" value={config.logoMargin} min={0} max={24} step={1} suffix=" px" onChange={(v) => update({ logoMargin: v })} />
+            </>
+          )}
+          <BrandToggle label="Clear modules behind logo" checked={config.hideBackgroundDots} onChange={(v) => update({ hideBackgroundDots: v })} />
+          <BrandToggle
+            label="Include UNI·SIM mark"
+            checked={config.unisimMark}
+            onChange={(v) => update({ unisimMark: v })}
+            hint={config.logoDataUrl ? 'Adds a small UNI·SIM badge in the bottom-right corner.' : 'Shown in the centre until you add your own logo.'}
+          />
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function BrandSwatch({ label, value, onChange, disabled }: { label: string; value: string; onChange: (v: string) => void; disabled?: boolean }) {
+  return (
+    <div className={disabled ? 'opacity-40 pointer-events-none' : ''}>
+      <label className="block text-sm font-medium text-slate-700 mb-1.5">{label}</label>
+      <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-slate-300">
+        <input type="color" value={value} onChange={(e) => onChange(e.target.value)} className="w-8 h-8 shrink-0" aria-label={label} />
+        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} aria-label={`${label} hex value`} className="w-full min-w-0 text-sm font-mono uppercase text-slate-700 focus:outline-none" />
+      </div>
+    </div>
+  )
+}
+
+function BrandToggle({ label, checked, onChange, hint }: { label: string; checked: boolean; onChange: (v: boolean) => void; hint?: string }) {
+  return (
+    <div>
+      <label className="flex items-center justify-between gap-3 cursor-pointer">
+        <span className="text-sm font-medium text-slate-700">{label}</span>
+        <button type="button" role="switch" aria-checked={checked ? 'true' : 'false'} onClick={() => onChange(!checked)}
+          className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${checked ? 'bg-orange-600' : 'bg-slate-300'}`}>
+          <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+        </button>
+      </label>
+      {hint && <p className="mt-1 text-xs text-slate-500 pr-14">{hint}</p>}
+    </div>
+  )
+}
+
+function BrandRange({ label, value, min, max, step, suffix, onChange }: { label: string; value: number; min: number; max: number; step: number; suffix?: string; onChange: (v: number) => void }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <label className="block text-sm font-medium text-slate-700">{label}</label>
+        <span className="text-xs font-medium text-slate-500 tabular-nums">{value}{suffix}</span>
+      </div>
+      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} aria-label={label} className="w-full accent-orange-600" />
+    </div>
   )
 }

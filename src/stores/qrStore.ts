@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { DEFAULT_CONFIG, type QrConfig } from '../lib/qr'
 
-export type StudioMode = 'simple' | 'advanced'
+export type StudioMode = 'simple' | 'branding' | 'advanced'
 
 interface QrState {
   config: QrConfig
