@@ -50,6 +50,26 @@ function drawCornerStamp(
   ctx.drawImage(mark, x + pad, y + pad, badge - 2 * pad, badge - 2 * pad)
 }
 
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(new Error('Failed to read image'))
+    reader.readAsDataURL(blob)
+  })
+}
+
+/** Render `config` to a small PNG data URL for a saved-design gallery thumbnail.
+ *  Scales the quiet-zone margin down with the size so the thumbnail framing
+ *  matches the full-size preview. */
+export async function renderThumbnailDataUrl(config: QrConfig, size = 160): Promise<string> {
+  const margin = Math.max(2, Math.round((config.margin / config.size) * size))
+  const qr = new QRCodeStyling(buildQrOptions({ ...config, size, margin }, 'canvas'))
+  const raw = (await qr.getRawData('png')) as Blob | null
+  if (!raw) throw new Error('Could not render thumbnail')
+  return blobToDataUrl(raw)
+}
+
 function triggerDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
