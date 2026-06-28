@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Controls from './Controls'
 import QrPreview from './QrPreview'
+import SavePanel from './SavePanel'
 import { useQrStore, type StudioMode } from '../../stores/qrStore'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
 import type { ExportFormat } from '../../lib/qr'
@@ -116,6 +117,8 @@ export default function QrStudio() {
                 Always scan-test before printing at small sizes.
               </p>
             </div>
+
+            <SavePanel />
           </div>
         </div>
       </div>
