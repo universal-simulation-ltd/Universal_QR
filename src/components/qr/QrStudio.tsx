@@ -94,7 +94,7 @@ export default function QrStudio() {
                 </button>
               )}
             </div>
-            {mode === 'simple' && <SimplePanel onBranding={() => setMode('branding')} onAdvanced={() => setMode('advanced')} />}
+            {mode === 'simple' && <SimplePanel />}
             {mode === 'branding' && <BrandingPanel />}
             {mode === 'advanced' && <Controls />}
           </div>
@@ -207,13 +207,7 @@ function ModeToggle({
 }
 
 // Simple mode: just paste a URL and go.
-function SimplePanel({
-  onBranding,
-  onAdvanced,
-}: {
-  onBranding: () => void
-  onAdvanced: () => void
-}) {
+function SimplePanel() {
   const data = useQrStore((s) => s.config.data)
   const update = useQrStore((s) => s.update)
   return (
@@ -233,25 +227,6 @@ function SimplePanel({
         placeholder="https://example.com"
         className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500"
       />
-      <p className="mt-3 text-xs text-slate-500">
-        Want to add your logo and brand colours?{' '}
-        <button
-          type="button"
-          onClick={onBranding}
-          className="font-medium text-orange-600 hover:text-orange-700 underline-offset-2 hover:underline"
-        >
-          Branding
-        </button>
-        {' '}— or for full control:{' '}
-        <button
-          type="button"
-          onClick={onAdvanced}
-          className="font-medium text-orange-600 hover:text-orange-700 underline-offset-2 hover:underline"
-        >
-          Advanced
-        </button>
-        .
-      </p>
     </section>
   )
 }
