@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useUniversal, useUser, useCredits, useHostedUploads, type HostedUpload } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { storeCurrentQr, deleteHostedQr, openHostedQr } from '../../lib/hostedStore'
+import SavePanel from './SavePanel'
 
 const SIGNIN_URL = 'https://app.unisim.co.uk/login'
 const GET_TOKENS_URL = 'https://www.unisim.co.uk/subscription.html'
@@ -102,16 +103,8 @@ export default function HostedStoreDialog() {
         </div>
 
         <div className="space-y-4 p-5">
-          {/* Free local option. */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-slate-900">Save to this device</span>
-              <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-600">Free</span>
-            </div>
-            <p className="mt-1 text-xs text-slate-500">
-              Use "Save to this device" below the preview to keep designs in this browser's gallery — free, but only on this device.
-            </p>
-          </div>
+          {/* Free local option — the real save-to-device gallery. */}
+          <SavePanel />
 
           {/* Paid hosted option. */}
           <div className="rounded-xl border border-orange-200 bg-white p-4">
