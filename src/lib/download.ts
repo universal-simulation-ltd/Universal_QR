@@ -88,9 +88,13 @@ const MIME: Record<Exclude<ExportFormat, 'svg'>, string> = {
   webp: 'image/webp'
 }
 
-/** Render `config` to `format` and start a browser download. Bakes the optional
- *  corner UNI·SIM stamp into the output so it matches the live preview. */
-export async function downloadQr(config: QrConfig, format: ExportFormat): Promise<void> {
+/** Render `config` to `format` as a Blob (the optional corner UNI·SIM stamp
+ *  baked in so it matches the live preview), plus the download filename.
+ *  Shared by `downloadQr` and the "Hosted by UNI·SIM" cloud store. */
+export async function renderQrBlob(
+  config: QrConfig,
+  format: ExportFormat,
+): Promise<{ blob: Blob; fileName: string; contentType: string }> {
   const stem = fileStem(qrDisplayName(config))
 
   if (format === 'svg') {
@@ -106,8 +110,7 @@ export async function downloadQr(config: QrConfig, format: ExportFormat): Promis
       const img = `<image href="${UNISIM_MARK}" x="${x + pad}" y="${y + pad}" width="${badge - 2 * pad}" height="${badge - 2 * pad}" />`
       svg = svg.replace('</svg>', `${tile}${img}</svg>`)
     }
-    triggerDownload(new Blob([svg], { type: 'image/svg+xml' }), `${stem}.svg`)
-    return
+    return { blob: new Blob([svg], { type: 'image/svg+xml' }), fileName: `${stem}.svg`, contentType: 'image/svg+xml' }
   }
 
   // Raster: render to a clean PNG, then composite onto our own canvas so we can
@@ -145,7 +148,13 @@ export async function downloadQr(config: QrConfig, format: ExportFormat): Promis
       0.92
     )
   )
-  triggerDownload(blob, `${stem}.${format}`)
+  return { blob, fileName: `${stem}.${format}`, contentType: MIME[format] }
+}
+
+/** Render `config` to `format` and start a browser download. */
+export async function downloadQr(config: QrConfig, format: ExportFormat): Promise<void> {
+  const { blob, fileName } = await renderQrBlob(config, format)
+  triggerDownload(blob, fileName)
 }
 
 /** Copy the rendered QR (PNG, with corner stamp) to the clipboard. Returns

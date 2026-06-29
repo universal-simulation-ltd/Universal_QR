@@ -16,6 +16,9 @@ interface QrState {
   setLogo: (dataUrl: string) => void
   clearLogo: () => void
   reset: () => void
+  /** "Hosted by UNI·SIM" cloud-store dialog open state (not persisted). */
+  hostedStoreOpen: boolean
+  setHostedStoreOpen: (open: boolean) => void
 }
 
 export const useQrStore = create<QrState>()(
@@ -28,11 +31,15 @@ export const useQrStore = create<QrState>()(
       applyPatch: (patch) => set((s) => ({ config: { ...s.config, ...patch } })),
       setLogo: (dataUrl) => set((s) => ({ config: { ...s.config, logoDataUrl: dataUrl } })),
       clearLogo: () => set((s) => ({ config: { ...s.config, logoDataUrl: null } })),
-      reset: () => set((s) => ({ config: DEFAULT_CONFIG, mode: s.mode }))
+      reset: () => set((s) => ({ config: DEFAULT_CONFIG, mode: s.mode })),
+      hostedStoreOpen: false,
+      setHostedStoreOpen: (hostedStoreOpen) => set({ hostedStoreOpen })
     }),
     {
       name: 'universal-qr:config',
-      version: 1
+      version: 1,
+      // Only the design persists — not the transient dialog flag.
+      partialize: (s) => ({ config: s.config, mode: s.mode })
     }
   )
 )
