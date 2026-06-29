@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react'
 import Controls from './Controls'
 import QrPreview from './QrPreview'
-import SavePanel from './SavePanel'
 import HostedStoreDialog from './HostedStoreDialog'
 import { useQrStore, type StudioMode } from '../../stores/qrStore'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
@@ -156,18 +155,15 @@ export default function QrStudio() {
               </p>
             </div>
 
-            <SavePanel />
-
             <button
               type="button"
               onClick={() => setHostedStoreOpen(true)}
-              disabled={!hasData}
-              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-orange-300 bg-white text-sm font-medium text-orange-700 hover:bg-orange-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold shadow-sm hover:bg-black transition-colors"
             >
               <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M4 13v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2M10 3v9m0-9L7 6m3-3 3 3" />
               </svg>
-              Back up online (Hosted by UNI·SIM)
+              Back up…
             </button>
           </div>
         </div>
