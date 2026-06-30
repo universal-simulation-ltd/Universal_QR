@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useUniversal, useUser, useCredits, useHostedUploads, type HostedUpload } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { storeCurrentQr, deleteHostedQr, openHostedQr } from '../../lib/hostedStore'
+import { downloadBackup, readBackupFile } from '../../lib/qrBackup'
 import SavePanel from './SavePanel'
 
 const SIGNIN_URL = 'https://app.unisim.co.uk/login'
@@ -15,6 +16,9 @@ export default function HostedStoreDialog() {
   const open = useQrStore((s) => s.hostedStoreOpen)
   const setOpen = useQrStore((s) => s.setHostedStoreOpen)
   const config = useQrStore((s) => s.config)
+  const mode = useQrStore((s) => s.mode)
+  const applyPatch = useQrStore((s) => s.applyPatch)
+  const setMode = useQrStore((s) => s.setMode)
 
   const { supabase, session, activeOrgId } = useUniversal()
   const { user } = useUser()
@@ -24,6 +28,9 @@ export default function HostedStoreDialog() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [justStored, setJustStored] = useState(false)
+  const [importMsg, setImportMsg] = useState<string | null>(null)
+  const [importErr, setImportErr] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   if (!open) return null
 
@@ -35,6 +42,30 @@ export default function HostedStoreDialog() {
     setOpen(false)
     setError(null)
     setJustStored(false)
+    setImportMsg(null)
+    setImportErr(null)
+  }
+
+  function onDownloadBackup() {
+    if (!hasData) return
+    downloadBackup(config, mode)
+  }
+
+  async function onImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = '' // let the same file be re-picked later
+    if (!file) return
+    setImportErr(null)
+    setImportMsg(null)
+    try {
+      const { config: restored, mode: restoredMode } = await readBackupFile(file)
+      applyPatch(restored)
+      setMode(restoredMode ?? 'advanced')
+      setImportMsg('✓ Backup restored — your design is loaded.')
+      window.setTimeout(() => setImportMsg(null), 2600)
+    } catch (err) {
+      setImportErr((err as Error).message)
+    }
   }
 
   async function onStore() {
@@ -103,14 +134,59 @@ export default function HostedStoreDialog() {
         </div>
 
         <div className="space-y-4 p-5">
-          {/* Free local option — the real save-to-device gallery. */}
+          {/* Tier 1 — Save to browser (local, temporary): the device gallery. */}
           <SavePanel />
 
-          {/* Paid hosted option. */}
+          {/* Tier 2 — Save to desktop: a re-importable backup file the guest keeps. */}
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-slate-900">Save to desktop</span>
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-600">Re-import later</span>
+            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              Download this design as a backup file and keep it anywhere. Import it any time — on any device — to carry on editing exactly where you left off.
+            </p>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={onDownloadBackup}
+                disabled={!hasData}
+                className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-black disabled:opacity-50"
+              >
+                <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 16h12" />
+                </svg>
+                Download backup
+              </button>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-400 hover:bg-slate-50"
+              >
+                <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M10 17V7m0 0L6.5 10.5M10 7l3.5 3.5M4 4h12" />
+                </svg>
+                Import a backup
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json,application/json"
+                onChange={onImportFile}
+                className="hidden"
+              />
+            </div>
+            {!hasData && <p className="mt-2 text-xs text-slate-400">Enter a URL or some text to back up your design.</p>}
+            {importMsg && <p className="mt-2 text-sm text-emerald-600">{importMsg}</p>}
+            {importErr && <p className="mt-2 text-sm text-rose-600">{importErr}</p>}
+          </div>
+
+          {/* Tier 3 — Universal subscription: paid "Hosted by UNI·SIM" cloud. */}
           <div className="rounded-xl border border-orange-200 bg-white p-4">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-slate-900">Hosted by UNI SIM</span>
-              <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">Universal ID</span>
+              <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">Universal subscription</span>
             </div>
             <p className="mt-1 text-xs text-slate-500">
               Keep this QR code (PNG) online against your Universal ID. One token per upload — delete it and your token comes straight back.
