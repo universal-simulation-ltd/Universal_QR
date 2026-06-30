@@ -9,13 +9,9 @@ import {
   type LocalDesign,
 } from '../../lib/localDesigns'
 
-// Where guests go to keep their designs against a Universal ID. Universal QR is
-// a fully offline tool (no Supabase), so cloud save itself lives on the account
-// side — here we just point people at it.
-const UNIVERSAL_ID_URL = 'https://app.unisim.co.uk/login'
-
 // Free, no-account "Save to this device" — keep the QR codes you design in this
-// browser and reopen them later, plus a Universal ID link for cross-device save.
+// browser and reopen them later. Cross-device / online save lives in the same
+// backup dialog under "Hosted by UNI·SIM".
 export default function SavePanel() {
   const config = useQrStore((s) => s.config)
   const applyPatch = useQrStore((s) => s.applyPatch)
@@ -127,18 +123,6 @@ export default function SavePanel() {
           ))}
         </ul>
       )}
-
-      <div className="rounded-lg bg-orange-50/60 px-3 py-2.5 text-xs text-slate-600">
-        Want your designs on all your devices?{' '}
-        <a
-          href={UNIVERSAL_ID_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="font-semibold text-orange-700 underline-offset-2 hover:underline"
-        >
-          Save them to your Universal ID →
-        </a>
-      </div>
     </div>
   )
 }
