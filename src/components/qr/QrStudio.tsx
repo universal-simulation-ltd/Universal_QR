@@ -125,17 +125,32 @@ export default function QrStudio() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={onDownload}
-                disabled={!hasData || busy}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-orange-600 text-white text-sm font-semibold shadow-sm hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 16h12" />
-                </svg>
-                {busy ? 'Preparing…' : `Download ${format.toUpperCase()}`}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={onDownload}
+                  disabled={!hasData || busy}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-orange-600 text-white text-sm font-semibold shadow-sm hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 16h12" />
+                  </svg>
+                  {busy ? 'Preparing…' : `Download ${format.toUpperCase()}`}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHostedStoreOpen(true)}
+                  title="Back up — save to this device or online"
+                  aria-label="Back up"
+                  className="shrink-0 inline-flex items-center justify-center px-3 rounded-xl border border-slate-300 text-slate-500 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                >
+                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                    <path d="M17 21v-8H7v8" />
+                    <path d="M7 3v5h8" />
+                  </svg>
+                </button>
+              </div>
 
               <button
                 type="button"
@@ -154,17 +169,6 @@ export default function QrStudio() {
                 Always scan-test before printing at small sizes.
               </p>
             </div>
-
-            <button
-              type="button"
-              onClick={() => setHostedStoreOpen(true)}
-              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold shadow-sm hover:bg-black transition-colors"
-            >
-              <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M4 13v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2M10 3v9m0-9L7 6m3-3 3 3" />
-              </svg>
-              Back up…
-            </button>
           </div>
         </div>
       </div>
