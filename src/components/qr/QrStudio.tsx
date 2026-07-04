@@ -179,7 +179,7 @@ export default function QrStudio() {
 }
 
 // Three-tab Simple / Branding / Advanced switcher.
-// Branding and Advanced tabs show an orange ring if their settings have been
+// Branding and Advanced tabs show a small orange dot if their settings have been
 // changed from the defaults, so the user can see at a glance what's been tweaked.
 function ModeToggle({
   mode,
@@ -210,11 +210,11 @@ function ModeToggle({
             mode === t.id
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
-          } ${t.changed && mode !== t.id ? 'ring-2 ring-orange-400' : ''}`}
+          }`}
         >
           {t.label}
           {t.changed && (
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-500 ring-2 ring-white" aria-hidden="true" />
+            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-orange-500" aria-hidden="true" />
           )}
         </button>
       ))}
