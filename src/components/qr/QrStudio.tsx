@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { useUniversal } from '@unisim/sdk'
 import Controls from './Controls'
 import QrPreview from './QrPreview'
 import HostedStoreDialog from './HostedStoreDialog'
@@ -6,8 +7,9 @@ import { useQrStore, type StudioMode } from '../../stores/qrStore'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
 import { DEFAULT_CONFIG, PRESETS, type ExportFormat, type QrConfig } from '../../lib/qr'
 
-// Which config keys belong to the Branding and Advanced tabs (used to show
-// the orange "changed" indicator on the tab).
+// Which config keys count as "branding has been customised" — used to decide
+// whether to nudge the user towards the Branding tab (see ModeToggle). The
+// Advanced keys only gate the "Reset all" button, which clears both tabs.
 const BRANDING_KEYS: (keyof QrConfig)[] = [
   'fgColor', 'bgColor', 'bgTransparent', 'useGradient', 'gradientColor',
   'gradientRotation', 'matchCornerColor', 'cornerColor',
@@ -38,9 +40,15 @@ export default function QrStudio() {
   const [busy, setBusy] = useState(false)
   const [copied, setCopied] = useState<'idle' | 'ok' | 'fail'>('idle')
 
+  const { session } = useUniversal()
+  const signedIn = !!session?.user && session.user.is_anonymous !== true
+
   const hasData = config.data.trim().length > 0
   const brandingChanged = hasChangedFrom(config, BRANDING_KEYS)
   const advancedChanged = hasChangedFrom(config, ADVANCED_KEYS)
+  // Nudge un-branded visitors towards the Branding tab. A signed-in user is
+  // treated as already having company branding, so they don't get nudged.
+  const brandingNudge = !brandingChanged && !signedIn
 
   async function onDownload() {
     if (!hasData || busy) return
@@ -82,8 +90,7 @@ export default function QrStudio() {
               <ModeToggle
                 mode={mode}
                 setMode={setMode}
-                brandingChanged={brandingChanged}
-                advancedChanged={advancedChanged}
+                brandingNudge={brandingNudge}
               />
               {(brandingChanged || advancedChanged) && (
                 <button
@@ -179,23 +186,21 @@ export default function QrStudio() {
 }
 
 // Three-tab Simple / Branding / Advanced switcher.
-// Branding and Advanced tabs show an orange ring if their settings have been
-// changed from the defaults, so the user can see at a glance what's been tweaked.
+// The Branding tab shows a small orange dot to nudge un-branded, signed-out
+// visitors towards customising their code (see brandingNudge in QrStudio).
 function ModeToggle({
   mode,
   setMode,
-  brandingChanged,
-  advancedChanged,
+  brandingNudge,
 }: {
   mode: StudioMode
   setMode: (m: StudioMode) => void
-  brandingChanged: boolean
-  advancedChanged: boolean
+  brandingNudge: boolean
 }) {
-  const tabs: { id: StudioMode; label: string; changed?: boolean }[] = [
+  const tabs: { id: StudioMode; label: string; nudge?: boolean }[] = [
     { id: 'simple', label: 'Simple' },
-    { id: 'branding', label: 'Branding', changed: brandingChanged },
-    { id: 'advanced', label: 'Advanced', changed: advancedChanged },
+    { id: 'branding', label: 'Branding', nudge: brandingNudge },
+    { id: 'advanced', label: 'Advanced' },
   ]
   return (
     <div className="inline-flex p-1 bg-slate-200/70 rounded-xl" role="tablist" aria-label="Editor mode">
@@ -210,11 +215,11 @@ function ModeToggle({
             mode === t.id
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
-          } ${t.changed && mode !== t.id ? 'ring-2 ring-orange-400' : ''}`}
+          }`}
         >
           {t.label}
-          {t.changed && (
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-500 ring-2 ring-white" aria-hidden="true" />
+          {t.nudge && (
+            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-orange-500" aria-hidden="true" />
           )}
         </button>
       ))}
