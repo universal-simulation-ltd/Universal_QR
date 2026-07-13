@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { UniversalProvider } from '@unisim/sdk'
 import type { ProductCode } from '@unisim/sdk'
 import App from './App'
+import UsageTracker from './UsageTracker'
 import { useQrStore } from './stores/qrStore'
 import './index.css'
 
@@ -34,6 +35,7 @@ const universalConfig = {
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <UniversalProvider config={universalConfig}>
+      <UsageTracker />
       <App />
     </UniversalProvider>
   </React.StrictMode>
