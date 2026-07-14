@@ -38,7 +38,7 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-white p-4 sm:p-6"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-slate-900/80 p-4 backdrop-blur-sm sm:p-6"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -47,10 +47,18 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
       <button
         onClick={onClose}
         aria-label="Close"
-        className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-xl leading-none text-slate-600 hover:bg-slate-200"
+        className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-xl leading-none text-white hover:bg-white/25"
       >
         ×
       </button>
+
+      {/* Dismiss hints down each side — the whole backdrop is clickable. */}
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium tracking-wide text-white/60 sm:left-6">
+        Click to dismiss
+      </span>
+      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium tracking-wide text-white/60 sm:right-6">
+        Click to dismiss
+      </span>
 
       {/* Stop clicks on the code itself from closing, so a phone held against
           the screen doesn't dismiss it. */}
@@ -74,8 +82,8 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
       </div>
 
       <div className="max-w-md text-center">
-        <p className="text-sm font-semibold text-slate-900">Point another phone's camera at this code</p>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="text-sm font-semibold text-white">Point another phone's camera at this code</p>
+        <p className="mt-1 text-xs text-white/70">
           Struggling? Turn your screen brightness up to max, and make sure the camera
           isn't in close-up (macro) mode — pull back a little so the whole code is in frame.
         </p>
