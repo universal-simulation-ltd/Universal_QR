@@ -2,27 +2,20 @@ import { useEffect, useRef, useState } from 'react'
 import QRCodeStyling from 'qr-code-styling'
 import { useQrStore } from '../../stores/qrStore'
 import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark } from '../../lib/qr'
-import { downloadQr } from '../../lib/download'
 import { UNISIM_MARK } from '../../lib/unisimMark'
+import EnlargeModal from './EnlargeModal'
 
 export default function QrPreview() {
   const config = useQrStore((s) => s.config)
   const holderRef = useRef<HTMLDivElement>(null)
   const qrRef = useRef<QRCodeStyling | null>(null)
-  const [downloading, setDownloading] = useState(false)
+  const [enlarged, setEnlarged] = useState(false)
 
   const hasData = config.data.trim().length > 0
 
-  async function handlePreviewClick() {
-    if (!hasData || downloading) return
-    setDownloading(true)
-    try {
-      await downloadQr(config, 'png')
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setDownloading(false)
-    }
+  function handlePreviewClick() {
+    if (!hasData) return
+    setEnlarged(true)
   }
 
   // Create the instance once and mount its canvas into the holder.
@@ -66,7 +59,7 @@ export default function QrPreview() {
         onClick={handlePreviewClick}
         role={hasData ? 'button' : undefined}
         tabIndex={hasData ? 0 : undefined}
-        aria-label={hasData ? 'Download QR code as PNG' : undefined}
+        aria-label={hasData ? 'Enlarge QR code for scanning' : undefined}
         onKeyDown={(e) => {
           if (hasData && (e.key === 'Enter' || e.key === ' ')) {
             e.preventDefault()
@@ -107,9 +100,10 @@ export default function QrPreview() {
             >
               <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-md">
                 <svg viewBox="0 0 16 16" className="w-4 h-4" aria-hidden="true">
-                  <path d="M8 1 V10 M4 7 L8 11 L12 7 M2 13 H14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+                  <path d="M10.5 10.5 L14 14 M7 5 V9 M5 7 H9" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                 </svg>
-                {downloading ? 'Downloading…' : 'Download PNG'}
+                Tap to enlarge
               </span>
             </div>
           )}
@@ -124,6 +118,8 @@ export default function QrPreview() {
           </div>
         )}
       </div>
+
+      {enlarged && <EnlargeModal config={config} onClose={() => setEnlarged(false)} />}
     </div>
   )
 }
