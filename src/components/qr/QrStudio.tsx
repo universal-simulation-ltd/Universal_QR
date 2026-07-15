@@ -4,6 +4,7 @@ import Controls from './Controls'
 import QrPreview from './QrPreview'
 import HostedStoreDialog from './HostedStoreDialog'
 import { useQrStore, type StudioMode } from '../../stores/qrStore'
+import { CONTAINER } from '../../lib/layout'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
 import { DEFAULT_CONFIG, PRESETS, type ExportFormat, type QrConfig } from '../../lib/qr'
 
@@ -72,7 +73,7 @@ export default function QrStudio() {
 
   return (
     <div>
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
+      <div className={`${CONTAINER} py-6 lg:py-10`}>
         <header className="max-w-2xl">
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
             QR codes that <span className="text-orange-600">just work</span>.
