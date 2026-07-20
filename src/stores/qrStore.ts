@@ -3,9 +3,14 @@ import { persist } from 'zustand/middleware'
 import { DEFAULT_CONFIG, type QrConfig } from '../lib/qr'
 
 export type StudioMode = 'simple' | 'branding' | 'advanced'
+/** Top-level tab: the free static designer, or the hosted Dynamic codes. */
+export type StudioView = 'static' | 'dynamic'
 
 interface QrState {
   config: QrConfig
+  /** Static designer vs the hosted "Dynamic" (re-pointable + analytics) tab. */
+  view: StudioView
+  setView: (view: StudioView) => void
   /** Which control set is shown — Simple (just a URL) or Advanced (everything). */
   mode: StudioMode
   setMode: (mode: StudioMode) => void
@@ -25,6 +30,8 @@ export const useQrStore = create<QrState>()(
   persist(
     (set) => ({
       config: DEFAULT_CONFIG,
+      view: 'static',
+      setView: (view) => set({ view }),
       mode: 'simple',
       setMode: (mode) => set({ mode }),
       update: (patch) => set((s) => ({ config: { ...s.config, ...patch } })),
@@ -38,8 +45,8 @@ export const useQrStore = create<QrState>()(
     {
       name: 'universal-qr:config',
       version: 1,
-      // Only the design persists — not the transient dialog flag.
-      partialize: (s) => ({ config: s.config, mode: s.mode })
+      // Only the design + chosen tabs persist — not the transient dialog flag.
+      partialize: (s) => ({ config: s.config, mode: s.mode, view: s.view })
     }
   )
 )

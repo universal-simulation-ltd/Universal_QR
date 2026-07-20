@@ -26,5 +26,11 @@
 /qr/robots.txt           /robots.txt           200
 /qr/sitemap.xml          /sitemap.xml          200
 
+# Dynamic QR redirect — a "Dynamic" code encodes /qr/r/<code>; hand it to the
+# hosted `qr-redirect` Edge Function, which logs a scan and 302s on to the code's
+# current target. MUST sit above the SPA fallback so codes don't load the app
+# shell. (External 302, so the redirect happens at the edge, not client-side.)
+/qr/r/*                  https://rygfxgalojojppxmhddo.functions.supabase.co/qr-redirect/:splat  302
+
 # SPA fallback — everything else under /qr/ serves the shell.
 /qr/*                    /index.html           200

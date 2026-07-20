@@ -1,7 +1,7 @@
 import { UniversalAppsNavBar } from '@unisim/sdk'
 import AppMenu from './components/Header/AppMenu'
 import ProductLogo from './components/Header/ProductLogo'
-import QrStudio from './components/qr/QrStudio'
+import QrApp from './components/qr/QrApp'
 import { CONTAINER } from './lib/layout'
 
 const REPO_URL = 'https://github.com/universal-simulation-ltd/Universal_QR'
@@ -18,7 +18,7 @@ export default function App() {
       />
 
       <main className="flex-1">
-        <QrStudio />
+        <QrApp />
       </main>
 
       <footer className="border-t border-slate-200 bg-white">
