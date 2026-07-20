@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useUniversal, useUser, useCredits, useAppFreeToken } from '@unisim/sdk'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding } from '@unisim/sdk'
 import { CONTAINER } from '../../lib/layout'
+import { DEFAULT_CONFIG, type QrConfig } from '../../lib/qr'
 import { useQrStore } from '../../stores/qrStore'
 import {
   createDynamicCode,
@@ -23,7 +24,58 @@ export default function DynamicStudio() {
   const { user } = useUser()
   const { credits, refresh: refreshCredits } = useCredits()
   const { status: freeToken, refresh: refreshFreeToken } = useAppFreeToken('qr')
+  const { icon_url: orgIconUrl, brand_color: orgColor } = useOrgBranding()
   const setView = useQrStore((s) => s.setView)
+  const dynamicBrand = useQrStore((s) => s.dynamicBrand)
+  const setDynamicBrand = useQrStore((s) => s.setDynamicBrand)
+  const resetDynamicBrand = useQrStore((s) => s.resetDynamicBrand)
+  const logoInputRef = useRef<HTMLInputElement>(null)
+
+  // The org's 1:1 icon is a remote URL; fetch it to a data URL so it can go in
+  // the QR centre and survive a canvas download without tainting.
+  const [orgIcon, setOrgIcon] = useState<string | null>(null)
+  useEffect(() => {
+    if (!orgIconUrl) { setOrgIcon(null); return }
+    let alive = true
+    fetch(orgIconUrl)
+      .then((r) => r.blob())
+      .then((blob) => new Promise<string>((res, rej) => {
+        const fr = new FileReader()
+        fr.onload = () => res(String(fr.result))
+        fr.onerror = rej
+        fr.readAsDataURL(blob)
+      }))
+      .then((d) => { if (alive) setOrgIcon(d) })
+      .catch(() => { if (alive) setOrgIcon(orgIconUrl) }) // CORS-blocked: fall back to the URL
+    return () => { alive = false }
+  }, [orgIconUrl])
+
+  // Effective branding for every dynamic code: org colour + org icon by default,
+  // with per-field overrides. Falls back to the standard UNI·SIM look when there's
+  // no org branding (e.g. a personal account).
+  const brandColor = dynamicBrand.color ?? orgColor ?? DEFAULT_CONFIG.fgColor
+  const brandLogo =
+    dynamicBrand.logoMode === 'custom' ? dynamicBrand.logo
+      : dynamicBrand.logoMode === 'none' ? null
+        : orgIcon
+  const brandConfig: QrConfig = {
+    ...DEFAULT_CONFIG,
+    fgColor: brandColor,
+    cornerColor: brandColor,
+    gradientColor: brandColor,
+    logoDataUrl: brandLogo,
+    unisimMark: dynamicBrand.logoMode === 'org' && !orgIcon, // UNI·SIM mark only when nothing else fills the centre
+  }
+  const hasOrgBranding = !!(orgColor || orgIcon)
+
+  function onUploadLogo(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    const fr = new FileReader()
+    fr.onload = () => setDynamicBrand({ logoMode: 'custom', logo: String(fr.result) })
+    fr.readAsDataURL(file)
+  }
 
   const [codes, setCodes] = useState<DynamicCode[] | null>(null)
   const [target, setTarget] = useState('')
@@ -148,6 +200,47 @@ export default function DynamicStudio() {
           </a>
         </div>
       ) : (
+        <>
+        {/* Branding — defaults to the org's icon + colour, applies to every code */}
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="font-semibold text-slate-900">Code branding</h2>
+              <p className="mt-0.5 text-xs text-slate-500">
+                {hasOrgBranding
+                  ? 'Defaults to your organisation’s icon and colour — applies to every dynamic code, so a rebrand flows through automatically.'
+                  : 'Applies to every dynamic code. Add a logo and brand colour to your organisation and they’ll fill in here automatically.'}
+              </p>
+            </div>
+            <button type="button" onClick={resetDynamicBrand} className="shrink-0 text-xs font-semibold text-slate-500 hover:text-orange-600">Reset</button>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-slate-700">Colour</span>
+              <input type="color" value={brandColor} onChange={(e) => setDynamicBrand({ color: e.target.value })} className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-white p-0.5" aria-label="Module colour" />
+              {dynamicBrand.color != null && orgColor && (
+                <button type="button" onClick={() => setDynamicBrand({ color: null })} className="text-[11px] font-semibold text-slate-400 hover:text-orange-600">use org</button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-slate-700">Centre logo</span>
+              <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded border border-slate-200 bg-slate-50">
+                {brandLogo
+                  ? <img src={brandLogo} alt="" className="h-full w-full object-contain" />
+                  : <span className="text-[8px] font-semibold text-slate-400">{brandConfig.unisimMark ? 'UNI·SIM' : 'none'}</span>}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <BrandChip active={dynamicBrand.logoMode === 'org'} disabled={!orgIcon} onClick={() => setDynamicBrand({ logoMode: 'org' })}>Org icon</BrandChip>
+                <BrandChip active={dynamicBrand.logoMode === 'custom'} onClick={() => logoInputRef.current?.click()}>Upload…</BrandChip>
+                <BrandChip active={dynamicBrand.logoMode === 'none'} onClick={() => setDynamicBrand({ logoMode: 'none' })}>None</BrandChip>
+              </div>
+              <input ref={logoInputRef} type="file" accept="image/*" onChange={onUploadLogo} className="hidden" />
+            </div>
+          </div>
+        </section>
+
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-start">
           {/* Create panel */}
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6">
@@ -220,13 +313,33 @@ export default function DynamicStudio() {
             ) : (
               <ul className="space-y-3">
                 {codes.map((c) => (
-                  <DynamicCodeCard key={c.id} code={c} busy={busy} onChanged={refreshList} onDelete={onDelete} />
+                  <DynamicCodeCard key={c.id} code={c} brand={brandConfig} busy={busy} onChanged={refreshList} onDelete={onDelete} />
                 ))}
               </ul>
             )}
           </section>
         </div>
+        </>
       )}
     </div>
+  )
+}
+
+// A small toggle chip for the branding logo-source choice.
+function BrandChip({ active, disabled, onClick, children }: { active: boolean; disabled?: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-pressed={active}
+      className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors disabled:opacity-40 ${
+        active
+          ? 'border-orange-500 bg-orange-50 text-orange-700'
+          : 'border-slate-300 text-slate-600 hover:bg-slate-50'
+      }`}
+    >
+      {children}
+    </button>
   )
 }

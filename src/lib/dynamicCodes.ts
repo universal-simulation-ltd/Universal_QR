@@ -153,9 +153,9 @@ export async function getDailyScans(
 /** A branded QrConfig that renders a dynamic code's redirect URL. Uses the
  *  suite default styling; the payload is the hosted short link, never the
  *  target — that's what makes it re-pointable. */
-export function dynamicQrConfig(code: DynamicCode): QrConfig {
+export function dynamicQrConfig(code: DynamicCode, brand?: QrConfig): QrConfig {
   return {
-    ...DEFAULT_CONFIG,
+    ...(brand ?? DEFAULT_CONFIG),
     data: redirectUrl(code.code),
     name: code.name?.trim() || targetLabel(code.target_url) || 'dynamic-qr',
   }
