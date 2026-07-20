@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import QRCodeStyling from 'qr-code-styling'
 import { useUniversal } from '@unisim/sdk'
-import { buildQrOptions } from '../../lib/qr'
+import { buildQrOptions, type QrConfig } from '../../lib/qr'
 import { downloadQr } from '../../lib/download'
 import {
   dynamicQrConfig,
@@ -18,17 +18,20 @@ import {
 // handled by the parent so it can refund the token + refresh the list.
 export default function DynamicCodeCard({
   code,
+  brand,
   busy,
   onChanged,
   onDelete,
 }: {
   code: DynamicCode
+  /** Branding (org icon + colour, or user overrides) applied to this code's QR. */
+  brand?: QrConfig
   busy: boolean
   onChanged: () => void
   onDelete: (code: DynamicCode) => void
 }) {
   const { supabase } = useUniversal()
-  const config = useMemo(() => dynamicQrConfig(code), [code])
+  const config = useMemo(() => dynamicQrConfig(code, brand), [code, brand])
 
   const holderRef = useRef<HTMLDivElement>(null)
   const qrRef = useRef<QRCodeStyling | null>(null)

@@ -76,7 +76,9 @@ export const CORNER_DOT_TYPES: { value: CornerDotType; label: string }[] = [
 
 export const DEFAULT_CONFIG: QrConfig = {
   name: '',
-  data: 'https://www.unisim.co.uk',
+  // Blank by default so a fresh generator never bakes a stale URL (previously
+  // www.unisim.co.uk) into a code — the input placeholder guides the user.
+  data: '',
   size: 512,
   margin: 12,
   // Always highest correction so a centre logo never breaks scanning.
