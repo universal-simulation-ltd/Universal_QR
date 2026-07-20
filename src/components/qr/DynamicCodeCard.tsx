@@ -3,6 +3,7 @@ import QRCodeStyling from 'qr-code-styling'
 import { useUniversal } from '@unisim/sdk'
 import { buildQrOptions, type QrConfig } from '../../lib/qr'
 import { downloadQr } from '../../lib/download'
+import EnlargeModal from './EnlargeModal'
 import {
   dynamicQrConfig,
   getDailyScans,
@@ -42,6 +43,7 @@ export default function DynamicCodeCard({
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [daily, setDaily] = useState<DailyScan[] | null>(null)
+  const [enlarged, setEnlarged] = useState(false)
 
   const link = redirectUrl(code.code)
 
@@ -96,11 +98,17 @@ export default function DynamicCodeCard({
   return (
     <li className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-4 sm:flex-row">
-        {/* Live QR of the redirect */}
+        {/* Live QR of the redirect — click to enlarge for scanning */}
         <div className="shrink-0 self-center sm:self-start">
-          <div className="w-28 rounded-xl border border-slate-200 bg-white p-2">
+          <button
+            type="button"
+            onClick={() => setEnlarged(true)}
+            className="w-28 cursor-zoom-in rounded-xl border border-slate-200 bg-white p-2 transition-colors hover:border-orange-300"
+            title="Tap to enlarge"
+            aria-label={`Enlarge QR code for ${targetLabel(code.target_url)}`}
+          >
             <div ref={holderRef} role="img" aria-label={`Dynamic QR code for ${targetLabel(code.target_url)}`} className="leading-[0]" />
-          </div>
+          </button>
           <div className="mt-2 flex justify-center gap-2">
             <button type="button" onClick={() => downloadQr({ ...config, size: 1024 }, 'png')} className="text-[11px] font-semibold text-slate-500 hover:text-orange-600">PNG</button>
             <span className="text-slate-300" aria-hidden="true">·</span>
@@ -187,6 +195,7 @@ export default function DynamicCodeCard({
           </div>
         </div>
       </div>
+      {enlarged && <EnlargeModal config={config} onClose={() => setEnlarged(false)} />}
     </li>
   )
 }
