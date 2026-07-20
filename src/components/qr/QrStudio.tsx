@@ -76,7 +76,7 @@ export default function QrStudio() {
       <div className={`${CONTAINER} py-6 lg:py-10`}>
         <header className="max-w-2xl">
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
-            QR codes that <span className="text-orange-600">just work</span>.
+            QR Codes that <span className="text-orange-600">just. work. FOREVER.</span>
           </h1>
           <p className="mt-2 text-slate-600">
             Pick your colours, shape the modules, drop in a logo — it renders live and never leaves
