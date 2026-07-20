@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { DEFAULT_CONFIG, type QrConfig } from '../lib/qr'
+import { DEFAULT_CONFIG, type QrConfig, type DotType, type CornerSquareType, type CornerDotType } from '../lib/qr'
 
 export type StudioMode = 'simple' | 'branding' | 'advanced'
 /** Top-level tab: the free static designer, or the hosted Dynamic codes. */
@@ -19,8 +19,33 @@ export interface DynamicBrand {
   logoMode: 'org' | 'custom' | 'none'
   /** Custom logo data URL (used when logoMode === 'custom'). */
   logo: string | null
+  bgColor: string
+  bgTransparent: boolean
+  useGradient: boolean
+  gradientColor: string
+  gradientRotation: number
+  /** Corners a different colour from the modules. */
+  twoTone: boolean
+  cornerColor: string
+  dotType: DotType
+  cornerSquareType: CornerSquareType
+  cornerDotType: CornerDotType
 }
-export const DEFAULT_DYNAMIC_BRAND: DynamicBrand = { color: null, logoMode: 'org', logo: null }
+export const DEFAULT_DYNAMIC_BRAND: DynamicBrand = {
+  color: null,
+  logoMode: 'org',
+  logo: null,
+  bgColor: DEFAULT_CONFIG.bgColor,
+  bgTransparent: DEFAULT_CONFIG.bgTransparent,
+  useGradient: DEFAULT_CONFIG.useGradient,
+  gradientColor: DEFAULT_CONFIG.gradientColor,
+  gradientRotation: DEFAULT_CONFIG.gradientRotation,
+  twoTone: false,
+  cornerColor: DEFAULT_CONFIG.cornerColor,
+  dotType: DEFAULT_CONFIG.dotType,
+  cornerSquareType: DEFAULT_CONFIG.cornerSquareType,
+  cornerDotType: DEFAULT_CONFIG.cornerDotType,
+}
 
 interface QrState {
   config: QrConfig
@@ -67,9 +92,16 @@ export const useQrStore = create<QrState>()(
     }),
     {
       name: 'universal-qr:config',
-      version: 1,
+      version: 2,
       // Only the design + chosen tabs persist — not the transient dialog flag.
-      partialize: (s) => ({ config: s.config, mode: s.mode, view: s.view, dynamicBrand: s.dynamicBrand })
+      partialize: (s) => ({ config: s.config, mode: s.mode, view: s.view, dynamicBrand: s.dynamicBrand }),
+      // v2 widened DynamicBrand (bg / gradient / two-tone / dot style) — backfill
+      // the new fields for anyone with a v1 record so brandConfig is never partial.
+      migrate: (persisted, version) => {
+        const p = (persisted ?? {}) as { dynamicBrand?: Partial<DynamicBrand> }
+        if (version < 2) p.dynamicBrand = { ...DEFAULT_DYNAMIC_BRAND, ...(p.dynamicBrand ?? {}) }
+        return p as unknown as QrState
+      }
     }
   )
 )
