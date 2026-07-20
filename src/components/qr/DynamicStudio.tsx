@@ -44,6 +44,35 @@ export default function DynamicStudio() {
 
   useEffect(() => { refreshList() }, [refreshList, activeOrgId])
 
+  // Pick up a sign-in that completed on the hub (another tab / full-page login)
+  // without needing a manual refresh. When signed out, watch for the tab regaining
+  // focus or an auth event; if a real (non-anonymous) session now exists but the
+  // app still initialised signed-out, reload once so the SDK — and its token /
+  // credit hooks — re-read it. Runs only while signed out, so it can't loop.
+  useEffect(() => {
+    if (signedIn) return
+    let cancelled = false
+    const catchUp = async () => {
+      try {
+        const { data } = await supabase.auth.getSession()
+        const s = data.session
+        if (!cancelled && s?.user && s.user.is_anonymous !== true) window.location.reload()
+      } catch { /* offline / not signed in — nothing to catch up */ }
+    }
+    const onAuth = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') catchUp()
+    })
+    const onVisible = () => { if (document.visibilityState === 'visible') catchUp() }
+    window.addEventListener('focus', catchUp)
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      cancelled = true
+      onAuth.data.subscription.unsubscribe()
+      window.removeEventListener('focus', catchUp)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [signedIn, supabase])
+
   async function onCreate() {
     if (!target.trim() || busy) return
     setBusy(true)
