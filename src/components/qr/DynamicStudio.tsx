@@ -266,9 +266,9 @@ export default function DynamicStudio() {
           </div>
 
           {brandingOpen && (
-          <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-stretch">
-            {/* Live example (points at unisim.co.uk) — fills the panel height */}
-            <div className="flex shrink-0 flex-col items-center gap-1.5 self-center sm:self-stretch">
+          <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-start">
+            {/* Live example (points at unisim.co.uk) — a large, contained square */}
+            <div className="flex shrink-0 flex-col items-center gap-1.5 self-center sm:self-start">
               <BrandPreview config={brandConfig} />
               <p className="text-center text-[11px] text-slate-400">Example · unisim.co.uk</p>
             </div>
@@ -437,7 +437,7 @@ function BrandPreview({ config }: { config: QrConfig }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key])
   return (
-    <div className="grid aspect-square w-40 place-items-center rounded-xl border border-slate-200 bg-white p-2 sm:w-auto sm:min-h-[9rem] sm:flex-1">
+    <div className="grid aspect-square w-full max-w-[16rem] place-items-center rounded-xl border border-slate-200 bg-white p-2 sm:w-64">
       <div ref={holderRef} role="img" aria-label="Example dynamic QR with your branding" className="h-full w-full leading-[0]" />
     </div>
   )
