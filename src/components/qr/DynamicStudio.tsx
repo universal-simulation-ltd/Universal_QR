@@ -31,6 +31,9 @@ export default function DynamicStudio() {
   const setDynamicBrand = useQrStore((s) => s.setDynamicBrand)
   const resetDynamicBrand = useQrStore((s) => s.resetDynamicBrand)
   const logoInputRef = useRef<HTMLInputElement>(null)
+  // Branding is a lot of controls — keep it collapsed by default so the create
+  // form and code list are front and centre.
+  const [brandingOpen, setBrandingOpen] = useState(false)
 
   // The org's 1:1 icon is a remote URL; fetch it to a data URL so it can go in
   // the QR centre and survive a canvas download without tainting.
@@ -238,23 +241,36 @@ export default function DynamicStudio() {
         <>
         {/* Branding — a live example + controls; defaults to the org's, applies to every code */}
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="font-semibold text-slate-900">Code branding</h2>
-              <p className="mt-0.5 text-xs text-slate-500">
-                {hasOrgBranding
-                  ? 'Defaults to your organisation’s icon and colour — applies to every dynamic code, so a rebrand flows through automatically.'
-                  : 'Applies to every dynamic code. Add a logo and brand colour to your organisation and they’ll fill in here automatically.'}
-              </p>
-            </div>
-            <button type="button" onClick={resetDynamicBrand} className="shrink-0 text-xs font-semibold text-slate-500 hover:text-orange-600">Reset</button>
+          <div className="flex items-start justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => setBrandingOpen((v) => !v)}
+              aria-expanded={brandingOpen}
+              className="group flex min-w-0 flex-1 items-start gap-2 text-left"
+            >
+              <svg viewBox="0 0 12 12" className={`mt-1 h-3 w-3 shrink-0 text-slate-400 transition-transform ${brandingOpen ? 'rotate-90' : ''}`} aria-hidden="true">
+                <path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <div className="min-w-0">
+                <h2 className="font-semibold text-slate-900 group-hover:text-orange-600">Code branding</h2>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  {hasOrgBranding
+                    ? 'Defaults to your organisation’s icon and colour — applies to every dynamic code, so a rebrand flows through automatically.'
+                    : 'Applies to every dynamic code. Add a logo and brand colour to your organisation and they’ll fill in here automatically.'}
+                </p>
+              </div>
+            </button>
+            {brandingOpen && (
+              <button type="button" onClick={resetDynamicBrand} className="shrink-0 text-xs font-semibold text-slate-500 hover:text-orange-600">Reset</button>
+            )}
           </div>
 
-          <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-start">
-            {/* Live example (points at unisim.co.uk) */}
-            <div className="shrink-0 self-center sm:self-start">
+          {brandingOpen && (
+          <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-stretch">
+            {/* Live example (points at unisim.co.uk) — fills the panel height */}
+            <div className="flex shrink-0 flex-col items-center gap-1.5 self-center sm:self-stretch">
               <BrandPreview config={brandConfig} />
-              <p className="mt-1.5 text-center text-[11px] text-slate-400">Example · unisim.co.uk</p>
+              <p className="text-center text-[11px] text-slate-400">Example · unisim.co.uk</p>
             </div>
 
             {/* Controls */}
@@ -318,6 +334,7 @@ export default function DynamicStudio() {
               </div>
             </div>
           </div>
+          )}
         </section>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-start">
@@ -410,18 +427,18 @@ function BrandPreview({ config }: { config: QrConfig }) {
   const holderRef = useRef<HTMLDivElement>(null)
   const key = JSON.stringify(config)
   useEffect(() => {
-    const qr = new QRCodeStyling(buildQrOptions({ ...config, data: 'https://www.unisim.co.uk', size: 224, margin: 8 }))
+    const qr = new QRCodeStyling(buildQrOptions({ ...config, data: 'https://www.unisim.co.uk', size: 360, margin: 8 }))
     if (holderRef.current) {
       holderRef.current.innerHTML = ''
       qr.append(holderRef.current)
       const canvas = holderRef.current.querySelector('canvas')
-      if (canvas) { canvas.style.width = '100%'; canvas.style.height = 'auto'; canvas.style.display = 'block' }
+      if (canvas) { canvas.style.width = '100%'; canvas.style.height = '100%'; canvas.style.display = 'block'; canvas.style.objectFit = 'contain' }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key])
   return (
-    <div className="w-28 rounded-xl border border-slate-200 bg-white p-2">
-      <div ref={holderRef} role="img" aria-label="Example dynamic QR with your branding" className="leading-[0]" />
+    <div className="grid aspect-square w-40 place-items-center rounded-xl border border-slate-200 bg-white p-2 sm:w-auto sm:min-h-[9rem] sm:flex-1">
+      <div ref={holderRef} role="img" aria-label="Example dynamic QR with your branding" className="h-full w-full leading-[0]" />
     </div>
   )
 }
