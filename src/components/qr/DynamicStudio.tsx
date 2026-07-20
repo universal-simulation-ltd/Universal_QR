@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding } from '@unisim/sdk'
 import { CONTAINER } from '../../lib/layout'
-import { DEFAULT_CONFIG, type QrConfig } from '../../lib/qr'
+import { DEFAULT_CONFIG, PRESETS, buildQrOptions, type QrConfig } from '../../lib/qr'
+import QRCodeStyling from 'qr-code-styling'
 import { useQrStore } from '../../stores/qrStore'
 import {
   createDynamicCode,
@@ -58,15 +59,49 @@ export default function DynamicStudio() {
     dynamicBrand.logoMode === 'custom' ? dynamicBrand.logo
       : dynamicBrand.logoMode === 'none' ? null
         : orgIcon
-  const brandConfig: QrConfig = {
+  // Memoised so its object identity is stable while nothing changes — otherwise
+  // the example preview + every code's QR would re-mount on each render.
+  const brandConfig = useMemo<QrConfig>(() => ({
     ...DEFAULT_CONFIG,
     fgColor: brandColor,
-    cornerColor: brandColor,
-    gradientColor: brandColor,
+    bgColor: dynamicBrand.bgColor,
+    bgTransparent: dynamicBrand.bgTransparent,
+    useGradient: dynamicBrand.useGradient,
+    gradientColor: dynamicBrand.gradientColor,
+    gradientRotation: dynamicBrand.gradientRotation,
+    matchCornerColor: !dynamicBrand.twoTone,
+    cornerColor: dynamicBrand.twoTone ? dynamicBrand.cornerColor : brandColor,
+    dotType: dynamicBrand.dotType,
+    cornerSquareType: dynamicBrand.cornerSquareType,
+    cornerDotType: dynamicBrand.cornerDotType,
     logoDataUrl: brandLogo,
     unisimMark: dynamicBrand.logoMode === 'org' && !orgIcon, // UNI·SIM mark only when nothing else fills the centre
-  }
+  }), [
+    brandColor, brandLogo, orgIcon,
+    dynamicBrand.bgColor, dynamicBrand.bgTransparent, dynamicBrand.useGradient,
+    dynamicBrand.gradientColor, dynamicBrand.gradientRotation, dynamicBrand.twoTone,
+    dynamicBrand.cornerColor, dynamicBrand.dotType, dynamicBrand.cornerSquareType,
+    dynamicBrand.cornerDotType, dynamicBrand.logoMode,
+  ])
   const hasOrgBranding = !!(orgColor || orgIcon)
+
+  // Apply one of the named style presets (Classic / Rounded / Dots / Indigo /
+  // Sunset). It sets the module colour explicitly, so it stops following the org.
+  function applyPreset(patch: Partial<QrConfig>) {
+    const b: Partial<typeof dynamicBrand> = {}
+    if (patch.fgColor !== undefined) b.color = patch.fgColor
+    if (patch.bgColor !== undefined) b.bgColor = patch.bgColor
+    if (patch.bgTransparent !== undefined) b.bgTransparent = patch.bgTransparent
+    if (patch.useGradient !== undefined) b.useGradient = patch.useGradient
+    if (patch.gradientColor !== undefined) b.gradientColor = patch.gradientColor
+    if (patch.gradientRotation !== undefined) b.gradientRotation = patch.gradientRotation
+    if (patch.matchCornerColor !== undefined) b.twoTone = patch.matchCornerColor === false
+    if (patch.cornerColor !== undefined) b.cornerColor = patch.cornerColor
+    if (patch.dotType !== undefined) b.dotType = patch.dotType
+    if (patch.cornerSquareType !== undefined) b.cornerSquareType = patch.cornerSquareType
+    if (patch.cornerDotType !== undefined) b.cornerDotType = patch.cornerDotType
+    setDynamicBrand(b)
+  }
 
   function onUploadLogo(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -201,7 +236,7 @@ export default function DynamicStudio() {
         </div>
       ) : (
         <>
-        {/* Branding — defaults to the org's icon + colour, applies to every code */}
+        {/* Branding — a live example + controls; defaults to the org's, applies to every code */}
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -215,28 +250,72 @@ export default function DynamicStudio() {
             <button type="button" onClick={resetDynamicBrand} className="shrink-0 text-xs font-semibold text-slate-500 hover:text-orange-600">Reset</button>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-slate-700">Colour</span>
-              <input type="color" value={brandColor} onChange={(e) => setDynamicBrand({ color: e.target.value })} className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-white p-0.5" aria-label="Module colour" />
-              {dynamicBrand.color != null && orgColor && (
-                <button type="button" onClick={() => setDynamicBrand({ color: null })} className="text-[11px] font-semibold text-slate-400 hover:text-orange-600">use org</button>
-              )}
+          <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-start">
+            {/* Live example (points at unisim.co.uk) */}
+            <div className="shrink-0 self-center sm:self-start">
+              <BrandPreview config={brandConfig} />
+              <p className="mt-1.5 text-center text-[11px] text-slate-400">Example · unisim.co.uk</p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-slate-700">Centre logo</span>
-              <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded border border-slate-200 bg-slate-50">
-                {brandLogo
-                  ? <img src={brandLogo} alt="" className="h-full w-full object-contain" />
-                  : <span className="text-[8px] font-semibold text-slate-400">{brandConfig.unisimMark ? 'UNI·SIM' : 'none'}</span>}
+            {/* Controls */}
+            <div className="min-w-0 flex-1 space-y-4">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Style</span>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {PRESETS.map((p) => (
+                    <BrandChip key={p.name} active={false} onClick={() => applyPreset(p.patch)}>{p.name}</BrandChip>
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-wrap gap-1.5">
-                <BrandChip active={dynamicBrand.logoMode === 'org'} disabled={!orgIcon} onClick={() => setDynamicBrand({ logoMode: 'org' })}>Org icon</BrandChip>
-                <BrandChip active={dynamicBrand.logoMode === 'custom'} onClick={() => logoInputRef.current?.click()}>Upload…</BrandChip>
-                <BrandChip active={dynamicBrand.logoMode === 'none'} onClick={() => setDynamicBrand({ logoMode: 'none' })}>None</BrandChip>
+
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+                <ColorField label="Modules" value={brandColor} onChange={(v) => setDynamicBrand({ color: v })}>
+                  {dynamicBrand.color != null && orgColor
+                    ? <button type="button" onClick={() => setDynamicBrand({ color: null })} className="text-[11px] font-semibold text-slate-400 hover:text-orange-600">use org</button>
+                    : null}
+                </ColorField>
+                <ColorField label="Background" value={dynamicBrand.bgColor} onChange={(v) => setDynamicBrand({ bgColor: v })} disabled={dynamicBrand.bgTransparent} />
+                <label className="flex items-center gap-1.5 text-xs text-slate-600">
+                  <input type="checkbox" checked={dynamicBrand.bgTransparent} onChange={(e) => setDynamicBrand({ bgTransparent: e.target.checked })} /> Transparent
+                </label>
               </div>
-              <input ref={logoInputRef} type="file" accept="image/*" onChange={onUploadLogo} className="hidden" />
+
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+                <label className="flex items-center gap-1.5 text-sm text-slate-700">
+                  <input type="checkbox" checked={dynamicBrand.useGradient} onChange={(e) => setDynamicBrand({ useGradient: e.target.checked })} /> <span className="font-medium">Gradient</span>
+                </label>
+                {dynamicBrand.useGradient && (
+                  <>
+                    <ColorField label="End" value={dynamicBrand.gradientColor} onChange={(v) => setDynamicBrand({ gradientColor: v })} />
+                    <label className="flex items-center gap-2 text-xs text-slate-600">Angle
+                      <input type="range" min={0} max={360} step={5} value={dynamicBrand.gradientRotation} onChange={(e) => setDynamicBrand({ gradientRotation: Number(e.target.value) })} className="w-24 accent-orange-600" />
+                      <span className="tabular-nums">{dynamicBrand.gradientRotation}°</span>
+                    </label>
+                  </>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+                <label className="flex items-center gap-1.5 text-sm text-slate-700">
+                  <input type="checkbox" checked={dynamicBrand.twoTone} onChange={(e) => setDynamicBrand({ twoTone: e.target.checked })} /> <span className="font-medium">Two-tone corners</span>
+                </label>
+                {dynamicBrand.twoTone && <ColorField label="Corners" value={dynamicBrand.cornerColor} onChange={(v) => setDynamicBrand({ cornerColor: v })} />}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-sm font-medium text-slate-700">Centre logo</span>
+                <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded border border-slate-200 bg-slate-50">
+                  {brandLogo
+                    ? <img src={brandLogo} alt="" className="h-full w-full object-contain" />
+                    : <span className="text-[8px] font-semibold text-slate-400">{brandConfig.unisimMark ? 'UNI·SIM' : 'none'}</span>}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  <BrandChip active={dynamicBrand.logoMode === 'org'} disabled={!orgIcon} onClick={() => setDynamicBrand({ logoMode: 'org' })}>Org icon</BrandChip>
+                  <BrandChip active={dynamicBrand.logoMode === 'custom'} onClick={() => logoInputRef.current?.click()}>Upload…</BrandChip>
+                  <BrandChip active={dynamicBrand.logoMode === 'none'} onClick={() => setDynamicBrand({ logoMode: 'none' })}>None</BrandChip>
+                </div>
+                <input ref={logoInputRef} type="file" accept="image/*" onChange={onUploadLogo} className="hidden" />
+              </div>
             </div>
           </div>
         </section>
@@ -321,6 +400,46 @@ export default function DynamicStudio() {
         </div>
         </>
       )}
+    </div>
+  )
+}
+
+// A live example of the current branding, encoding the UNI·SIM site so the
+// preview always has something to render.
+function BrandPreview({ config }: { config: QrConfig }) {
+  const holderRef = useRef<HTMLDivElement>(null)
+  const key = JSON.stringify(config)
+  useEffect(() => {
+    const qr = new QRCodeStyling(buildQrOptions({ ...config, data: 'https://www.unisim.co.uk', size: 224, margin: 8 }))
+    if (holderRef.current) {
+      holderRef.current.innerHTML = ''
+      qr.append(holderRef.current)
+      const canvas = holderRef.current.querySelector('canvas')
+      if (canvas) { canvas.style.width = '100%'; canvas.style.height = 'auto'; canvas.style.display = 'block' }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+  return (
+    <div className="w-28 rounded-xl border border-slate-200 bg-white p-2">
+      <div ref={holderRef} role="img" aria-label="Example dynamic QR with your branding" className="leading-[0]" />
+    </div>
+  )
+}
+
+// A labelled colour swatch with an optional trailing control.
+function ColorField({ label, value, onChange, disabled, children }: { label: string; value: string; onChange: (v: string) => void; disabled?: boolean; children?: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-sm font-medium text-slate-700">{label}</span>
+      <input
+        type="color"
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-white p-0.5 disabled:opacity-40"
+        aria-label={label}
+      />
+      {children}
     </div>
   )
 }
