@@ -7,6 +7,8 @@ import UsageTracker from './UsageTracker'
 import { useQrStore } from './stores/qrStore'
 import './index.css'
 
+console.log(`build: ${import.meta.env.VITE_BUILD_SHA}`)
+
 if (import.meta.env.DEV) {
   ;(window as unknown as { __stores: unknown }).__stores = {
     qr: useQrStore
