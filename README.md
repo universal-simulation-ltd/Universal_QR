@@ -69,6 +69,11 @@ npm run typecheck  # type-check only
 The app is a single static bundle. In production it's served under `/qr/` (see
 `vite.config.ts` and `public/_redirects`); local dev runs at the root.
 
+Each build bakes the commit SHA into a `<meta name="build-sha">` tag and logs
+`build: <sha>` to the console at startup, so you can tell which build is live
+in-browser. On Cloudflare Pages the SHA comes from `CF_PAGES_COMMIT_SHA`; locally
+it falls back to the git short SHA (or `dev`).
+
 ## Desktop app (Windows)
 
 The same client-side app can be packaged as a native desktop app with
