@@ -1,10 +1,16 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { DEFAULT_CONFIG, type QrConfig, type DotType, type CornerSquareType, type CornerDotType } from '../lib/qr'
+import type { BarcodeSymbology } from '../lib/barcode'
 
 export type StudioMode = 'simple' | 'branding' | 'advanced'
-/** Top-level tab: the free static designer, or the hosted Dynamic codes. */
-export type StudioView = 'static' | 'dynamic'
+/**
+ * Top-level tab: the free QR designer, the standalone 1D-barcode generator, the
+ * hosted Dynamic codes, or the camera scanner. 1D barcodes are static-only —
+ * there is no "dynamic barcode" (retail EAN/UPC codes are scanned by POS
+ * systems that won't follow a redirect), so Dynamic stays QR-only.
+ */
+export type StudioView = 'static' | 'barcode' | 'dynamic' | 'scan'
 
 /**
  * Branding applied to the hosted "Dynamic" codes. Defaults to the signed-in
@@ -69,6 +75,11 @@ interface QrState {
   /** "Hosted by UNI·SIM" cloud-store dialog open state (not persisted). */
   hostedStoreOpen: boolean
   setHostedStoreOpen: (open: boolean) => void
+  /** Chosen 1D symbology + value for the Barcode tab (persisted). */
+  barcodeSymbology: BarcodeSymbology
+  barcodeValue: string
+  setBarcodeSymbology: (symbology: BarcodeSymbology) => void
+  setBarcodeValue: (value: string) => void
 }
 
 export const useQrStore = create<QrState>()(
@@ -88,13 +99,24 @@ export const useQrStore = create<QrState>()(
       setDynamicBrand: (patch) => set((s) => ({ dynamicBrand: { ...s.dynamicBrand, ...patch } })),
       resetDynamicBrand: () => set({ dynamicBrand: DEFAULT_DYNAMIC_BRAND }),
       hostedStoreOpen: false,
-      setHostedStoreOpen: (hostedStoreOpen) => set({ hostedStoreOpen })
+      setHostedStoreOpen: (hostedStoreOpen) => set({ hostedStoreOpen }),
+      barcodeSymbology: 'code128',
+      barcodeValue: '',
+      setBarcodeSymbology: (barcodeSymbology) => set({ barcodeSymbology }),
+      setBarcodeValue: (barcodeValue) => set({ barcodeValue })
     }),
     {
       name: 'universal-qr:config',
       version: 2,
       // Only the design + chosen tabs persist — not the transient dialog flag.
-      partialize: (s) => ({ config: s.config, mode: s.mode, view: s.view, dynamicBrand: s.dynamicBrand }),
+      partialize: (s) => ({
+        config: s.config,
+        mode: s.mode,
+        view: s.view,
+        dynamicBrand: s.dynamicBrand,
+        barcodeSymbology: s.barcodeSymbology,
+        barcodeValue: s.barcodeValue
+      }),
       // v2 widened DynamicBrand (bg / gradient / two-tone / dot style) — backfill
       // the new fields for anyone with a v1 record so brandConfig is never partial.
       migrate: (persisted, version) => {

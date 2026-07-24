@@ -1,12 +1,17 @@
 import { useQrStore, type StudioView } from '../../stores/qrStore'
 import { CONTAINER } from '../../lib/layout'
 import QrStudio from './QrStudio'
+import BarcodeStudio from './BarcodeStudio'
 import DynamicStudio from './DynamicStudio'
+import ScanStudio from './ScanStudio'
 
-// Top-level shell: a Static | Dynamic switch above the two studios.
-//  • Static  — the original, unchanged free/on-device QR designer (QrStudio).
-//  • Dynamic — hosted, re-pointable codes with scan analytics (PRO).
-// QrStudio is rendered untouched; this only adds the tab chrome around it.
+// Top-level shell: a QR | Barcode | Dynamic | Scan switch above the studios.
+//  • QR       — the original, unchanged free/on-device QR designer (QrStudio).
+//  • Barcode  — 1D retail/shipping barcodes (bwip-js), static-only, on-device.
+//  • Dynamic  — hosted, re-pointable QR codes with scan analytics (PRO).
+//  • Scan     — camera scanner for QR + 1D barcodes (ZXing), on-device.
+// The QR and Dynamic studios are rendered untouched; this only adds tab chrome
+// and the two new studios (both lazy-load their scan/generate libraries).
 export default function QrApp() {
   const view = useQrStore((s) => s.view)
   const setView = useQrStore((s) => s.setView)
@@ -14,13 +19,18 @@ export default function QrApp() {
   return (
     <div>
       <div className="border-b border-slate-200 bg-white">
-        <div className={`${CONTAINER} flex items-center gap-1 pt-3`}>
-          <TopTab id="static" current={view} onClick={setView} label="Static" hint="Free · on your device" />
+        <div className={`${CONTAINER} flex items-center gap-1 pt-3 overflow-x-auto`}>
+          <TopTab id="static" current={view} onClick={setView} label="QR" hint="Free · on your device" />
+          <TopTab id="barcode" current={view} onClick={setView} label="Barcode" hint="1D · on your device" />
           <TopTab id="dynamic" current={view} onClick={setView} label="Dynamic" hint="Editable · with analytics" pro />
+          <TopTab id="scan" current={view} onClick={setView} label="Scan" hint="Camera · QR + barcodes" />
         </div>
       </div>
 
-      {view === 'static' ? <QrStudio /> : <DynamicStudio />}
+      {view === 'static' && <QrStudio />}
+      {view === 'barcode' && <BarcodeStudio />}
+      {view === 'dynamic' && <DynamicStudio />}
+      {view === 'scan' && <ScanStudio />}
     </div>
   )
 }
