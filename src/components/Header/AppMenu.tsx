@@ -1,77 +1,91 @@
-import { useEffect, useRef, useState } from 'react'
 import { useQrStore } from '../../stores/qrStore'
 
-// The per-app "Actions" dropdown that slots into <UniversalAppsNavBar />.
-// Holds reset / clear-logo actions; stays in sync with the store.
+// The per-app actions that slot into <UniversalAppsNavBar />'s `actions` prop —
+// ROWS ONLY, no trigger and no panel of its own. The SDK renders them inside the
+// merged profile pill, so the bar carries one dropdown on the right rather than
+// an Actions button on the left and an avatar on the right.
+//
+// Styling is inline rather than Tailwind to match the SDK dropdown's own rows
+// (the same 8px/14px rhythm and 13px label the profile and language rows use) —
+// these render inside SDK chrome, not ours. The per-row hover tints are kept
+// from the old panel: orange for clearing the logo, red for the destructive
+// reset.
 export default function AppMenu() {
   const config = useQrStore((s) => s.config)
   const reset = useQrStore((s) => s.reset)
   const clearLogo = useQrStore((s) => s.clearLogo)
   const hasLogo = !!config.logoDataUrl
 
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!open) return
-    function onDoc(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('mousedown', onDoc)
-    document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('mousedown', onDoc)
-      document.removeEventListener('keydown', onKey)
-    }
-  }, [open])
-
   return (
-    <div className="relative" ref={ref}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        aria-haspopup="true"
-        aria-expanded={open}
-        className="h-8 px-3 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium ring-1 ring-slate-200 flex items-center gap-1.5"
-      >
-        Actions
-        <svg viewBox="0 0 12 12" className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true">
-          <path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
-
-      {open && (
-        <div className="absolute left-0 mt-2 w-56 bg-white text-slate-900 rounded-lg shadow-xl border border-slate-200 z-50 overflow-hidden">
-          {hasLogo && (
-            <button
-              onClick={() => {
-                clearLogo()
-                setOpen(false)
-              }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-orange-50 hover:text-orange-700 text-sm"
-            >
-              <span aria-hidden="true">🧹</span>
-              <span className="flex-1 text-left font-medium">Remove logo</span>
-            </button>
-          )}
-          <button
-            onClick={() => {
-              if (confirm('Reset all settings to the defaults?')) {
-                reset()
-                setOpen(false)
-              }
-            }}
-            className={`w-full flex items-center gap-2 px-3 py-2.5 hover:bg-red-50 hover:text-red-700 text-sm ${
-              hasLogo ? 'border-t border-slate-100' : ''
-            }`}
-          >
-            <span aria-hidden="true">↺</span>
-            <span className="flex-1 text-left">Reset to defaults</span>
-          </button>
-        </div>
+    <>
+      {hasLogo && (
+        <MenuRow
+          icon="🧹"
+          tint={TINTS.warn}
+          onClick={clearLogo}
+          label="Remove logo"
+        />
       )}
-    </div>
+
+      <MenuRow
+        icon="↺"
+        tint={TINTS.danger}
+        onClick={() => { if (confirm('Reset all settings to the defaults?')) reset() }}
+        label="Reset to defaults"
+      />
+    </>
+  )
+}
+
+const TINTS = {
+  warn:   { bg: '#fff7ed', fg: '#c2410c' },
+  danger: { bg: '#fef2f2', fg: '#b91c1c' },
+} as const
+
+const REST_COLOR = '#374151'
+
+function MenuRow({
+  icon,
+  label,
+  tint,
+  onClick,
+}: {
+  icon: string
+  label: string
+  tint: { bg: string; fg: string }
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      style={{
+        display:    'flex',
+        alignItems: 'center',
+        gap:        10,
+        width:      '100%',
+        padding:    '8px 14px',
+        fontSize:   13,
+        fontFamily: 'inherit',
+        textAlign:  'left',
+        border:     0,
+        background: 'transparent',
+        color:      REST_COLOR,
+        cursor:     'pointer',
+        transition: 'background 120ms, color 120ms',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = tint.bg
+        e.currentTarget.style.color = tint.fg
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'transparent'
+        e.currentTarget.style.color = REST_COLOR
+      }}
+    >
+      <span aria-hidden>{icon}</span>
+      <span style={{ flex: 1, minWidth: 0, fontWeight: 500, lineHeight: 1.3 }}>{label}</span>
+    </button>
   )
 }
