@@ -1,13 +1,26 @@
 # Universal QR
 
-> Design branded, styled QR codes that just work — free and open source.
+> Design branded QR codes, generate barcodes and scan them back — free and open
+> source.
 
 > Open source — self-host free or hosted by UNI SIM.
 
-A clean Progressive Web App for designing **branded QR codes** entirely in your
-browser. Choose your colours, shape the modules, drop in your logo, and export a
-crisp PNG, SVG, JPEG or WebP — with no upload to a server. Everything is
-generated on your device.
+A clean Progressive Web App for **QR codes and barcodes**. Design a branded QR
+code, generate a retail or shipping barcode, or point your camera at either one
+to read it back — all of it in the browser, on your device, with nothing
+uploaded to a server.
+
+There are four tabs:
+
+| Tab | What it does | |
+|---|---|---|
+| **QR** | Design and export branded, styled QR codes | free · on your device |
+| **Barcode** | Generate 1D retail and shipping barcodes | free · on your device |
+| **Scan** | Read QR codes and barcodes with your camera | free · on your device |
+| **Dynamic** | One printed code, a destination you can change, with scan counts | hosted · sign-in |
+
+The first three never touch the network. **Dynamic** is the one exception — it
+is a hosted feature, and it says so on the tab.
 
 **[Try the live app →](https://opensource.unisim.co.uk/qr)**
 
@@ -15,6 +28,8 @@ Part of the [Universal Apps](https://opensource.unisim.co.uk) suite by
 [UNI SIM](https://www.unisim.co.uk).
 
 ## Features
+
+### QR — branded QR codes
 
 - **Content** — give each code a name (used as the download filename) and the
   URL or text it encodes
@@ -33,12 +48,61 @@ Part of the [Universal Apps](https://opensource.unisim.co.uk) suite by
   what exports
 - **Export** — download as **PNG, SVG, JPEG or WebP**, or copy the PNG straight
   to your clipboard
-- **Local-first** — nothing leaves your device; your last design is remembered
-  in the browser
+
+### Barcode — 1D retail and shipping codes
+
+- **Seven symbologies** — **Code 128** (any text, the general-purpose one),
+  **EAN-13**, **EAN-8**, **UPC-A**, **UPC-E**, **Code 39** and **ITF-14**
+  (shipping cartons)
+- **Check digits done for you** — supply the payload one digit short (12 digits
+  for EAN-13, 11 for UPC-A, 13 for ITF-14) and the final check digit is
+  calculated; paste the full-length value instead and it is verified
+- **Guided input** — each type carries its own hint, example and validation, so
+  a bad value is caught as you type rather than at print time
+- **Live preview** — the bars redraw as you type, with the human-readable value
+  printed underneath
+- **Export** — download as **PNG or SVG**, or copy the PNG to your clipboard
+
+Barcodes are deliberately plain: no logo, no colours, no branding. A 1D code has
+to survive a cheap laser scanner, and decoration is what breaks it.
+
+### Scan — read a code with your camera
+
+- **QR and 1D** — reads QR codes and barcodes (EAN, UPC, Code 128, Code 39 and
+  the rest) from the live camera
+- **The camera stays off until you ask** — nothing starts on opening the tab, so
+  you never get a surprise permission prompt; the camera is released again when
+  you stop or switch tabs
+- **Tells you what it found** — the code's format, the decoded text, a **Copy**
+  button, and an **Open link** button when the result is a URL
+- **On-device** — frames are decoded in the browser and never uploaded
+
+### Dynamic — one code, a destination you can change *(hosted)*
+
+Everything above is free and offline. Dynamic codes are the hosted exception:
+they need somewhere to live in order to redirect and to count scans.
+
+- **Re-point a printed code** — the code encodes a fixed short link, and you
+  change where that link sends people whenever you like. The printed artwork
+  never changes
+- **Scan analytics** — a total scan count, the time of the last scan, and a
+  30-day sparkline per code
+- **Branded by default** — dynamic codes pick up your organisation's colour and
+  icon automatically, with per-field overrides if you want something else
+- **Sign-in required** — codes are held against your
+  [Universal ID](https://app.unisim.co.uk). Each live code uses one token; every
+  account gets one free, and deleting a code returns its token
+
+### Across the app
+
+- **Local-first** — the QR, Barcode and Scan tabs never upload anything; your
+  last design is remembered in the browser
 - **Installable** PWA — add to home screen on phone or install on desktop; works
-  offline after first load
+  offline after first load (the Dynamic tab needs a connection)
 
 ## How to use
+
+**To design a QR code:**
 
 1. **Enter a URL** (or any text) and give your code a name
 2. **Pick a preset** to start, then fine-tune colours, module shape and size
@@ -47,16 +111,29 @@ Part of the [Universal Apps](https://opensource.unisim.co.uk) suite by
 4. **Choose a format** and hit **Download** — or **Copy** the PNG to paste
    elsewhere
 
+**To generate a barcode:** open the **Barcode** tab, pick the type your scanner
+or system expects, type the value, and download the PNG or SVG.
+
+**To read a code:** open the **Scan** tab, hit **Start scanning** and point your
+camera at it.
+
 > **Tip:** when using a logo, keep error correction at **Q** or **H** and
-> scan-test the code before printing at small sizes.
+> scan-test the code before printing at small sizes. The same goes for
+> barcodes — always scan-test before a small print run.
 
 ## Development
 
 Built with [Vite](https://vitejs.dev/), [React](https://react.dev/),
-[TypeScript](https://www.typescriptlang.org/),
-[Tailwind CSS](https://tailwindcss.com/) and
-[qr-code-styling](https://github.com/kozakdenys/qr-code-styling). The shared
+[TypeScript](https://www.typescriptlang.org/) and
+[Tailwind CSS](https://tailwindcss.com/). The codes themselves come from
+[qr-code-styling](https://github.com/kozakdenys/qr-code-styling) (QR),
+[bwip-js](https://github.com/metafloor/bwip-js) (1D barcodes) and
+[ZXing](https://github.com/zxing-js/browser) (camera scanning). The shared
 navigation bar comes from [`@unisim/sdk`](https://www.npmjs.com/package/@unisim/sdk).
+
+bwip-js and ZXing are both loaded on demand, the first time you open the
+**Barcode** or **Scan** tab, so they stay out of the initial bundle and the QR
+designer's first paint is unaffected.
 
 ```bash
 npm install
