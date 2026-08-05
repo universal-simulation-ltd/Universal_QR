@@ -2,7 +2,7 @@
 # Launch a local preview of Universal QR (Vite + React 18 + PWA, branded QR
 # code designer). Runs the dev server in the foreground — press Ctrl-C to stop.
 #
-# Usage:  ./scripts/preview.sh [port]      (default 5178)
+# Usage:  ./scripts/preview.sh [port]      (default 5176)
 #
 # Default port is offset from Vite's 5173 so PDF / Webinar / Images / QR can
 # run at the same time without clashing. First run installs deps if missing.
@@ -11,7 +11,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-PORT="${1:-5178}"
+PORT="${1:-5176}"
 
 if [[ ! -d node_modules ]]; then
   echo "Installing dependencies (first run)…"
@@ -19,4 +19,4 @@ if [[ ! -d node_modules ]]; then
 fi
 
 echo "Universal QR → http://localhost:$PORT"
-exec npm run dev -- --port "$PORT"
+exec npm run dev -- --port "$PORT" --strictPort

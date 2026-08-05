@@ -2,7 +2,7 @@
 # code designer). Runs the dev server in the foreground — press Ctrl-C to stop.
 # Windows equivalent of preview.sh.
 #
-# Usage:  .\scripts\preview.ps1 [port]     (default 5178)
+# Usage:  .\scripts\preview.ps1 [port]     (default 5176)
 #
 # Default port is offset from Vite's 5173 so PDF / Webinar / Images / QR can
 # run at the same time without clashing. First run installs deps if missing.
@@ -10,7 +10,7 @@
 $ErrorActionPreference = 'Stop'
 Push-Location (Join-Path $PSScriptRoot '..')
 try {
-    $port = if ($args.Count -ge 1) { $args[0] } else { '5178' }
+    $port = if ($args.Count -ge 1) { $args[0] } else { '5176' }
 
     if (-not (Test-Path 'node_modules')) {
         Write-Host "Installing dependencies (first run)..." -ForegroundColor Cyan
@@ -19,7 +19,7 @@ try {
     }
 
     Write-Host "Universal QR -> http://localhost:$port" -ForegroundColor Green
-    npm run dev -- --port $port
+    npm run dev -- --port $port --strictPort
 } finally {
     Pop-Location
 }
