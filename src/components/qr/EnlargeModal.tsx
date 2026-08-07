@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import QRCodeStyling from 'qr-code-styling'
 import type { QrConfig } from '../../lib/qr'
 import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark } from '../../lib/qr'
+import { composeShapedCanvas } from '../../lib/compose'
 import { UNISIM_MARK } from '../../lib/unisimMark'
 
 // Renders the QR big and bright, filling the screen, so it's easy to scan from
@@ -11,19 +12,38 @@ const ENLARGE_SIZE = 900
 export default function EnlargeModal({ config, onClose }: { config: QrConfig; onClose: () => void }) {
   const holderRef = useRef<HTMLDivElement>(null)
 
+  const shaped = config.frameShape !== 'square'
+
   useEffect(() => {
+    function style(canvas: HTMLCanvasElement) {
+      canvas.style.width = '100%'
+      canvas.style.height = 'auto'
+      canvas.style.display = 'block'
+    }
+
+    if (shaped) {
+      // The point of this modal is that another phone can scan it, so it has to
+      // show the code as exported — plate and all — not a square stand-in.
+      let cancelled = false
+      composeShapedCanvas(config, ENLARGE_SIZE)
+        .then((canvas) => {
+          if (cancelled || !holderRef.current) return
+          style(canvas)
+          holderRef.current.innerHTML = ''
+          holderRef.current.appendChild(canvas)
+        })
+        .catch(() => { /* nothing to show; the modal stays blank rather than lying */ })
+      return () => { cancelled = true }
+    }
+
     const qr = new QRCodeStyling(buildQrOptions({ ...config, size: ENLARGE_SIZE }))
     if (holderRef.current) {
       holderRef.current.innerHTML = ''
       qr.append(holderRef.current)
       const canvas = holderRef.current.querySelector('canvas')
-      if (canvas) {
-        canvas.style.width = '100%'
-        canvas.style.height = 'auto'
-        canvas.style.display = 'block'
-      }
+      if (canvas) style(canvas)
     }
-  }, [config])
+  }, [config, shaped])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose() }
@@ -31,7 +51,7 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  const stamp = showsCornerMark(config)
+  const stamp = showsCornerMark(config) && !shaped
   const { badge, inset } = cornerStampGeometry(ENLARGE_SIZE, config.margin)
   const badgePct = (badge / ENLARGE_SIZE) * 100
   const insetPct = (inset / ENLARGE_SIZE) * 100
@@ -64,7 +84,7 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
           the screen doesn't dismiss it. */}
       <div
         className="relative w-full max-w-[min(88vw,70vh)] rounded-2xl p-4 shadow-lg ring-1 ring-slate-200"
-        style={{ background: config.bgTransparent ? '#ffffff' : config.bgColor }}
+        style={{ background: config.bgTransparent || shaped ? '#ffffff' : config.bgColor }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative leading-[0]">

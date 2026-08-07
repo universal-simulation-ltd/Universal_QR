@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import QRCodeStyling from 'qr-code-styling'
 import { useQrStore } from '../../stores/qrStore'
 import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark } from '../../lib/qr'
+import { composeShapedCanvas } from '../../lib/compose'
 import { UNISIM_MARK } from '../../lib/unisimMark'
 import EnlargeModal from './EnlargeModal'
 
@@ -18,6 +19,8 @@ export default function QrPreview() {
     setEnlarged(true)
   }
 
+  const shaped = config.frameShape !== 'square'
+
   // Create the instance once and mount its canvas into the holder.
   useEffect(() => {
     const qr = new QRCodeStyling(buildQrOptions(config))
@@ -33,18 +36,53 @@ export default function QrPreview() {
   }, [])
 
   // Re-render on any config change and keep the canvas responsive.
+  //
+  // Two paths on purpose. A square code stays on the library's own live canvas,
+  // updated in place — synchronous, no flicker while typing a URL, and exactly
+  // what shipped. A shaped code has to be composited (plate + inset code), which
+  // is async, so it swaps the holder's contents for a canvas we drew ourselves.
+  // The `cancelled` latch matters: keystrokes queue several composites and the
+  // last one to *finish* is not necessarily the last one *asked for*.
   useEffect(() => {
-    qrRef.current?.update(buildQrOptions(config))
-    const canvas = holderRef.current?.querySelector('canvas')
-    if (canvas) {
+    function style(canvas: HTMLCanvasElement) {
       canvas.style.width = '100%'
       canvas.style.height = 'auto'
       canvas.style.maxWidth = `${config.size}px`
       canvas.style.display = 'block'
     }
-  }, [config])
 
-  const stamp = showsCornerMark(config)
+    if (!shaped) {
+      // Coming back from a shaped design, the holder is showing OUR canvas and
+      // the library's is detached — updating it would repaint something nobody
+      // can see. Re-append before updating.
+      const composed = holderRef.current?.querySelector('canvas[data-composed]')
+      if (composed && holderRef.current && qrRef.current) {
+        holderRef.current.innerHTML = ''
+        qrRef.current.append(holderRef.current)
+      }
+      qrRef.current?.update(buildQrOptions(config))
+      const canvas = holderRef.current?.querySelector('canvas')
+      if (canvas) style(canvas)
+      return
+    }
+
+    let cancelled = false
+    composeShapedCanvas(config, config.size)
+      .then((canvas) => {
+        if (cancelled || !holderRef.current) return
+        canvas.dataset.composed = 'true'
+        style(canvas)
+        holderRef.current.innerHTML = ''
+        holderRef.current.appendChild(canvas)
+      })
+      .catch(() => { /* a transient bad config (e.g. empty data) — keep the last frame */ })
+    return () => { cancelled = true }
+  }, [config, shaped])
+
+  // For a shaped code the stamp is already painted into the composed canvas
+  // (it has to be — it sits inside the plate, not the image corner), so the DOM
+  // overlay below would double it up.
+  const stamp = showsCornerMark(config) && !shaped
   const { badge, inset } = cornerStampGeometry(config.size, config.margin)
   const badgePct = (badge / config.size) * 100
   const insetPct = (inset / config.size) * 100
@@ -52,10 +90,13 @@ export default function QrPreview() {
   return (
     <div className="flex flex-col items-center gap-4">
       <div
+        // A shaped code needs the checker behind it too, even with an opaque
+        // plate colour: painting that same colour on the square card behind the
+        // circle would fill the corners back in and hide the silhouette.
         className={`relative w-full max-w-[360px] rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-200 group ${
-          config.bgTransparent ? 'checker-bg' : ''
+          config.bgTransparent || shaped ? 'checker-bg' : ''
         } ${hasData ? 'cursor-pointer' : ''}`}
-        style={config.bgTransparent ? undefined : { background: config.bgColor }}
+        style={config.bgTransparent || shaped ? undefined : { background: config.bgColor }}
         onClick={handlePreviewClick}
         role={hasData ? 'button' : undefined}
         tabIndex={hasData ? 0 : undefined}

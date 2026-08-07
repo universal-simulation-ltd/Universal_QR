@@ -1,5 +1,6 @@
 import QRCodeStyling from 'qr-code-styling'
 import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark, type ExportFormat, type QrConfig } from './qr'
+import { composeShapedCanvas, composeShapedSvg } from './compose'
 import { UNISIM_MARK } from './unisimMark'
 
 /** Slugify the QR's name into a safe filename stem. */
@@ -63,6 +64,12 @@ function blobToDataUrl(blob: Blob): Promise<string> {
  *  Scales the quiet-zone margin down with the size so the thumbnail framing
  *  matches the full-size preview. */
 export async function renderThumbnailDataUrl(config: QrConfig, size = 160): Promise<string> {
+  if (config.frameShape !== 'square') {
+    // Shaped designs go through the composer, or the gallery thumbnail would
+    // show a plain square code that the saved design is not.
+    const canvas = await composeShapedCanvas(config, size)
+    return canvas.toDataURL('image/png')
+  }
   const margin = Math.max(2, Math.round((config.margin / config.size) * size))
   const qr = new QRCodeStyling(buildQrOptions({ ...config, size, margin }, 'canvas'))
   const raw = (await qr.getRawData('png')) as Blob | null
@@ -96,6 +103,35 @@ export async function renderQrBlob(
   format: ExportFormat,
 ): Promise<{ blob: Blob; fileName: string; contentType: string }> {
   const stem = fileStem(qrDisplayName(config))
+
+  // ── Shaped plate (circle / hexagon / star / …) ──────────────────────────
+  // Handled first and completely separately. 'square' below is the original
+  // code path, unchanged, so nothing that already works can regress.
+  if (config.frameShape !== 'square') {
+    if (format === 'svg') {
+      const svg = await composeShapedSvg(config, config.size)
+      return { blob: new Blob([svg], { type: 'image/svg+xml' }), fileName: `${stem}.svg`, contentType: 'image/svg+xml' }
+    }
+    const shaped = await composeShapedCanvas(config, config.size)
+    let out = shaped
+    // JPEG has no alpha, and a shaped plate leaves the corners transparent by
+    // definition — without this flatten they would render black.
+    if (format === 'jpeg') {
+      const flat = document.createElement('canvas')
+      flat.width = shaped.width
+      flat.height = shaped.height
+      const fctx = flat.getContext('2d')
+      if (!fctx) throw new Error('Canvas not supported')
+      fctx.fillStyle = '#ffffff'
+      fctx.fillRect(0, 0, flat.width, flat.height)
+      fctx.drawImage(shaped, 0, 0)
+      out = flat
+    }
+    const blob: Blob = await new Promise((resolve, reject) =>
+      out.toBlob((b) => (b ? resolve(b) : reject(new Error('Export failed'))), MIME[format], 0.92)
+    )
+    return { blob, fileName: `${stem}.${format}`, contentType: MIME[format] }
+  }
 
   if (format === 'svg') {
     const qr = new QRCodeStyling(buildQrOptions(config, 'svg'))
@@ -161,6 +197,19 @@ export async function downloadQr(config: QrConfig, format: ExportFormat): Promis
  *  false when the browser blocks clipboard image writes. */
 export async function copyQrToClipboard(config: QrConfig): Promise<boolean> {
   if (!navigator.clipboard || typeof ClipboardItem === 'undefined') return false
+
+  if (config.frameShape !== 'square') {
+    const canvas = await composeShapedCanvas(config, config.size)
+    const shaped: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'))
+    if (!shaped) return false
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': shaped })])
+      return true
+    } catch {
+      return false
+    }
+  }
+
   const qr = new QRCodeStyling(buildQrOptions(config, 'canvas'))
   const raw = (await qr.getRawData('png')) as Blob | null
   if (!raw) return false

@@ -5,10 +5,12 @@ import {
   CORNER_SQUARE_TYPES,
   DOT_TYPES,
   PRESETS,
+  isInvertedContrast,
   type CornerDotType,
   type CornerSquareType,
   type DotType
 } from '../../lib/qr'
+import { FRAME_SHAPES, frameSizeNote, type FrameShape } from '../../lib/frames'
 
 export default function Controls() {
   const config = useQrStore((s) => s.config)
@@ -17,6 +19,8 @@ export default function Controls() {
   const setLogo = useQrStore((s) => s.setLogo)
   const clearLogo = useQrStore((s) => s.clearLogo)
   const fileRef = useRef<HTMLInputElement>(null)
+  const frameNote = frameSizeNote(config.frameShape, config.size)
+  const inverted = isInvertedContrast(config)
 
   function onLogoPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -122,10 +126,30 @@ export default function Controls() {
             />
           </div>
         )}
+
+        {inverted && (
+          <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
+            <strong className="font-semibold">Light modules on a dark background.</strong>{' '}
+            The QR standard expects the opposite, and strict readers refuse an inverted
+            code outright — this app's own Scan tab is one of them. Most phone cameras
+            cope, but swap the two colours if the code has to work everywhere.
+          </p>
+        )}
       </Section>
 
       {/* ── Shape & size ────────────────────────────────────────────────── */}
-      <Section title="Shape & size" desc="Module rounding, corner styling and dimensions.">
+      <Section title="Shape & size" desc="The code's outline, module rounding, corner styling and dimensions.">
+        <OptionRow
+          label="Code shape"
+          value={config.frameShape}
+          options={FRAME_SHAPES}
+          onChange={(v) => update({ frameShape: v as FrameShape })}
+        />
+        {frameNote && (
+          <p className="-mt-1 text-xs text-slate-500">
+            {frameNote} The code is never trimmed to fit the shape — that would stop it scanning.
+          </p>
+        )}
         <OptionRow
           label="Module style"
           value={config.dotType}

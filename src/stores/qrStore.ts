@@ -107,7 +107,7 @@ export const useQrStore = create<QrState>()(
     }),
     {
       name: 'universal-qr:config',
-      version: 2,
+      version: 3,
       // Only the design + chosen tabs persist — not the transient dialog flag.
       partialize: (s) => ({
         config: s.config,
@@ -119,9 +119,17 @@ export const useQrStore = create<QrState>()(
       }),
       // v2 widened DynamicBrand (bg / gradient / two-tone / dot style) — backfill
       // the new fields for anyone with a v1 record so brandConfig is never partial.
+      // v3 added config.frameShape. This backfill is NOT cosmetic: the renderer
+      // looks the shape up in a table, so a persisted v2 config arriving with
+      // frameShape undefined would produce NaN geometry and a blank canvas for
+      // every returning user.
       migrate: (persisted, version) => {
-        const p = (persisted ?? {}) as { dynamicBrand?: Partial<DynamicBrand> }
+        const p = (persisted ?? {}) as {
+          dynamicBrand?: Partial<DynamicBrand>
+          config?: Partial<QrConfig>
+        }
         if (version < 2) p.dynamicBrand = { ...DEFAULT_DYNAMIC_BRAND, ...(p.dynamicBrand ?? {}) }
+        if (version < 3 && p.config) p.config = { ...DEFAULT_CONFIG, ...p.config, frameShape: p.config.frameShape ?? 'square' }
         return p as unknown as QrState
       }
     }

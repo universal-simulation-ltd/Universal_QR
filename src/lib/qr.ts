@@ -1,5 +1,6 @@
 import type { Options as QrOptions, DotType, CornerSquareType, CornerDotType, ErrorCorrectionLevel } from 'qr-code-styling'
 import { UNISIM_MARK } from './unisimMark'
+import type { FrameShape } from './frames'
 
 export type { DotType, CornerSquareType, CornerDotType, ErrorCorrectionLevel }
 export type ExportFormat = 'png' | 'svg' | 'jpeg' | 'webp'
@@ -39,6 +40,12 @@ export interface QrConfig {
   dotType: DotType
   cornerSquareType: CornerSquareType
   cornerDotType: CornerDotType
+
+  /** The silhouette of the whole code — a circle, hexagon or star instead of
+   *  the usual square. This shapes the PLATE the code sits on; the code itself
+   *  is rendered smaller and centred inside it, never clipped (see frames.ts).
+   *  'square' is the default and takes the original render path untouched. */
+  frameShape: FrameShape
 
   // ── Logo / branding ────────────────────────────────────────────────────────
   /** A user-supplied brand logo (data URI), placed in the centre. */
@@ -94,6 +101,7 @@ export const DEFAULT_CONFIG: QrConfig = {
   dotType: 'rounded',
   cornerSquareType: 'extra-rounded',
   cornerDotType: 'dot',
+  frameShape: 'square',
   logoDataUrl: null,
   logoSize: 0.28,
   logoMargin: 6,
@@ -121,7 +129,8 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       bgColor: '#ffffff',
       bgTransparent: false,
       useGradient: false,
-      matchCornerColor: true
+      matchCornerColor: true,
+      frameShape: 'square'
     }
   },
   {
@@ -134,7 +143,8 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       bgColor: '#ffffff',
       bgTransparent: false,
       useGradient: false,
-      matchCornerColor: true
+      matchCornerColor: true,
+      frameShape: 'square'
     }
   },
   {
@@ -148,7 +158,8 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       bgTransparent: false,
       useGradient: false,
       matchCornerColor: false,
-      cornerColor: '#4f46e5'
+      cornerColor: '#4f46e5',
+      frameShape: 'square'
     }
   },
   {
@@ -163,7 +174,8 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       gradientRotation: 45,
       bgColor: '#ffffff',
       bgTransparent: false,
-      matchCornerColor: true
+      matchCornerColor: true,
+      frameShape: 'square'
     }
   },
   {
@@ -180,10 +192,64 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       // ~4:1+ contrast here, far stronger than the ~3.7:1 they'd manage on white.
       bgColor: '#1a1025',
       bgTransparent: false,
-      matchCornerColor: true
+      matchCornerColor: true,
+      frameShape: 'square'
+    }
+  },
+  {
+    // Every preset above pins frameShape back to 'square' for the same reason it
+    // pins the background: a patch merges onto whatever the user already had, so
+    // without it "Classic" would quietly keep a star.
+    name: 'Circle',
+    patch: {
+      dotType: 'dots',
+      cornerSquareType: 'dot',
+      cornerDotType: 'dot',
+      fgColor: '#0f172a',
+      bgColor: '#ffffff',
+      bgTransparent: false,
+      useGradient: false,
+      matchCornerColor: true,
+      frameShape: 'circle'
+    }
+  },
+  {
+    name: 'Star',
+    patch: {
+      dotType: 'extra-rounded',
+      cornerSquareType: 'extra-rounded',
+      cornerDotType: 'dot',
+      fgColor: '#ffffff',
+      bgColor: '#ea580c',
+      bgTransparent: false,
+      useGradient: false,
+      matchCornerColor: true,
+      frameShape: 'star'
     }
   }
 ]
+
+/** Relative luminance (0–1) of a `#rrggbb` colour, sRGB-weighted. */
+function luminance(hex: string): number {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim())
+  if (!m) return 0
+  const n = parseInt(m[1], 16)
+  return (0.2126 * ((n >> 16) & 0xff) + 0.7152 * ((n >> 8) & 0xff) + 0.0722 * (n & 0xff)) / 255
+}
+
+/** True when the modules are LIGHTER than the background — an inverted code.
+ *
+ *  The QR standard is dark-on-light, and strict decoders reject the inverse
+ *  rather than guessing: verified 2026-08-07 against @zxing/library (the decoder
+ *  this app's own Scan tab uses), which finds no code at all in the shipped
+ *  default palette (orange #fe8c01 on black) and in the Sunset preset, but reads
+ *  both instantly with the two colours swapped. Phone cameras are generally more
+ *  forgiving, which is why this warns rather than blocks. */
+export function isInvertedContrast(config: QrConfig): boolean {
+  if (config.bgTransparent) return false
+  const fg = Math.max(luminance(config.fgColor), config.useGradient ? luminance(config.gradientColor) : 0)
+  return fg > luminance(config.bgColor) + 0.05
+}
 
 /** Best-effort hostname from the encoded data (empty for non-URL text). */
 export function hostnameOf(data: string): string {

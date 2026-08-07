@@ -1,4 +1,4 @@
-import type { QrConfig } from './qr'
+import { DEFAULT_CONFIG, type QrConfig } from './qr'
 
 // ── Saved-on-this-device QR designs ──────────────────────────────────────────
 // A free, no-account way to keep the QR codes you design in this browser and
@@ -27,7 +27,15 @@ export function loadLocalDesigns(): LocalDesign[] {
     const raw = localStorage.getItem(KEY)
     if (!raw) return []
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? (parsed as LocalDesign[]) : []
+    if (!Array.isArray(parsed)) return []
+    // Merge each stored config over the current defaults rather than trusting it
+    // whole. Designs saved before a field existed come back missing it, and the
+    // renderer looks `frameShape` up in a table — an undefined there is NaN
+    // geometry and a blank code, not a cosmetic difference.
+    return (parsed as LocalDesign[]).map((d) => ({
+      ...d,
+      config: { ...DEFAULT_CONFIG, ...d.config }
+    }))
   } catch {
     return []
   }
