@@ -88,7 +88,7 @@ export default function DynamicStudio() {
   ])
   const hasOrgBranding = !!(orgColor || orgIcon)
 
-  // Apply one of the named style presets (Classic / Rounded / Dots / Indigo /
+  // Apply one of the named style presets (Classic / Rounded / Dots /
   // Sunset). It sets the module colour explicitly, so it stops following the org.
   function applyPreset(patch: Partial<QrConfig>) {
     const b: Partial<typeof dynamicBrand> = {}

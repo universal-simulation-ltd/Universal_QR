@@ -149,6 +149,11 @@ export const DEFAULT_CONFIG: QrConfig = {
 
 /** One-click starting points shown as a row of chips above the controls.
  *
+ *  Every preset pins the fields another preset might have changed — background,
+ *  frameShape, decorStyle — not just the ones it cares about. A patch merges
+ *  onto whatever the user already had, so without pinning them "Classic" would
+ *  quietly keep a star silhouette and a burst around it.
+ *
  *  Every preset sets an explicit, opaque background alongside its module
  *  colours. A preset patch is merged onto the user's current config, so if it
  *  only specified foreground colours it could land dark-on-dark (e.g. the
@@ -199,24 +204,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       bgTransparent: false,
       useGradient: false,
       matchCornerColor: false,
-      cornerColor: '#4f46e5',
-      frameShape: 'square'
-    }
-  },
-  {
-    name: 'Indigo',
-    patch: {
-      decorStyle: 'none',
-      dotType: 'classy-rounded',
-      cornerSquareType: 'extra-rounded',
-      cornerDotType: 'dot',
-      useGradient: true,
-      fgColor: '#4f46e5',
-      gradientColor: '#9333ea',
-      gradientRotation: 45,
-      bgColor: '#ffffff',
-      bgTransparent: false,
-      matchCornerColor: true,
+      cornerColor: '#e05504',
       frameShape: 'square'
     }
   },
@@ -263,25 +251,6 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       decorStyle: 'burst',
       logoSize: 0.3,
       hideBackgroundDots: true
-    }
-  },
-  {
-    // Every preset above pins frameShape back to 'square' for the same reason it
-    // pins the background: a patch merges onto whatever the user already had, so
-    // without it "Classic" would quietly keep a star. The same now goes for
-    // decorStyle — without pinning it, "Classic" would keep a burst.
-    name: 'Circle',
-    patch: {
-      decorStyle: 'burst',
-      dotType: 'dots',
-      cornerSquareType: 'dot',
-      cornerDotType: 'dot',
-      fgColor: '#0f172a',
-      bgColor: '#ffffff',
-      bgTransparent: false,
-      useGradient: false,
-      matchCornerColor: true,
-      frameShape: 'circle'
     }
   },
   {
