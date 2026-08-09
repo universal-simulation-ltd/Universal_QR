@@ -71,7 +71,29 @@ function innerAt(codeInner: number, size: number, angle: number): number {
   const half = codeInner / 2
   const c = Math.abs(Math.cos(angle))
   const sn = Math.abs(Math.sin(angle))
-  return half / Math.max(c, sn, 1e-6) + size * 0.018
+  // A hair off the code's edge, not a comfortable gap. The QR's quiet zone is
+  // INSIDE codeInner, so a mark touching that boundary is still outside the
+  // zone — the clearance a decoder needs is already accounted for, and every
+  // extra pixel here is just a white band advertising where the code stops.
+  // How small this can safely go is not a matter of opinion: it is checked by
+  // decoding each shape at four sizes.
+  return half / Math.max(c, sn, 1e-6) + size * 0.003
+}
+
+/**
+ * How far past `innerAt` a given mark actually starts.
+ *
+ * Without this the decoration begins at exactly the same distance from the code
+ * all the way round, which draws a perfectly straight-edged square hole — and a
+ * straight edge is precisely what makes the eye read "square code, separate
+ * decoration around it". Ragging the inner boundary removes the line there is
+ * to see, so the code appears to dissolve into the marks instead of sitting in
+ * a cut-out. Biased towards zero (rand³) so most marks still crowd the code and
+ * only a few sit back, which reads as texture rather than as a wobbly ring.
+ */
+function ragged(rand: () => number, size: number): number {
+  const r = rand()
+  return size * 0.055 * r * r * r
 }
 
 /**
@@ -101,8 +123,8 @@ function burstMarks(shape: FrameShape, size: number, codeInner: number): DecorMa
   const cx = size / 2
   const cy = size / 2
   const rand = seeded(SEED)
-  const SPOKES = 120
-  const BANDS = 3
+  const SPOKES = 150
+  const BANDS = 4
   const marks: DecorMark[] = []
 
   for (let i = 0; i < SPOKES; i++) {
@@ -110,7 +132,7 @@ function burstMarks(shape: FrameShape, size: number, codeInner: number): DecorMa
     // and leave gaps, which reads as a mistake rather than as a pattern.
     const slot = (i + 0.5) / SPOKES
     const angle = slot * Math.PI * 2 + (rand() - 0.5) * ((Math.PI * 2) / SPOKES) * 0.9
-    const r0 = innerAt(codeInner, size, angle)
+    const r0 = innerAt(codeInner, size, angle) + ragged(rand, size)
     const r1 = frameRadiusAt(shape, size, angle) - size * 0.02
     if (r1 <= r0) continue
     const span = r1 - r0
@@ -118,19 +140,39 @@ function burstMarks(shape: FrameShape, size: number, codeInner: number): DecorMa
     for (let band = 0; band < BANDS; band++) {
       const bandT = band / (BANDS - 1)
       // Thinning outward is what makes it read as a burst rather than a
-      // striped ring; the innermost band is nearly solid, the outermost sparse.
-      if (rand() < 0.08 + 0.5 * bandT) continue
+      // striped ring; the innermost band is solid, the outermost sparse.
+      if (band > 0 && rand() < 0.5 * bandT) continue
       const b0 = r0 + (span * band) / BANDS
       const b1 = r0 + (span * (band + 1)) / BANDS
       const len = (b1 - b0) * (0.35 + 0.45 * rand())
       const s0 = b0 + (b1 - b0 - len) * rand()
+      const w = Math.max(1, size * (0.012 - 0.005 * bandT))
+
+      // The innermost band is DOTS, not dashes, and the band beyond it is
+      // mixed. A dash is a different material from a QR module, and a ring of
+      // a different material is what makes the code look like a separate
+      // object dropped into a decorated frame. Matching the module vocabulary
+      // where the two meet, then growing into dashes outward, is what makes
+      // the code appear to dissolve into the burst rather than sit inside it.
+      const asDot = band === 0 || (band === 1 && rand() < 0.45)
+      if (asDot) {
+        const rm = b0 + (b1 - b0) * rand()
+        marks.push({
+          kind: 'dot',
+          cx: cx + rm * Math.cos(angle),
+          cy: cy + rm * Math.sin(angle),
+          r: w * 0.62
+        })
+        continue
+      }
+
       marks.push({
         kind: 'line',
         x1: cx + s0 * Math.cos(angle),
         y1: cy + s0 * Math.sin(angle),
         x2: cx + (s0 + len) * Math.cos(angle),
         y2: cy + (s0 + len) * Math.sin(angle),
-        w: Math.max(1, size * (0.012 - 0.005 * bandT))
+        w
       })
     }
   }
@@ -147,7 +189,7 @@ function scatterMarks(shape: FrameShape, size: number, codeInner: number): Decor
 
   for (let i = 0; i < COUNT; i++) {
     const angle = rand() * Math.PI * 2
-    const r0 = innerAt(codeInner, size, angle)
+    const r0 = innerAt(codeInner, size, angle) + ragged(rand, size)
     const r1 = frameRadiusAt(shape, size, angle) - size * 0.02
     if (r1 <= r0) continue
     // sqrt-distributed radius gives an EVEN area density; a linear one piles
