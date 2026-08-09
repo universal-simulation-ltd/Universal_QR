@@ -5,7 +5,8 @@ import {
   CORNER_SQUARE_TYPES,
   DOT_TYPES,
   PRESETS,
-  isInvertedContrast,
+  qrContrastIssue,
+  MIN_QR_CONTRAST,
   type CornerDotType,
   type CornerSquareType,
   type DotType
@@ -20,7 +21,7 @@ export default function Controls() {
   const clearLogo = useQrStore((s) => s.clearLogo)
   const fileRef = useRef<HTMLInputElement>(null)
   const frameNote = frameSizeNote(config.frameShape, config.size)
-  const inverted = isInvertedContrast(config)
+  const contrast = qrContrastIssue(config)
 
   function onLogoPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -127,12 +128,26 @@ export default function Controls() {
           </div>
         )}
 
-        {inverted && (
+        {contrast?.kind === 'inverted' && (
           <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
             <strong className="font-semibold">Light modules on a dark background.</strong>{' '}
             The QR standard expects the opposite, and strict readers refuse an inverted
             code outright — this app's own Scan tab is one of them. Most phone cameras
             cope, but swap the two colours if the code has to work everywhere.
+          </p>
+        )}
+
+        {contrast?.kind === 'low' && (
+          <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
+            <strong className="font-semibold">
+              Not much contrast between the {contrast.where === 'corners' ? 'corners' : 'modules'} and the
+              background.
+            </strong>{' '}
+            {contrast.ratio.toFixed(1)}:1, where a reader wants at least {MIN_QR_CONTRAST}:1.
+            {contrast.where === 'corners'
+              ? ' A scanner finds the three corner squares before it reads anything else, so this is the riskiest place to be short.'
+              : ' Codes this close tend to scan on screen and then fail printed or at a distance.'}{' '}
+            Darken the {contrast.where === 'corners' ? 'corner' : 'module'} colour or lighten the background.
           </p>
         )}
       </Section>

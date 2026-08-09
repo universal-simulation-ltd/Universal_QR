@@ -97,6 +97,13 @@ they need somewhere to live in order to redirect and to count scans.
 
 - **Local-first** — the QR, Barcode and Scan tabs never upload anything; your
   last design is remembered in the browser
+- **Built to actually scan** — the default design and every preset are checked by
+  rendering them through this app's own pipeline and decoding the result with its
+  own reader, at export size and at 96 px. If you change the colours yourself, the
+  designer warns you when the code comes out inverted (light modules on a dark
+  ground, which strict readers refuse) or when the contrast is too thin to read
+  reliably — including on the three corner squares, which a scanner has to find
+  before it reads anything else
 - **Installable** PWA — add to home screen on phone or install on desktop; works
   offline after first load (the Dynamic tab needs a connection)
 
