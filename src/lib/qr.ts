@@ -265,7 +265,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
     // decorStyle — without pinning it, "Classic" would keep a burst.
     name: 'Circle',
     patch: {
-      decorStyle: 'none',
+      decorStyle: 'burst',
       dotType: 'dots',
       cornerSquareType: 'dot',
       cornerDotType: 'dot',
@@ -280,7 +280,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
   {
     name: 'Star',
     patch: {
-      decorStyle: 'none',
+      decorStyle: 'burst',
       dotType: 'extra-rounded',
       cornerSquareType: 'extra-rounded',
       cornerDotType: 'dot',

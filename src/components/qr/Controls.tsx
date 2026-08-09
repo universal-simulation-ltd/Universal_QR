@@ -195,28 +195,53 @@ export default function Controls() {
           label="Code shape"
           value={config.frameShape}
           options={FRAME_SHAPES}
-          onChange={(v) => update({ frameShape: v as FrameShape })}
+          onChange={(v) => {
+            // A shaped plate arrives DECORATED. The empty ring is the thing that
+            // makes a shaped code look like a square one dropped on a circle, so
+            // "shape with nothing in the gap" is the state nobody actually wants
+            // as a starting point — they can still turn it off. Square goes back
+            // to none, because there is no gap to fill and leaving a style set
+            // would silently re-decorate the next shape they picked.
+            const frameShape = v as FrameShape
+            if (frameShape === 'square') update({ frameShape, decorStyle: 'none' })
+            else if (config.decorStyle === 'none') update({ frameShape, decorStyle: 'burst' })
+            else update({ frameShape })
+          }}
         />
 
-        {/* Only offered on a shaped plate: a square one has no space around the
-            code to decorate, so the control would do nothing. */}
-        {config.frameShape !== 'square' && (
-          <>
-            <OptionRow
-              label="Decoration"
-              value={config.decorStyle}
-              options={DECOR_STYLES}
-              onChange={(v) => update({ decorStyle: v as DecorStyle })}
-              compact
-            />
-            {config.decorStyle !== 'none' && (
-              <p className="text-xs text-slate-500">
-                Decoration fills the space the shape leaves around the code — and needs that
-                space, so the code is drawn smaller to make it. Export larger than usual, and
-                scan-test before printing.
-              </p>
-            )}
-          </>
+        {/* ALWAYS shown, including on a square plate.
+            It was hidden unless the shape was already non-square, on the
+            reasoning that a square plate has no space to decorate — true, and
+            beside the point: the default shape IS square, so the control was
+            invisible on a fresh load and the only way to find decoration at all
+            was to happen to click the Radial preset. A control you cannot
+            discover is not a control. Picking a decoration on a square plate
+            therefore switches the shape too, so the option is never a dead end. */}
+        <OptionRow
+          label="Decoration"
+          value={config.decorStyle}
+          options={DECOR_STYLES}
+          onChange={(v) => {
+            const decorStyle = v as DecorStyle
+            update(
+              decorStyle !== 'none' && config.frameShape === 'square'
+                ? { decorStyle, frameShape: 'circle' }
+                : { decorStyle }
+            )
+          }}
+          compact
+        />
+        {config.decorStyle !== 'none' ? (
+          <p className="text-xs text-slate-500">
+            Decoration fills the space the shape leaves around the code — and needs that
+            space, so the code is drawn smaller to make it. Export larger than usual, and
+            scan-test before printing.
+          </p>
+        ) : (
+          <p className="text-xs text-slate-500">
+            Fills the space a shaped plate leaves around the code. Choosing one switches a
+            square code to a circle, since a square plate has no space to fill.
+          </p>
         )}
         {frameNote && (
           <p className="-mt-1 text-xs text-slate-500">
@@ -586,14 +611,21 @@ function OptionRow({
   onChange: (v: string) => void
   compact?: boolean
 }) {
+  // A labelled radiogroup, not a bare row of buttons. These are single-choice
+  // controls and were announcing as unrelated buttons to a screen reader, with
+  // nothing tying them to their label or saying which was chosen. It also makes
+  // them individually addressable — several rows here offer an option called
+  // "Square", which is otherwise ambiguous to anything looking by name.
   return (
-    <div>
+    <div role="radiogroup" aria-label={label}>
       <FieldLabel>{label}</FieldLabel>
       <div className={`grid gap-1.5 ${compact ? 'grid-cols-3' : 'grid-cols-3 sm:grid-cols-6'}`}>
         {options.map((opt) => (
           <button
             key={opt.value}
             type="button"
+            role="radio"
+            aria-checked={value === opt.value}
             onClick={() => onChange(opt.value)}
             className={`min-w-0 px-2 py-1.5 rounded-lg text-xs font-medium leading-tight break-words border transition-colors ${
               value === opt.value
