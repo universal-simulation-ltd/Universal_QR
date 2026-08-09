@@ -1,6 +1,7 @@
 import type { Options as QrOptions, DotType, CornerSquareType, CornerDotType, ErrorCorrectionLevel } from 'qr-code-styling'
 import { UNISIM_MARK } from './unisimMark'
 import type { FrameShape } from './frames'
+import type { DecorStyle } from './decor'
 
 export type { DotType, CornerSquareType, CornerDotType, ErrorCorrectionLevel }
 export type ExportFormat = 'png' | 'svg' | 'jpeg' | 'webp'
@@ -46,6 +47,13 @@ export interface QrConfig {
    *  is rendered smaller and centred inside it, never clipped (see frames.ts).
    *  'square' is the default and takes the original render path untouched. */
   frameShape: FrameShape
+
+  /** Marks filling the space a shaped plate leaves around the code, so the
+   *  shape reads as designed rather than as a square code on a round
+   *  background. Turning it on SHRINKS the code to make room (see decor.ts) —
+   *  which is why it is opt-in, and why it does nothing at all on a square
+   *  plate, where there is no space to fill. */
+  decorStyle: DecorStyle
 
   // ── Logo / branding ────────────────────────────────────────────────────────
   /** A user-supplied brand logo (data URI), placed in the centre. */
@@ -124,6 +132,7 @@ export const DEFAULT_CONFIG: QrConfig = {
   cornerSquareType: 'extra-rounded',
   cornerDotType: 'dot',
   frameShape: 'square',
+  decorStyle: 'none',
   logoDataUrl: null,
   logoSize: 0.28,
   logoMargin: 6,
@@ -144,6 +153,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
   {
     name: 'Classic',
     patch: {
+      decorStyle: 'none',
       dotType: 'square',
       cornerSquareType: 'square',
       cornerDotType: 'square',
@@ -158,6 +168,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
   {
     name: 'Rounded',
     patch: {
+      decorStyle: 'none',
       dotType: 'rounded',
       cornerSquareType: 'extra-rounded',
       cornerDotType: 'dot',
@@ -172,6 +183,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
   {
     name: 'Dots',
     patch: {
+      decorStyle: 'none',
       dotType: 'dots',
       cornerSquareType: 'dot',
       cornerDotType: 'dot',
@@ -187,6 +199,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
   {
     name: 'Indigo',
     patch: {
+      decorStyle: 'none',
       dotType: 'classy-rounded',
       cornerSquareType: 'extra-rounded',
       cornerDotType: 'dot',
@@ -203,6 +216,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
   {
     name: 'Sunset',
     patch: {
+      decorStyle: 'none',
       dotType: 'extra-rounded',
       cornerSquareType: 'extra-rounded',
       cornerDotType: 'dot',
@@ -223,11 +237,35 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
     }
   },
   {
+    // The look the branded circular codes people point at have: dotted modules,
+    // ROUND finder eyes (concentric circles, the closest a real QR gets to the
+    // reference), a large centre mark, and the ring around it filled in rather
+    // than left as blank background.
+    name: 'Radial',
+    patch: {
+      dotType: 'dots',
+      cornerSquareType: 'dot',
+      cornerDotType: 'dot',
+      fgColor: '#0f172a',
+      bgColor: '#ffffff',
+      bgTransparent: false,
+      useGradient: false,
+      matchCornerColor: false,
+      cornerColor: '#e05504',
+      frameShape: 'circle',
+      decorStyle: 'burst',
+      logoSize: 0.3,
+      hideBackgroundDots: true
+    }
+  },
+  {
     // Every preset above pins frameShape back to 'square' for the same reason it
     // pins the background: a patch merges onto whatever the user already had, so
-    // without it "Classic" would quietly keep a star.
+    // without it "Classic" would quietly keep a star. The same now goes for
+    // decorStyle — without pinning it, "Classic" would keep a burst.
     name: 'Circle',
     patch: {
+      decorStyle: 'none',
       dotType: 'dots',
       cornerSquareType: 'dot',
       cornerDotType: 'dot',
@@ -242,6 +280,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
   {
     name: 'Star',
     patch: {
+      decorStyle: 'none',
       dotType: 'extra-rounded',
       cornerSquareType: 'extra-rounded',
       cornerDotType: 'dot',

@@ -119,7 +119,7 @@ export const useQrStore = create<QrState>()(
     }),
     {
       name: 'universal-qr:config',
-      version: 4,
+      version: 5,
       // Only the design + chosen tabs persist — not the transient dialog flag.
       partialize: (s) => ({
         config: s.config,
@@ -157,6 +157,11 @@ export const useQrStore = create<QrState>()(
           }
           p.codeType = p.codeType ?? 'qr'
         }
+        // v5 added config.decorStyle. Same reasoning as the frameShape backfill
+        // above and not cosmetic: persist replaces `config` wholesale, so a v4
+        // record arrives with decorStyle undefined, and the renderer would then
+        // compare undefined against 'none' on every draw.
+        if (version < 5 && p.config) p.config = { ...p.config, decorStyle: p.config.decorStyle ?? 'none' }
         return p as unknown as QrState
       }
     }

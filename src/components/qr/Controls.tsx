@@ -12,6 +12,8 @@ import {
   type DotType
 } from '../../lib/qr'
 import { FRAME_SHAPES, frameSizeNote, type FrameShape } from '../../lib/frames'
+import { DECOR_STYLES, type DecorStyle } from '../../lib/decor'
+import { decorScaleOf } from '../../lib/compose'
 import { SYMBOLOGIES, symbologyById, type BarcodeSymbology } from '../../lib/barcode'
 
 export default function Controls() {
@@ -21,7 +23,7 @@ export default function Controls() {
   const setLogo = useQrStore((s) => s.setLogo)
   const clearLogo = useQrStore((s) => s.clearLogo)
   const fileRef = useRef<HTMLInputElement>(null)
-  const frameNote = frameSizeNote(config.frameShape, config.size)
+  const frameNote = frameSizeNote(config.frameShape, config.size, decorScaleOf(config))
   const contrast = qrContrastIssue(config)
   const codeType = useQrStore((s) => s.codeType)
   const setCodeType = useQrStore((s) => s.setCodeType)
@@ -195,6 +197,27 @@ export default function Controls() {
           options={FRAME_SHAPES}
           onChange={(v) => update({ frameShape: v as FrameShape })}
         />
+
+        {/* Only offered on a shaped plate: a square one has no space around the
+            code to decorate, so the control would do nothing. */}
+        {config.frameShape !== 'square' && (
+          <>
+            <OptionRow
+              label="Decoration"
+              value={config.decorStyle}
+              options={DECOR_STYLES}
+              onChange={(v) => update({ decorStyle: v as DecorStyle })}
+              compact
+            />
+            {config.decorStyle !== 'none' && (
+              <p className="text-xs text-slate-500">
+                Decoration fills the space the shape leaves around the code — and needs that
+                space, so the code is drawn smaller to make it. Export larger than usual, and
+                scan-test before printing.
+              </p>
+            )}
+          </>
+        )}
         {frameNote && (
           <p className="-mt-1 text-xs text-slate-500">
             {frameNote} The code is never trimmed to fit the shape — that would stop it scanning.

@@ -1,0 +1,216 @@
+// Plate decoration — the marks that fill the space a shaped plate leaves around
+// the code, so the shape reads as designed rather than as a square code sitting
+// on a round background.
+//
+// WHAT THIS IS NOT. The look people point at (WeChat Mini Program codes, and
+// branded circular codes generally) sometimes encodes its data in radial arcs.
+// That is a different symbology. A QR's modules sit on a fixed square grid and
+// moving them radially stops it decoding, so this cannot be that: the code
+// stays a square QR and these are DECORATION drawn around it. Every mark is
+// generated outside the code's own square boundary at its angle (innerAt), plus
+// a margin, so nothing can land on a module or in its quiet zone.
+//
+// A shaped plate has no room for this on its own. The largest square inscribed
+// in a circle touches it at all four corners, so decoration only exists if the
+// code is made smaller: DECOR_CODE_SCALE. That is a real trade — a smaller code
+// must be exported larger to stay scannable — which is why decoration is an
+// option the user turns on, not something that happens to a shape they already
+// chose. frameSizeNote reports the resulting code size either way.
+//
+// The geometry is generated ONCE here and consumed by both the canvas renderer
+// and the SVG exporter, for the same reason framePolygon is: the PNG and the
+// SVG must not disagree, and this app has no way to notice if they do. It is
+// deterministic — a seeded PRNG, never Math.random — so a given size always
+// draws the same marks. Reshuffling per render would flicker in the live
+// preview and make the PNG and the SVG of "the same" code different pictures.
+
+import { frameRadiusAt, type FrameShape } from './frames'
+
+export type DecorStyle = 'none' | 'burst' | 'scatter'
+
+export const DECOR_STYLES: { value: DecorStyle; label: string }[] = [
+  { value: 'none', label: 'None' },
+  { value: 'burst', label: 'Burst' },
+  { value: 'scatter', label: 'Scatter' }
+]
+
+/** How much the code shrinks to open up room for decoration. */
+export const DECOR_CODE_SCALE = 0.8
+
+/** A decorative mark: a radial dash or a dot. */
+export type DecorMark =
+  | { kind: 'line'; x1: number; y1: number; x2: number; y2: number; w: number }
+  | { kind: 'dot'; cx: number; cy: number; r: number }
+
+/** Deterministic PRNG (mulberry32). Same inputs, same decoration, every time. */
+function seeded(seed: number): () => number {
+  let a = seed >>> 0
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+const SEED = 0x5eed
+
+/**
+ * Where the decoration may start, along `angle`.
+ *
+ * The code's own SQUARE edge, not its circumscribed circle. Using the circle
+ * would be the safe-looking choice and it is what the first cut did — but it
+ * reserves the code's whole corner radius at every angle, so the marks retreat
+ * into a thin ring at the rim with a dead gap against the code's flat edges.
+ * The references fill that space. A square's boundary at angle t is
+ * (half-side)/max(|cos t|, |sin t|), which hugs the code and still cannot touch
+ * it: the margin below is added on top, and the QR's quiet zone is inside
+ * `codeInner` already.
+ */
+function innerAt(codeInner: number, size: number, angle: number): number {
+  const half = codeInner / 2
+  const c = Math.abs(Math.cos(angle))
+  const sn = Math.abs(Math.sin(angle))
+  return half / Math.max(c, sn, 1e-6) + size * 0.018
+}
+
+/**
+ * Marks filling the space between the code and the plate edge.
+ *
+ * Bounds are computed PER ANGLE — the code's square inside, the frame's own
+ * outline outside (frameRadiusAt) — so the same generator fills a circle, a
+ * hexagon or a star to its actual edge instead of being clipped back to
+ * whatever happened to land inside.
+ *
+ * @param codeInner side of the code square in px (already scaled down)
+ */
+export function decorMarks(
+  style: DecorStyle,
+  shape: FrameShape,
+  size: number,
+  codeInner: number
+): DecorMark[] {
+  if (style === 'none') return []
+  return style === 'burst'
+    ? burstMarks(shape, size, codeInner)
+    : scatterMarks(shape, size, codeInner)
+}
+
+/** Radial dashes, thinning and shortening outward. */
+function burstMarks(shape: FrameShape, size: number, codeInner: number): DecorMark[] {
+  const cx = size / 2
+  const cy = size / 2
+  const rand = seeded(SEED)
+  const SPOKES = 120
+  const BANDS = 3
+  const marks: DecorMark[] = []
+
+  for (let i = 0; i < SPOKES; i++) {
+    // Jitter WITHIN a slot rather than a free random angle: free angles clump
+    // and leave gaps, which reads as a mistake rather than as a pattern.
+    const slot = (i + 0.5) / SPOKES
+    const angle = slot * Math.PI * 2 + (rand() - 0.5) * ((Math.PI * 2) / SPOKES) * 0.9
+    const r0 = innerAt(codeInner, size, angle)
+    const r1 = frameRadiusAt(shape, size, angle) - size * 0.02
+    if (r1 <= r0) continue
+    const span = r1 - r0
+
+    for (let band = 0; band < BANDS; band++) {
+      const bandT = band / (BANDS - 1)
+      // Thinning outward is what makes it read as a burst rather than a
+      // striped ring; the innermost band is nearly solid, the outermost sparse.
+      if (rand() < 0.08 + 0.5 * bandT) continue
+      const b0 = r0 + (span * band) / BANDS
+      const b1 = r0 + (span * (band + 1)) / BANDS
+      const len = (b1 - b0) * (0.35 + 0.45 * rand())
+      const s0 = b0 + (b1 - b0 - len) * rand()
+      marks.push({
+        kind: 'line',
+        x1: cx + s0 * Math.cos(angle),
+        y1: cy + s0 * Math.sin(angle),
+        x2: cx + (s0 + len) * Math.cos(angle),
+        y2: cy + (s0 + len) * Math.sin(angle),
+        w: Math.max(1, size * (0.012 - 0.005 * bandT))
+      })
+    }
+  }
+  return marks
+}
+
+/** Confetti: dots of varying size, densest against the code. */
+function scatterMarks(shape: FrameShape, size: number, codeInner: number): DecorMark[] {
+  const cx = size / 2
+  const cy = size / 2
+  const rand = seeded(SEED ^ 0x9e37)
+  const marks: DecorMark[] = []
+  const COUNT = 700
+
+  for (let i = 0; i < COUNT; i++) {
+    const angle = rand() * Math.PI * 2
+    const r0 = innerAt(codeInner, size, angle)
+    const r1 = frameRadiusAt(shape, size, angle) - size * 0.02
+    if (r1 <= r0) continue
+    // sqrt-distributed radius gives an EVEN area density; a linear one piles
+    // everything against the code and leaves the rim bare.
+    const r = Math.sqrt(r0 * r0 + rand() * (r1 * r1 - r0 * r0))
+    const t = (r - r0) / (r1 - r0)
+    // Thin out with radius so the edge fades rather than ending abruptly.
+    if (rand() < t * 0.5) continue
+    marks.push({
+      kind: 'dot',
+      cx: cx + r * Math.cos(angle),
+      cy: cy + r * Math.sin(angle),
+      r: size * (0.005 + 0.011 * rand() * (1 - 0.5 * t))
+    })
+  }
+  return marks
+}
+
+/** Paint the decoration onto a 2D context. The caller has already clipped to
+ *  the frame silhouette. */
+export function drawDecor(
+  ctx: CanvasRenderingContext2D,
+  style: DecorStyle,
+  shape: FrameShape,
+  size: number,
+  codeInner: number,
+  colour: string
+): void {
+  const marks = decorMarks(style, shape, size, codeInner)
+  if (marks.length === 0) return
+  ctx.save()
+  ctx.fillStyle = colour
+  ctx.strokeStyle = colour
+  ctx.lineCap = 'round'
+  for (const m of marks) {
+    if (m.kind === 'line') {
+      ctx.beginPath()
+      ctx.lineWidth = m.w
+      ctx.moveTo(m.x1, m.y1)
+      ctx.lineTo(m.x2, m.y2)
+      ctx.stroke()
+    } else {
+      ctx.beginPath()
+      ctx.arc(m.cx, m.cy, m.r, 0, Math.PI * 2)
+      ctx.fill()
+    }
+  }
+  ctx.restore()
+}
+
+/** The decoration as SVG elements, for the vector export. */
+export function decorSvg(
+  style: DecorStyle,
+  shape: FrameShape,
+  size: number,
+  codeInner: number,
+  colour: string
+): string {
+  return decorMarks(style, shape, size, codeInner)
+    .map((m) =>
+      m.kind === 'line'
+        ? `<line x1="${m.x1.toFixed(2)}" y1="${m.y1.toFixed(2)}" x2="${m.x2.toFixed(2)}" y2="${m.y2.toFixed(2)}" stroke="${colour}" stroke-width="${m.w.toFixed(2)}" stroke-linecap="round" />`
+        : `<circle cx="${m.cx.toFixed(2)}" cy="${m.cy.toFixed(2)}" r="${m.r.toFixed(2)}" fill="${colour}" />`
+    )
+    .join('')
+}

@@ -38,6 +38,13 @@ Part of the [Universal Apps](https://opensource.unisim.co.uk) suite by
 - **Shape & size** — six module styles (square, rounded, extra-rounded, dots,
   classy, classy-rounded), independent corner-frame and corner-dot styling, a
   size slider (128–1024 px), quiet-zone margin, and selectable error-correction
+- **Code shape** — put the code on a circle, squircle, hexagon or star plate
+  instead of a square. The code itself is never clipped: it is drawn smaller and
+  centred inside the shape, because a QR needs every module and its quiet zone
+- **Plate decoration** — fill the space a shaped plate leaves around the code
+  with a radiating **Burst** or a **Scatter** of dots, so the shape reads as
+  designed rather than as a square code on a round background. It needs that
+  space, so the code is drawn smaller again — export larger and scan-test
 - **Branding** — upload your own logo (PNG, JPG or SVG) to sit in the centre,
   with size, padding and "clear modules behind logo" controls
 - **UNI·SIM mark** — every code carries a small UNI·SIM mark: in the centre by

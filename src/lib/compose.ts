@@ -1,7 +1,15 @@
 import QRCodeStyling from 'qr-code-styling'
 import { buildQrOptions, cornerStampGeometry, showsCornerMark, type QrConfig } from './qr'
 import { frameGeometry, framePathData, traceFrame } from './frames'
+import { DECOR_CODE_SCALE, decorSvg, drawDecor } from './decor'
 import { UNISIM_MARK } from './unisimMark'
+
+/** The scale the code is drawn at for a config — 1 unless decoration needs
+ *  room. One helper, so the canvas, the SVG and the UI's size note cannot
+ *  disagree about how big the code actually is. */
+export function decorScaleOf(config: QrConfig): number {
+  return config.decorStyle && config.decorStyle !== 'none' ? DECOR_CODE_SCALE : 1
+}
 
 // Composing a shaped QR: a plate in the chosen silhouette, with the code drawn
 // full-strength inside the largest square that fits. See frames.ts for why the
@@ -70,7 +78,7 @@ function innerConfig(config: QrConfig, inner: number): QrConfig {
 export async function composeShapedCanvas(config: QrConfig, size: number): Promise<HTMLCanvasElement> {
   if (config.frameShape === 'square') throw new Error('composeShapedCanvas: square has no plate')
 
-  const { inner, offset } = frameGeometry(config.frameShape, size)
+  const { inner, offset } = frameGeometry(config.frameShape, size, decorScaleOf(config))
 
   const qr = new QRCodeStyling(buildQrOptions(innerConfig(config, inner), 'canvas'))
   const raw = (await qr.getRawData('png')) as Blob | null
@@ -96,6 +104,18 @@ export async function composeShapedCanvas(config: QrConfig, size: number): Promi
     ctx.restore()
   }
 
+  // Decoration goes UNDER the code and is clipped to the silhouette, so the
+  // same marks fill a circle, a hexagon or a star without decor.ts knowing
+  // which. It is generated outside the code's circumscribed circle, so the
+  // draw order is belt and braces rather than load-bearing.
+  if (config.decorStyle && config.decorStyle !== 'none') {
+    ctx.save()
+    traceFrame(ctx, config.frameShape, size)
+    ctx.clip()
+    drawDecor(ctx, config.decorStyle, config.frameShape, size, inner, config.fgColor)
+    ctx.restore()
+  }
+
   ctx.drawImage(qrImg, offset, offset, inner, inner)
   URL.revokeObjectURL(url)
 
@@ -113,7 +133,7 @@ export async function composeShapedCanvas(config: QrConfig, size: number): Promi
 export async function composeShapedSvg(config: QrConfig, size: number): Promise<string> {
   if (config.frameShape === 'square') throw new Error('composeShapedSvg: square has no plate')
 
-  const { inner, offset } = frameGeometry(config.frameShape, size)
+  const { inner, offset } = frameGeometry(config.frameShape, size, decorScaleOf(config))
   const cfg = innerConfig(config, inner)
 
   const qr = new QRCodeStyling(buildQrOptions(cfg, 'svg'))
@@ -145,9 +165,23 @@ export async function composeShapedSvg(config: QrConfig, size: number): Promise<
     ? ''
     : `<path d="${framePathData(config.frameShape, size)}" fill="${config.bgColor}" />`
 
+  // Same marks as the canvas, clipped by the same outline — a real clipPath
+  // rather than a re-derived polygon, so the vector export cannot drift from
+  // the raster one.
+  let decor = ''
+  let clip = ''
+  if (config.decorStyle && config.decorStyle !== 'none') {
+    const id = 'plate-clip'
+    clip =
+      `<clipPath id="${id}"><path d="${framePathData(config.frameShape, size)}" /></clipPath>`
+    decor = `<g clip-path="url(#${id})">${decorSvg(config.decorStyle, config.frameShape, size, inner, config.fgColor)}</g>`
+  }
+
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">` +
+    (clip ? `<defs>${clip}</defs>` : '') +
     plate +
+    decor +
     innerSvg +
     `</svg>`
   )

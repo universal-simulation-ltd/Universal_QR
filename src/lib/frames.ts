@@ -179,9 +179,19 @@ const INSCRIBED: Record<FrameShape, number> = {
 /** Exposed for the geometry check in scripts/verify-frames — not used by the app. */
 export const INSCRIBED_FACTORS = INSCRIBED
 
-/** Where the code goes inside a `size`-square plate of the given shape. */
-export function frameGeometry(shape: FrameShape, size: number): { inner: number; offset: number } {
-  const inner = Math.max(64, Math.round(size * INSCRIBED[shape]))
+/** Where the code goes inside a `size`-square plate of the given shape.
+ *
+ *  `decorScale` shrinks the code to open up the ring that plate decoration
+ *  draws in — a circle's inscribed square touches it at every corner, so
+ *  without this there is literally no room. Passed in rather than read from a
+ *  config so this file stays free of decoration concerns; every caller gets it
+ *  from the one helper below. */
+export function frameGeometry(
+  shape: FrameShape,
+  size: number,
+  decorScale = 1
+): { inner: number; offset: number } {
+  const inner = Math.max(64, Math.round(size * INSCRIBED[shape] * decorScale))
   return { inner, offset: Math.round((size - inner) / 2) }
 }
 
@@ -196,6 +206,36 @@ export function framePathData(shape: FrameShape, size: number): string {
   return pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(2)} ${p[1].toFixed(2)}`).join(' ') + ' Z'
 }
 
+/** Distance from the plate centre to the outline, along `angle` (radians, y
+ *  down). Ray-casts the shape's own polygon, so a hexagon and a star answer
+ *  honestly instead of being approximated by their bounding circle.
+ *
+ *  This is what lets plate decoration FILL a shape rather than sit in a ring
+ *  inside it: generate to the corner radius and clip, and a hexagon keeps only
+ *  the marks that happened to fall inside, leaving it sparse near the points
+ *  and bare in the flats. */
+export function frameRadiusAt(shape: FrameShape, size: number, angle: number): number {
+  const pts = framePolygon(shape, size)
+  const cx = size / 2
+  const cy = size / 2
+  const dx = Math.cos(angle)
+  const dy = Math.sin(angle)
+  let best = 0
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [x1, y1] = pts[j]
+    const [x2, y2] = pts[i]
+    // Ray (c + t·d) against segment (p1 + u·(p2-p1)), t >= 0, 0 <= u <= 1.
+    const ex = x2 - x1
+    const ey = y2 - y1
+    const den = dx * ey - dy * ex
+    if (Math.abs(den) < 1e-9) continue
+    const t = ((x1 - cx) * ey - (y1 - cy) * ex) / den
+    const u = ((x1 - cx) * dy - (y1 - cy) * dx) / den
+    if (t >= 0 && u >= 0 && u <= 1 && t > best) best = t
+  }
+  return best
+}
+
 /** Trace the outline onto a 2D context (caller fills or clips). */
 export function traceFrame(ctx: CanvasRenderingContext2D, shape: FrameShape, size: number): void {
   const pts = framePolygon(shape, size)
@@ -204,12 +244,12 @@ export function traceFrame(ctx: CanvasRenderingContext2D, shape: FrameShape, siz
   ctx.closePath()
 }
 
-/** A shaped plate makes the code smaller, and by a lot for the star. Surfaced
- *  in the UI so the trade-off is visible before the user exports something
- *  unscannable rather than after. */
-export function frameSizeNote(shape: FrameShape, size: number): string | null {
+/** A shaped plate makes the code smaller, and by a lot for the star — more
+ *  again once decoration takes its ring. Surfaced in the UI so the trade-off is
+ *  visible before the user exports something unscannable rather than after. */
+export function frameSizeNote(shape: FrameShape, size: number, decorScale = 1): string | null {
   if (shape === 'square') return null
-  const { inner } = frameGeometry(shape, size)
+  const { inner } = frameGeometry(shape, size, decorScale)
   const pct = Math.round((inner / size) * 100)
   return `The code fills ${pct}% of the ${size}px image (${inner}px) — the rest is the ${
     FRAME_SHAPES.find((s) => s.value === shape)!.label.toLowerCase()
