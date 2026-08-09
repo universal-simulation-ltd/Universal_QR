@@ -4,13 +4,20 @@ import { DEFAULT_CONFIG, type QrConfig, type DotType, type CornerSquareType, typ
 import type { BarcodeSymbology } from '../lib/barcode'
 
 export type StudioMode = 'simple' | 'branding' | 'advanced'
+
+/** What the studio is currently making. A 1D barcode is a "Type" inside the
+ *  Advanced controls rather than a tab of its own (changed 2026-08-09). It sits
+ *  in the store, not in QrConfig: QrConfig is the QR *design* — it gets
+ *  exported, backed up and attached to hosted codes — and a symbology is none
+ *  of those things. */
+export type CodeType = 'qr' | 'barcode'
 /**
- * Top-level tab: the free QR designer, the standalone 1D-barcode generator, the
- * hosted Dynamic codes, or the camera scanner. 1D barcodes are static-only —
- * there is no "dynamic barcode" (retail EAN/UPC codes are scanned by POS
- * systems that won't follow a redirect), so Dynamic stays QR-only.
+ * Top-level tab: the free QR designer, the hosted Dynamic codes, or the camera
+ * scanner. 1D barcodes live inside the designer now (Advanced ▸ Type) and are
+ * static-only — there is no "dynamic barcode", because retail EAN/UPC codes are
+ * read by POS systems that won't follow a redirect, so Dynamic stays QR-only.
  */
-export type StudioView = 'static' | 'barcode' | 'dynamic' | 'scan'
+export type StudioView = 'static' | 'dynamic' | 'scan'
 
 /**
  * Branding applied to the hosted "Dynamic" codes. Defaults to the signed-in
@@ -75,7 +82,10 @@ interface QrState {
   /** "Hosted by UNI·SIM" cloud-store dialog open state (not persisted). */
   hostedStoreOpen: boolean
   setHostedStoreOpen: (open: boolean) => void
-  /** Chosen 1D symbology + value for the Barcode tab (persisted). */
+  /** QR or 1D barcode. Chosen under Advanced ▸ Type. */
+  codeType: CodeType
+  setCodeType: (type: CodeType) => void
+  /** Chosen 1D symbology + value (persisted). */
   barcodeSymbology: BarcodeSymbology
   barcodeValue: string
   setBarcodeSymbology: (symbology: BarcodeSymbology) => void
@@ -100,6 +110,8 @@ export const useQrStore = create<QrState>()(
       resetDynamicBrand: () => set({ dynamicBrand: DEFAULT_DYNAMIC_BRAND }),
       hostedStoreOpen: false,
       setHostedStoreOpen: (hostedStoreOpen) => set({ hostedStoreOpen }),
+      codeType: 'qr',
+      setCodeType: (codeType) => set({ codeType }),
       barcodeSymbology: 'code128',
       barcodeValue: '',
       setBarcodeSymbology: (barcodeSymbology) => set({ barcodeSymbology }),
@@ -107,12 +119,13 @@ export const useQrStore = create<QrState>()(
     }),
     {
       name: 'universal-qr:config',
-      version: 3,
+      version: 4,
       // Only the design + chosen tabs persist — not the transient dialog flag.
       partialize: (s) => ({
         config: s.config,
         mode: s.mode,
         view: s.view,
+        codeType: s.codeType,
         dynamicBrand: s.dynamicBrand,
         barcodeSymbology: s.barcodeSymbology,
         barcodeValue: s.barcodeValue
@@ -123,13 +136,27 @@ export const useQrStore = create<QrState>()(
       // looks the shape up in a table, so a persisted v2 config arriving with
       // frameShape undefined would produce NaN geometry and a blank canvas for
       // every returning user.
+      // v4 retired the Barcode tab. Anyone whose last session ended on it has
+      // `view: 'barcode'` persisted, which is no longer a tab — without this they
+      // would return to a shell rendering nothing at all. Carry them to the
+      // designer with the barcode type already selected, so they land where the
+      // feature moved to rather than somewhere they have to go and find it.
       migrate: (persisted, version) => {
         const p = (persisted ?? {}) as {
           dynamicBrand?: Partial<DynamicBrand>
           config?: Partial<QrConfig>
+          view?: string
+          codeType?: CodeType
         }
         if (version < 2) p.dynamicBrand = { ...DEFAULT_DYNAMIC_BRAND, ...(p.dynamicBrand ?? {}) }
         if (version < 3 && p.config) p.config = { ...DEFAULT_CONFIG, ...p.config, frameShape: p.config.frameShape ?? 'square' }
+        if (version < 4) {
+          if (p.view === 'barcode') {
+            p.view = 'static'
+            p.codeType = 'barcode'
+          }
+          p.codeType = p.codeType ?? 'qr'
+        }
         return p as unknown as QrState
       }
     }

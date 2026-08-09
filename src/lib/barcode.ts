@@ -1,11 +1,20 @@
-// 1D barcode generation for the QR app's "Barcode" tab.
+// 1D barcode generation, offered as a "Type" inside the QR designer's Advanced
+// controls (it had its own top-level tab until 2026-08-09 — a whole tab was more
+// prominence than the feature's usage warranted).
 //
-// The QR designer uses `qr-code-styling`; 1D barcodes are a separate,
-// standalone path built on `bwip-js` ("Barcode Writer in Pure JavaScript" —
-// 100+ symbologies, pure-JS/no-WASM, renders to canvas or SVG). Both bwip-js
-// and the ZXing scanner are LAZY-loaded (dynamic import) so they only enter the
-// bundle when a user actually opens the Barcode / Scan tabs — the QR designer's
-// first paint is unchanged.
+// The QR designer uses `qr-code-styling`; 1D barcodes are a separate path built
+// on `bwip-js` ("Barcode Writer in Pure JavaScript" — 100+ symbologies,
+// pure-JS/no-WASM, renders to canvas or SVG). Both bwip-js and the ZXing scanner
+// are LAZY-loaded (dynamic import) so they only enter the bundle when a user
+// actually picks a barcode type or opens Scan — the QR designer's first paint is
+// unchanged.
+//
+// The symbology list is deliberately SHORT. bwip-js supports 100-plus; five
+// covers general-purpose labelling (Code 128), retail in Europe and the US
+// (EAN-13, UPC-A), asset tags and older industrial systems (Code 39), and
+// shipping cartons (ITF-14). The compact retail variants EAN-8 and UPC-E were
+// dropped with the tab: they are chosen by whoever issues the number, not by
+// whoever prints it, so they are not a decision this designer needs to offer.
 //
 // Everything here runs on the device: no upload, no network — the same promise
 // as the rest of the app.
@@ -13,9 +22,7 @@
 export type BarcodeSymbology =
   | 'code128'
   | 'ean13'
-  | 'ean8'
   | 'upca'
-  | 'upce'
   | 'code39'
   | 'itf14'
 
@@ -62,28 +69,12 @@ export const SYMBOLOGIES: SymbologyDef[] = [
     validate: digits(/^\d{12,13}$/, 'EAN-13 needs 12 or 13 digits.'),
   },
   {
-    id: 'ean8',
-    label: 'EAN-8',
-    bcid: 'ean8',
-    hint: '7 digits (check digit added), or paste all 8.',
-    placeholder: '9638507',
-    validate: digits(/^\d{7,8}$/, 'EAN-8 needs 7 or 8 digits.'),
-  },
-  {
     id: 'upca',
     label: 'UPC-A',
     bcid: 'upca',
     hint: '11 digits (check digit added), or paste all 12.',
     placeholder: '03600029145',
     validate: digits(/^\d{11,12}$/, 'UPC-A needs 11 or 12 digits.'),
-  },
-  {
-    id: 'upce',
-    label: 'UPC-E',
-    bcid: 'upce',
-    hint: 'The compact UPC form — 6 to 8 digits.',
-    placeholder: '01234565',
-    validate: digits(/^\d{6,8}$/, 'UPC-E needs 6 to 8 digits.'),
   },
   {
     id: 'code39',
@@ -104,6 +95,11 @@ export const SYMBOLOGIES: SymbologyDef[] = [
   },
 ]
 
+/** The definition for a symbology id.
+ *
+ *  Falls back to the first entry rather than throwing, which is what makes
+ *  trimming the list safe: someone whose browser remembers `upce` from before
+ *  2026-08-09 lands on Code 128 instead of a blank screen. */
 export function symbologyById(id: BarcodeSymbology): SymbologyDef {
   return SYMBOLOGIES.find((s) => s.id === id) ?? SYMBOLOGIES[0]
 }

@@ -1,18 +1,16 @@
 import { useQrStore, type StudioView } from '../../stores/qrStore'
 import { CONTAINER } from '../../lib/layout'
 import QrStudio from './QrStudio'
-import BarcodeStudio from './BarcodeStudio'
 import DynamicStudio from './DynamicStudio'
 import ScanStudio from './ScanStudio'
 
-// Top-level shell: a QR | Barcode | Scan | Dynamic switch above the studios.
-//  • QR       — the original, unchanged free/on-device QR designer (QrStudio).
-//  • Barcode  — 1D retail/shipping barcodes (bwip-js), static-only, on-device.
+// Top-level shell: a QR | Scan | Dynamic switch above the studios.
+//  • QR       — the free/on-device designer (QrStudio). 1D barcodes live inside
+//               it, under Advanced ▸ Type — they had a tab of their own until
+//               2026-08-09, which was more prominence than the usage justified.
 //  • Scan     — camera scanner for QR + 1D barcodes (ZXing), on-device.
 //  • Dynamic  — hosted, re-pointable QR codes with scan analytics (PRO). Last
 //               in the row: it is the only tab that isn't free/on-device.
-// The QR and Dynamic studios are rendered untouched; this only adds tab chrome
-// and the two new studios (both lazy-load their scan/generate libraries).
 export default function QrApp() {
   const view = useQrStore((s) => s.view)
   const setView = useQrStore((s) => s.setView)
@@ -21,19 +19,19 @@ export default function QrApp() {
     <div>
       <div className="border-b border-slate-200 bg-white">
         {/* No horizontal scroll: below `md` the tabs drop their hint lines and
-            shrink their padding so all four fit the narrowest viewport. The
+            shrink their padding so they all fit the narrowest viewport. The
             hints only fit from ~600px, so they wait for `md` rather than `sm`
-            — at `sm` they clear the container by 3px, which one font swap eats. */}
+            — at `sm` they used to clear the container by 3px, which one font
+            swap ate. Three tabs now, but the rule is kept: it costs nothing and
+            the Dynamic hint is the longest of them. */}
         <div className={`${CONTAINER} flex items-center gap-0.5 pt-3 sm:gap-1`}>
           <TopTab id="static" current={view} onClick={setView} label="QR" hint="Free · on your device" />
-          <TopTab id="barcode" current={view} onClick={setView} label="Barcode" hint="1D · on your device" />
           <TopTab id="scan" current={view} onClick={setView} label="Scan" hint="Camera · QR + barcodes" />
           <TopTab id="dynamic" current={view} onClick={setView} label="Dynamic" hint="Editable · with analytics" pro />
         </div>
       </div>
 
       {view === 'static' && <QrStudio />}
-      {view === 'barcode' && <BarcodeStudio />}
       {view === 'dynamic' && <DynamicStudio />}
       {view === 'scan' && <ScanStudio />}
     </div>

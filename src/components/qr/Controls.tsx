@@ -12,6 +12,7 @@ import {
   type DotType
 } from '../../lib/qr'
 import { FRAME_SHAPES, frameSizeNote, type FrameShape } from '../../lib/frames'
+import { SYMBOLOGIES, symbologyById, type BarcodeSymbology } from '../../lib/barcode'
 
 export default function Controls() {
   const config = useQrStore((s) => s.config)
@@ -22,6 +23,13 @@ export default function Controls() {
   const fileRef = useRef<HTMLInputElement>(null)
   const frameNote = frameSizeNote(config.frameShape, config.size)
   const contrast = qrContrastIssue(config)
+  const codeType = useQrStore((s) => s.codeType)
+  const setCodeType = useQrStore((s) => s.setCodeType)
+  const symbology = useQrStore((s) => s.barcodeSymbology)
+  const setSymbology = useQrStore((s) => s.setBarcodeSymbology)
+  const barcodeValue = useQrStore((s) => s.barcodeValue)
+  const setBarcodeValue = useQrStore((s) => s.setBarcodeValue)
+  const isBarcode = codeType === 'barcode'
 
   function onLogoPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -40,6 +48,41 @@ export default function Controls() {
 
   return (
     <div className="space-y-5">
+      {/* ── Type ────────────────────────────────────────────────────────────
+          1D barcodes used to be a top-level tab. They are a minority need, so
+          they sit here instead: one row of chips, QR first. Picking a barcode
+          swaps the whole panel below — colours, shapes and logos are QR-only
+          ideas, and leaving them on screen would imply a barcode could carry
+          them. */}
+      <Section title="Type" desc="A QR code, or a 1D barcode for retail and shipping.">
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Code type">
+          <TypeChip
+            label="QR code"
+            active={!isBarcode}
+            onClick={() => setCodeType('qr')}
+          />
+          {SYMBOLOGIES.map((s) => (
+            <TypeChip
+              key={s.id}
+              label={s.label}
+              active={isBarcode && symbology === s.id}
+              onClick={() => {
+                setSymbology(s.id as BarcodeSymbology)
+                setCodeType('barcode')
+              }}
+            />
+          ))}
+        </div>
+      </Section>
+
+      {isBarcode ? (
+        <BarcodeFields
+          symbology={symbology}
+          value={barcodeValue}
+          onChange={setBarcodeValue}
+        />
+      ) : (
+      <>
       {/* ── Content ─────────────────────────────────────────────────────── */}
       <Section title="Content" desc="What the QR code points to.">
         <TextField
@@ -283,7 +326,67 @@ export default function Controls() {
           }
         />
       </Section>
+      </>
+      )}
     </div>
+  )
+}
+
+/** One chip in the Type row. */
+function TypeChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={active}
+      onClick={onClick}
+      className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+        active
+          ? 'border-orange-500 bg-orange-50 text-orange-700'
+          : 'border-slate-200 bg-white text-slate-600 hover:border-orange-300 hover:text-orange-700'
+      }`}
+    >
+      {label}
+    </button>
+  )
+}
+
+/** The barcode's one input. Its rules come from the symbology, so the hint,
+ *  placeholder, keyboard and validation all change with the chosen type. */
+function BarcodeFields({
+  symbology,
+  value,
+  onChange,
+}: {
+  symbology: BarcodeSymbology
+  value: string
+  onChange: (v: string) => void
+}) {
+  const def = symbologyById(symbology)
+  const trimmed = value.trim()
+  const error = trimmed.length === 0 ? null : def.validate(trimmed)
+  return (
+    <Section title="Value" desc={def.hint}>
+      <input
+        id="barcode-value"
+        type="text"
+        inputMode={def.id === 'code128' || def.id === 'code39' ? 'text' : 'numeric'}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={def.placeholder}
+        aria-label={`${def.label} value`}
+        aria-invalid={!!error}
+        className={`w-full rounded-xl border px-4 py-3 font-mono text-base text-slate-900 focus:outline-none focus:ring-2 ${
+          error
+            ? 'border-red-400 focus:border-red-500 focus:ring-red-500/30'
+            : 'border-slate-300 focus:border-orange-500 focus:ring-orange-500/40'
+        }`}
+      />
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      <p className="mt-2 text-xs text-slate-500">
+        Barcodes are static and unstyled — no colours, logo or shape. Scan-test before printing.
+      </p>
+    </Section>
   )
 }
 

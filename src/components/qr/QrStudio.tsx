@@ -2,11 +2,13 @@ import { useRef, useState } from 'react'
 import { useUniversal } from '@unisim/sdk'
 import Controls from './Controls'
 import QrPreview from './QrPreview'
+import BarcodePreview from './BarcodePreview'
 import HostedStoreDialog from './HostedStoreDialog'
 import { useQrStore, type StudioMode } from '../../stores/qrStore'
 import { CONTAINER } from '../../lib/layout'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
 import { DEFAULT_CONFIG, PRESETS, type ExportFormat, type QrConfig } from '../../lib/qr'
+import { barcodeFileStem, renderBarcodeToSvg, symbologyById } from '../../lib/barcode'
 
 // Which config keys count as "branding has been customised" — used to decide
 // whether to nudge the user towards the Branding tab (see ModeToggle). The
@@ -31,6 +33,27 @@ const FORMATS: { value: ExportFormat; label: string }[] = [
   { value: 'webp', label: 'WebP' }
 ]
 
+// A barcode exports as PNG or SVG only. JPEG would put lossy artefacts on the
+// one thing that has to stay crisp — the bar edges — and WebP is no use to the
+// print and label software these end up in.
+const BARCODE_FORMATS: { value: ExportFormat; label: string }[] = FORMATS.slice(0, 2)
+
+function triggerDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+/** The live barcode canvas, found by the same aria-label the preview sets. */
+function barcodeCanvas(): HTMLCanvasElement | null {
+  return document.querySelector('[data-barcode-canvas] canvas')
+}
+
 export default function QrStudio() {
   const config = useQrStore((s) => s.config)
   const mode = useQrStore((s) => s.mode)
@@ -41,10 +64,24 @@ export default function QrStudio() {
   const [busy, setBusy] = useState(false)
   const [copied, setCopied] = useState<'idle' | 'ok' | 'fail'>('idle')
 
+  const codeType = useQrStore((s) => s.codeType)
+  const setCodeType = useQrStore((s) => s.setCodeType)
+  const symbology = useQrStore((s) => s.barcodeSymbology)
+  const barcodeValue = useQrStore((s) => s.barcodeValue)
+  const [barcodeError, setBarcodeError] = useState<string | null>(null)
+  const isBarcode = codeType === 'barcode'
+
   const { session } = useUniversal()
   const signedIn = !!session?.user && session.user.is_anonymous !== true
 
-  const hasData = config.data.trim().length > 0
+  const trimmedBarcode = barcodeValue.trim()
+  // "Is there something to export?" differs by type: a QR needs data, a barcode
+  // needs a value its symbology actually accepts AND that bwip-js could draw.
+  const hasData = isBarcode
+    ? trimmedBarcode.length > 0 &&
+      !symbologyById(symbology).validate(trimmedBarcode) &&
+      !barcodeError
+    : config.data.trim().length > 0
   const brandingChanged = hasChangedFrom(config, BRANDING_KEYS)
   const advancedChanged = hasChangedFrom(config, ADVANCED_KEYS)
   // Nudge un-branded visitors towards the Branding tab. A signed-in user is
@@ -55,6 +92,21 @@ export default function QrStudio() {
     if (!hasData || busy) return
     setBusy(true)
     try {
+      if (isBarcode) {
+        const stem = barcodeFileStem(symbology, trimmedBarcode)
+        if (format === 'svg') {
+          const svg = await renderBarcodeToSvg(symbology, trimmedBarcode)
+          triggerDownload(new Blob([svg], { type: 'image/svg+xml' }), `${stem}.svg`)
+        } else {
+          const canvas = barcodeCanvas()
+          if (!canvas) throw new Error('Nothing to export yet.')
+          const blob: Blob = await new Promise((resolve, reject) =>
+            canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Export failed'))), 'image/png'),
+          )
+          triggerDownload(blob, `${stem}.png`)
+        }
+        return
+      }
       await downloadQr(config, format)
     } catch (err) {
       console.error(err)
@@ -66,9 +118,32 @@ export default function QrStudio() {
 
   async function onCopy() {
     if (!hasData) return
-    const ok = await copyQrToClipboard(config)
+    const ok = isBarcode ? await copyBarcode() : await copyQrToClipboard(config)
     setCopied(ok ? 'ok' : 'fail')
     setTimeout(() => setCopied('idle'), 1800)
+  }
+
+  async function copyBarcode(): Promise<boolean> {
+    const canvas = barcodeCanvas()
+    if (!canvas || !navigator.clipboard || typeof ClipboardItem === 'undefined') return false
+    try {
+      const blob: Blob = await new Promise((resolve, reject) =>
+        canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('copy failed'))), 'image/png'),
+      )
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  // Simple and Branding are QR ideas — a URL box and a colour picker mean
+  // nothing for a barcode. Leaving one of those panels on screen over a barcode
+  // preview would be a lie about what the controls do, so changing mode comes
+  // back to QR. Type lives in Advanced, which is where it is changed back.
+  function onModeChange(next: StudioMode) {
+    if (next !== 'advanced' && isBarcode) setCodeType('qr')
+    setMode(next)
   }
 
   return (
@@ -90,7 +165,7 @@ export default function QrStudio() {
             <div className="flex items-center gap-3 flex-wrap">
               <ModeToggle
                 mode={mode}
-                setMode={setMode}
+                setMode={onModeChange}
                 brandingNudge={brandingNudge}
               />
               {(brandingChanged || advancedChanged) && (
@@ -110,13 +185,19 @@ export default function QrStudio() {
 
           {/* Preview + export */}
           <div className="order-2 lg:order-2 lg:sticky lg:top-6 space-y-4">
-            <QrPreview />
+            {isBarcode ? (
+              <div data-barcode-canvas>
+                <BarcodePreview onError={setBarcodeError} />
+              </div>
+            ) : (
+              <QrPreview />
+            )}
 
             <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
               <div>
                 <span className="block text-sm font-medium text-slate-700 mb-1.5">Format</span>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {FORMATS.map((f) => (
+                <div className={`grid gap-1.5 ${isBarcode ? 'grid-cols-2' : 'grid-cols-4'}`}>
+                  {(isBarcode ? BARCODE_FORMATS : FORMATS).map((f) => (
                     <button
                       key={f.value}
                       type="button"

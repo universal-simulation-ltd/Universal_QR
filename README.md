@@ -10,16 +10,15 @@ code, generate a retail or shipping barcode, or point your camera at either one
 to read it back — all of it in the browser, on your device, with nothing
 uploaded to a server.
 
-There are four tabs:
+There are three tabs:
 
 | Tab | What it does | |
 |---|---|---|
-| **QR** | Design and export branded, styled QR codes | free · on your device |
-| **Barcode** | Generate 1D retail and shipping barcodes | free · on your device |
+| **QR** | Design and export branded, styled QR codes — and 1D barcodes, under Advanced ▸ Type | free · on your device |
 | **Scan** | Read QR codes and barcodes with your camera | free · on your device |
 | **Dynamic** | One printed code, a destination you can change, with scan counts | hosted · sign-in |
 
-The first three never touch the network. **Dynamic** is the one exception — it
+The first two never touch the network. **Dynamic** is the one exception — it
 is a hosted feature, and it says so on the tab.
 
 **[Try the live app →](https://opensource.unisim.co.uk/qr)**
@@ -49,10 +48,13 @@ Part of the [Universal Apps](https://opensource.unisim.co.uk) suite by
 - **Export** — download as **PNG, SVG, JPEG or WebP**, or copy the PNG straight
   to your clipboard
 
-### Barcode — 1D retail and shipping codes
+### Barcodes — 1D retail and shipping codes
 
-- **Seven symbologies** — **Code 128** (any text, the general-purpose one),
-  **EAN-13**, **EAN-8**, **UPC-A**, **UPC-E**, **Code 39** and **ITF-14**
+Not a tab of its own: pick one under **Advanced ▸ Type**, next to "QR code".
+
+- **Five symbologies**, the ones people actually reach for — **Code 128** (any
+  text, the general-purpose one), **EAN-13** and **UPC-A** (retail in Europe and
+  the US), **Code 39** (asset tags and older industrial systems) and **ITF-14**
   (shipping cartons)
 - **Check digits done for you** — supply the payload one digit short (12 digits
   for EAN-13, 11 for UPC-A, 13 for ITF-14) and the final check digit is
@@ -95,8 +97,8 @@ they need somewhere to live in order to redirect and to count scans.
 
 ### Across the app
 
-- **Local-first** — the QR, Barcode and Scan tabs never upload anything; your
-  last design is remembered in the browser
+- **Local-first** — the QR and Scan tabs never upload anything; your last
+  design is remembered in the browser
 - **Built to actually scan** — the default design and every preset are checked by
   rendering them through this app's own pipeline and decoding the result with its
   own reader, at export size and at 96 px. If you change the colours yourself, the
@@ -118,8 +120,9 @@ they need somewhere to live in order to redirect and to count scans.
 4. **Choose a format** and hit **Download** — or **Copy** the PNG to paste
    elsewhere
 
-**To generate a barcode:** open the **Barcode** tab, pick the type your scanner
-or system expects, type the value, and download the PNG or SVG.
+**To generate a barcode:** in the QR tab, switch to **Advanced**, pick the type
+your scanner or system expects under **Type**, enter the value, and download the
+PNG or SVG.
 
 **To read a code:** open the **Scan** tab, hit **Start scanning** and point your
 camera at it.
@@ -138,9 +141,9 @@ Built with [Vite](https://vitejs.dev/), [React](https://react.dev/),
 [ZXing](https://github.com/zxing-js/browser) (camera scanning). The shared
 navigation bar comes from [`@unisim/sdk`](https://www.npmjs.com/package/@unisim/sdk).
 
-bwip-js and ZXing are both loaded on demand, the first time you open the
-**Barcode** or **Scan** tab, so they stay out of the initial bundle and the QR
-designer's first paint is unaffected.
+bwip-js and ZXing are both loaded on demand — the first time you pick a barcode
+type, or open the **Scan** tab — so they stay out of the initial bundle and the
+QR designer's first paint is unaffected.
 
 ```bash
 npm install
