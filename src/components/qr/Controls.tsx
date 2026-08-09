@@ -5,7 +5,6 @@ import {
   CORNER_SQUARE_TYPES,
   DOT_TYPES,
   PRESETS,
-  activePresetName,
   qrContrastIssue,
   MIN_QR_CONTRAST,
   type CornerDotType,
@@ -20,7 +19,8 @@ import { SYMBOLOGIES, symbologyById, type BarcodeSymbology } from '../../lib/bar
 export default function Controls() {
   const config = useQrStore((s) => s.config)
   const update = useQrStore((s) => s.update)
-  const applyPatch = useQrStore((s) => s.applyPatch)
+  const applyPreset = useQrStore((s) => s.applyPreset)
+  const activePreset = useQrStore((s) => s.presetName)
   const setLogo = useQrStore((s) => s.setLogo)
   const clearLogo = useQrStore((s) => s.clearLogo)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -33,7 +33,6 @@ export default function Controls() {
   const barcodeValue = useQrStore((s) => s.barcodeValue)
   const setBarcodeValue = useQrStore((s) => s.setBarcodeValue)
   const isBarcode = codeType === 'barcode'
-  const activePreset = activePresetName(config)
 
   function onLogoPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -98,7 +97,7 @@ export default function Controls() {
               key={p.name}
               name={p.name}
               active={p.name === activePreset}
-              onClick={() => applyPatch(p.patch)}
+              onClick={() => applyPreset(p.name, p.patch)}
             />
           ))}
         </div>
@@ -231,11 +230,32 @@ export default function Controls() {
           }}
           compact
         />
+        {config.decorStyle !== 'none' && (
+          <>
+            <Toggle
+              label="Decoration matches the modules"
+              checked={config.matchDecorColor}
+              onChange={(v) => update({ matchDecorColor: v })}
+              hint="Turn off to give the decoration its own colour."
+            />
+            {!config.matchDecorColor && (
+              <div className="pl-3 border-l-2 border-orange-100">
+                <Swatch
+                  label="Decoration colour"
+                  value={config.decorColor}
+                  onChange={(v) => update({ decorColor: v })}
+                />
+              </div>
+            )}
+          </>
+        )}
+
         {config.decorStyle !== 'none' ? (
           <p className="text-xs text-slate-500">
             Decoration fills the space the shape leaves around the code — and needs that
             space, so the code is drawn smaller to make it. Export larger than usual, and
-            scan-test before printing.
+            scan-test before printing. It sits outside the code, so its colour is free —
+            there is no contrast rule to satisfy.
           </p>
         ) : (
           <p className="text-xs text-slate-500">
@@ -537,6 +557,7 @@ function Swatch({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          aria-label={`${label} hex value`}
           className="w-full min-w-0 text-sm font-mono uppercase text-slate-700 focus:outline-none"
         />
       </div>

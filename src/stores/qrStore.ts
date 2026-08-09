@@ -72,6 +72,18 @@ interface QrState {
   update: (patch: Partial<QrConfig>) => void
   /** Replace the whole config (used by presets, which patch a base). */
   applyPatch: (patch: Partial<QrConfig>) => void
+  /**
+   * The style preset the user last chose, or null.
+   *
+   * REMEMBERED, not derived from the config. Deriving it — active only while
+   * every key in the patch still matches — deselects the moment you nudge a
+   * colour, which is the wrong answer: a star you have recoloured is still the
+   * Star design, and the row went blank exactly when you most wanted to know
+   * where you started. Storing it also gives the pill a second job: clicking
+   * the selected one re-applies its patch, so it doubles as "put this back".
+   */
+  presetName: string | null
+  applyPreset: (name: string, patch: Partial<QrConfig>) => void
   setLogo: (dataUrl: string) => void
   clearLogo: () => void
   reset: () => void
@@ -102,9 +114,12 @@ export const useQrStore = create<QrState>()(
       setMode: (mode) => set({ mode }),
       update: (patch) => set((s) => ({ config: { ...s.config, ...patch } })),
       applyPatch: (patch) => set((s) => ({ config: { ...s.config, ...patch } })),
+      presetName: null,
+      applyPreset: (presetName, patch) =>
+        set((s) => ({ presetName, config: { ...s.config, ...patch } })),
       setLogo: (dataUrl) => set((s) => ({ config: { ...s.config, logoDataUrl: dataUrl } })),
       clearLogo: () => set((s) => ({ config: { ...s.config, logoDataUrl: null } })),
-      reset: () => set((s) => ({ config: DEFAULT_CONFIG, mode: s.mode })),
+      reset: () => set((s) => ({ config: DEFAULT_CONFIG, mode: s.mode, presetName: null })),
       dynamicBrand: DEFAULT_DYNAMIC_BRAND,
       setDynamicBrand: (patch) => set((s) => ({ dynamicBrand: { ...s.dynamicBrand, ...patch } })),
       resetDynamicBrand: () => set({ dynamicBrand: DEFAULT_DYNAMIC_BRAND }),
@@ -119,13 +134,14 @@ export const useQrStore = create<QrState>()(
     }),
     {
       name: 'universal-qr:config',
-      version: 5,
+      version: 6,
       // Only the design + chosen tabs persist — not the transient dialog flag.
       partialize: (s) => ({
         config: s.config,
         mode: s.mode,
         view: s.view,
         codeType: s.codeType,
+        presetName: s.presetName,
         dynamicBrand: s.dynamicBrand,
         barcodeSymbology: s.barcodeSymbology,
         barcodeValue: s.barcodeValue
@@ -162,6 +178,18 @@ export const useQrStore = create<QrState>()(
         // record arrives with decorStyle undefined, and the renderer would then
         // compare undefined against 'none' on every draw.
         if (version < 5 && p.config) p.config = { ...p.config, decorStyle: p.config.decorStyle ?? 'none' }
+        // v6 added the decoration colour. Same reasoning as every backfill above:
+        // persist replaces `config` wholesale, so an older record arrives with
+        // matchDecorColor undefined — which is falsy, and would silently draw
+        // every existing decorated design in decorColor instead of following the
+        // modules. A missing flag has to mean "match", not "don't".
+        if (version < 6 && p.config) {
+          p.config = {
+            ...p.config,
+            matchDecorColor: p.config.matchDecorColor ?? true,
+            decorColor: p.config.decorColor ?? '#e05504'
+          }
+        }
         return p as unknown as QrState
       }
     }

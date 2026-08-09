@@ -7,7 +7,7 @@ import HostedStoreDialog from './HostedStoreDialog'
 import { useQrStore, type StudioMode } from '../../stores/qrStore'
 import { CONTAINER } from '../../lib/layout'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
-import { DEFAULT_CONFIG, PRESETS, activePresetName, type ExportFormat, type QrConfig } from '../../lib/qr'
+import { DEFAULT_CONFIG, PRESETS, type ExportFormat, type QrConfig } from '../../lib/qr'
 import { barcodeFileStem, renderBarcodeToSvg, symbologyById } from '../../lib/barcode'
 
 // Which config keys count as "branding has been customised" — used to decide
@@ -338,11 +338,11 @@ function SimplePanel() {
 function BrandingPanel() {
   const config = useQrStore((s) => s.config)
   const update = useQrStore((s) => s.update)
-  const applyPatch = useQrStore((s) => s.applyPatch)
+  const applyPreset = useQrStore((s) => s.applyPreset)
+  const activePreset = useQrStore((s) => s.presetName)
   const setLogo = useQrStore((s) => s.setLogo)
   const clearLogo = useQrStore((s) => s.clearLogo)
   const fileRef = useRef<HTMLInputElement>(null)
-  const activePreset = activePresetName(config)
 
   function onLogoPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -389,7 +389,7 @@ function BrandingPanel() {
                 type="button"
                 role="radio"
                 aria-checked={active}
-                onClick={() => applyPatch(p.patch)}
+                onClick={() => applyPreset(p.name, p.patch)}
                 className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
                   active
                     ? 'border-orange-500 bg-orange-50 text-orange-700'

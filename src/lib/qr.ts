@@ -55,6 +55,11 @@ export interface QrConfig {
    *  plate, where there is no space to fill. */
   decorStyle: DecorStyle
 
+  /** Decoration follows the module colour. Off to give it its own. */
+  matchDecorColor: boolean
+  /** Decoration colour, used when matchDecorColor is false. */
+  decorColor: string
+
   // ── Logo / branding ────────────────────────────────────────────────────────
   /** A user-supplied brand logo (data URI), placed in the centre. */
   logoDataUrl: string | null
@@ -140,6 +145,11 @@ export const DEFAULT_CONFIG: QrConfig = {
   cornerDotType: 'dot',
   frameShape: 'square',
   decorStyle: 'none',
+  // Decoration follows the modules by default: it frames the code rather than
+  // competing with it, and matching means switching decoration on can never
+  // introduce a colour the user did not pick.
+  matchDecorColor: true,
+  decorColor: '#e05504',
   logoDataUrl: null,
   logoSize: 0.28,
   logoMargin: 6,
@@ -165,6 +175,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
   {
     name: 'Classic',
     patch: {
+      matchDecorColor: true,
       decorStyle: 'none',
       dotType: 'square',
       cornerSquareType: 'square',
@@ -180,6 +191,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
   {
     name: 'Rounded',
     patch: {
+      matchDecorColor: true,
       decorStyle: 'none',
       dotType: 'rounded',
       cornerSquareType: 'extra-rounded',
@@ -195,6 +207,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
   {
     name: 'Dots',
     patch: {
+      matchDecorColor: true,
       decorStyle: 'none',
       dotType: 'dots',
       cornerSquareType: 'dot',
@@ -211,6 +224,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
   {
     name: 'Sunset',
     patch: {
+      matchDecorColor: true,
       decorStyle: 'none',
       dotType: 'extra-rounded',
       cornerSquareType: 'extra-rounded',
@@ -238,6 +252,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
     // than left as blank background.
     name: 'Radial',
     patch: {
+      matchDecorColor: true,
       dotType: 'dots',
       cornerSquareType: 'dot',
       cornerDotType: 'dot',
@@ -254,14 +269,22 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
     }
   },
   {
+    // BLACK on orange, not white on orange. White modules on an orange plate is
+    // an INVERTED code — the exact fault that made the old default unscannable —
+    // and it survived that clean-up because the decode harness was run with the
+    // star SHAPE and its own colours, never with this preset's palette. Black on
+    // #e05504 is 5.5:1 with the dark side down, which is what a reader needs.
+    // The plate also moves to the canonical brand orange; #ea580c was the
+    // Tailwind pair BRANDING.md retired.
     name: 'Star',
     patch: {
+      matchDecorColor: true,
       decorStyle: 'burst',
       dotType: 'extra-rounded',
       cornerSquareType: 'extra-rounded',
       cornerDotType: 'dot',
-      fgColor: '#ffffff',
-      bgColor: '#ea580c',
+      fgColor: '#000000',
+      bgColor: '#e05504',
       bgTransparent: false,
       useGradient: false,
       matchCornerColor: true,
@@ -270,28 +293,13 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
   }
 ]
 
-/**
- * The preset the current design matches, or null.
+/** The colour the decoration is actually drawn in.
  *
- * Presets are applied as PATCHES — nothing records "the user picked Radial", so
- * the selected state has to be derived. A preset counts as active when every
- * key in its patch still equals the config's value, which gives the behaviour
- * you actually want for free: tweak one colour afterwards and the pill quietly
- * deselects, because the design is no longer that preset.
- *
- * First match wins. The shipped patches are mutually distinguishable, but a new
- * preset whose patch is a SUBSET of another's would always lose to whichever is
- * declared first — keep at least one pinned field different.
- */
-export function activePresetName(config: QrConfig): string | null {
-  for (const preset of PRESETS) {
-    const keys = Object.keys(preset.patch) as (keyof QrConfig)[]
-    const same = keys.every(
-      (k) => JSON.stringify(config[k]) === JSON.stringify(preset.patch[k])
-    )
-    if (same) return preset.name
-  }
-  return null
+ *  One helper, because the canvas renderer, the SVG exporter and the controls
+ *  all need the same answer — two places deciding the same thing is the class
+ *  of bug this file keeps having to design against. */
+export function decorColour(config: QrConfig): string {
+  return config.matchDecorColor ? config.fgColor : config.decorColor
 }
 
 /** WCAG relative luminance (0–1) of a `#rrggbb` colour.

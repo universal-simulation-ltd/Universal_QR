@@ -1,5 +1,5 @@
 import QRCodeStyling from 'qr-code-styling'
-import { buildQrOptions, cornerStampGeometry, showsCornerMark, type QrConfig } from './qr'
+import { buildQrOptions, cornerStampGeometry, decorColour, showsCornerMark, type QrConfig } from './qr'
 import { frameGeometry, framePathData, traceFrame } from './frames'
 import { DECOR_CODE_SCALE, decorSvg, drawDecor } from './decor'
 import { UNISIM_MARK } from './unisimMark'
@@ -112,7 +112,7 @@ export async function composeShapedCanvas(config: QrConfig, size: number): Promi
     ctx.save()
     traceFrame(ctx, config.frameShape, size)
     ctx.clip()
-    drawDecor(ctx, config.decorStyle, config.frameShape, size, inner, config.fgColor)
+    drawDecor(ctx, config.decorStyle, config.frameShape, size, inner, decorColour(config))
     ctx.restore()
   }
 
@@ -174,7 +174,7 @@ export async function composeShapedSvg(config: QrConfig, size: number): Promise<
     const id = 'plate-clip'
     clip =
       `<clipPath id="${id}"><path d="${framePathData(config.frameShape, size)}" /></clipPath>`
-    decor = `<g clip-path="url(#${id})">${decorSvg(config.decorStyle, config.frameShape, size, inner, config.fgColor)}</g>`
+    decor = `<g clip-path="url(#${id})">${decorSvg(config.decorStyle, config.frameShape, size, inner, decorColour(config))}</g>`
   }
 
   return (
