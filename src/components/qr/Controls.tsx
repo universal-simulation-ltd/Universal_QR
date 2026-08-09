@@ -5,6 +5,7 @@ import {
   CORNER_SQUARE_TYPES,
   DOT_TYPES,
   PRESETS,
+  activePresetName,
   qrContrastIssue,
   MIN_QR_CONTRAST,
   type CornerDotType,
@@ -32,6 +33,7 @@ export default function Controls() {
   const barcodeValue = useQrStore((s) => s.barcodeValue)
   const setBarcodeValue = useQrStore((s) => s.setBarcodeValue)
   const isBarcode = codeType === 'barcode'
+  const activePreset = activePresetName(config)
 
   function onLogoPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -90,16 +92,14 @@ export default function Controls() {
 
       {/* ── Presets ─────────────────────────────────────────────────────── */}
       <Section title="Style presets" desc="A starting point — tweak anything below.">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Style presets">
           {PRESETS.map((p) => (
-            <button
+            <PresetPill
               key={p.name}
-              type="button"
+              name={p.name}
+              active={p.name === activePreset}
               onClick={() => applyPatch(p.patch)}
-              className="px-3 py-1.5 rounded-full text-sm font-medium border border-slate-200 bg-white hover:border-orange-400 hover:bg-orange-50 hover:text-orange-700 transition-colors"
-            >
-              {p.name}
-            </button>
+            />
           ))}
         </div>
       </Section>
@@ -369,6 +369,27 @@ export default function Controls() {
       </>
       )}
     </div>
+  )
+}
+
+/** A style-preset pill. Shows its SELECTED state, not just hover — a row where
+ *  nothing ever looks chosen gives no feedback that the click landed, and no way
+ *  to tell later which preset a design started from. */
+function PresetPill({ name, active, onClick }: { name: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={active}
+      onClick={onClick}
+      className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+        active
+          ? 'border-orange-500 bg-orange-50 text-orange-700'
+          : 'border-slate-200 bg-white text-slate-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-700'
+      }`}
+    >
+      {name}
+    </button>
   )
 }
 

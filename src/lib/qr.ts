@@ -112,11 +112,18 @@ export const DEFAULT_CONFIG: QrConfig = {
   // than guessing bore that out: orange-on-white decoded at small sizes but
   // FAILED at 512 px, which is exactly the marginal behaviour you do not ship.
   //
-  // So the brand comes from the suite's actual scheme (white paper, slate ink,
-  // orange as the spotlight) rather than from the module colour: slate-900
+  // So the brand comes from the suite's actual scheme (white paper, dark ink,
+  // orange as the spotlight) rather than from the module colour: near-black
   // modules on white for maximum contrast, the three finder patterns in
   // orange-600, and the UNI·SIM mark in the centre. Decodes at all four sizes.
-  fgColor: '#0f172a',
+  //
+  // WARM off-black (#1C1917), not slate-900 (#0F172A). Slate is a blue-leaning
+  // dark and pulls the opposite way from the orange eyes on the temperature
+  // axis; a warm neutral of the same depth shares the orange's hue family, so
+  // the two read as one palette instead of two decisions. Costs nothing in
+  // legibility — 17.5:1 on white against slate's 17.9:1, both far above the 3:1
+  // a decoder needs — so this is purely colour harmony.
+  fgColor: '#1c1917',
   bgColor: '#ffffff',
   bgTransparent: false,
   useGradient: false,
@@ -246,7 +253,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       dotType: 'dots',
       cornerSquareType: 'dot',
       cornerDotType: 'dot',
-      fgColor: '#0f172a',
+      fgColor: '#1c1917',
       bgColor: '#ffffff',
       bgTransparent: false,
       useGradient: false,
@@ -293,6 +300,30 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
     }
   }
 ]
+
+/**
+ * The preset the current design matches, or null.
+ *
+ * Presets are applied as PATCHES — nothing records "the user picked Radial", so
+ * the selected state has to be derived. A preset counts as active when every
+ * key in its patch still equals the config's value, which gives the behaviour
+ * you actually want for free: tweak one colour afterwards and the pill quietly
+ * deselects, because the design is no longer that preset.
+ *
+ * First match wins. The shipped patches are mutually distinguishable, but a new
+ * preset whose patch is a SUBSET of another's would always lose to whichever is
+ * declared first — keep at least one pinned field different.
+ */
+export function activePresetName(config: QrConfig): string | null {
+  for (const preset of PRESETS) {
+    const keys = Object.keys(preset.patch) as (keyof QrConfig)[]
+    const same = keys.every(
+      (k) => JSON.stringify(config[k]) === JSON.stringify(preset.patch[k])
+    )
+    if (same) return preset.name
+  }
+  return null
+}
 
 /** WCAG relative luminance (0–1) of a `#rrggbb` colour.
  *

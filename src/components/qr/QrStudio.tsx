@@ -7,7 +7,7 @@ import HostedStoreDialog from './HostedStoreDialog'
 import { useQrStore, type StudioMode } from '../../stores/qrStore'
 import { CONTAINER } from '../../lib/layout'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
-import { DEFAULT_CONFIG, PRESETS, type ExportFormat, type QrConfig } from '../../lib/qr'
+import { DEFAULT_CONFIG, PRESETS, activePresetName, type ExportFormat, type QrConfig } from '../../lib/qr'
 import { barcodeFileStem, renderBarcodeToSvg, symbologyById } from '../../lib/barcode'
 
 // Which config keys count as "branding has been customised" — used to decide
@@ -342,6 +342,7 @@ function BrandingPanel() {
   const setLogo = useQrStore((s) => s.setLogo)
   const clearLogo = useQrStore((s) => s.clearLogo)
   const fileRef = useRef<HTMLInputElement>(null)
+  const activePreset = activePresetName(config)
 
   function onLogoPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -379,17 +380,26 @@ function BrandingPanel() {
       <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
         <h2 className="font-semibold text-slate-900">Style presets</h2>
         <p className="mt-0.5 mb-3 text-xs text-slate-500">A starting point — tweak the colours and logo below.</p>
-        <div className="flex flex-wrap gap-2">
-          {PRESETS.map((p) => (
-            <button
-              key={p.name}
-              type="button"
-              onClick={() => applyPatch(p.patch)}
-              className="px-3 py-1.5 rounded-full text-sm font-medium border border-slate-200 bg-white hover:border-orange-400 hover:bg-orange-50 hover:text-orange-700 transition-colors"
-            >
-              {p.name}
-            </button>
-          ))}
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Style presets">
+          {PRESETS.map((p) => {
+            const active = p.name === activePreset
+            return (
+              <button
+                key={p.name}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                onClick={() => applyPatch(p.patch)}
+                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+                  active
+                    ? 'border-orange-500 bg-orange-50 text-orange-700'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-700'
+                }`}
+              >
+                {p.name}
+              </button>
+            )
+          })}
         </div>
       </section>
 
