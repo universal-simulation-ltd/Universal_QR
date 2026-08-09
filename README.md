@@ -14,7 +14,7 @@ There are three tabs:
 
 | Tab | What it does | |
 |---|---|---|
-| **QR** | Design and export branded, styled QR codes — and 1D barcodes, under Advanced ▸ Type | free · on your device |
+| **QR** | Design and export branded, styled QR codes — and 1D barcodes, via Advanced ▸ Type | free · on your device |
 | **Scan** | Read QR codes and barcodes with your camera | free · on your device |
 | **Dynamic** | One printed code, a destination you can change, with scan counts | hosted · sign-in |
 
@@ -50,7 +50,9 @@ Part of the [Universal Apps](https://opensource.unisim.co.uk) suite by
 
 ### Barcodes — 1D retail and shipping codes
 
-Not a tab of its own: pick one under **Advanced ▸ Type**, next to "QR code".
+Not a tab of its own: set **Advanced ▸ Type** to **Barcode**, then choose the
+symbology under **Content** — the same place the QR side picks link, Wi-Fi or
+contact.
 
 - **Five symbologies**, the ones people actually reach for — **Code 128** (any
   text, the general-purpose one), **EAN-13** and **UPC-A** (retail in Europe and
@@ -120,9 +122,9 @@ they need somewhere to live in order to redirect and to count scans.
 4. **Choose a format** and hit **Download** — or **Copy** the PNG to paste
    elsewhere
 
-**To generate a barcode:** in the QR tab, switch to **Advanced**, pick the type
-your scanner or system expects under **Type**, enter the value, and download the
-PNG or SVG.
+**To generate a barcode:** in the QR tab, switch to **Advanced**, set **Type** to
+**Barcode**, then pick the symbology your scanner or system expects under
+**Content**, enter the value, and download the PNG or SVG.
 
 **To read a code:** open the **Scan** tab, hit **Start scanning** and point your
 camera at it.

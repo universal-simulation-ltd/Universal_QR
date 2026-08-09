@@ -49,35 +49,27 @@ export default function Controls() {
   return (
     <div className="space-y-5">
       {/* ── Type ────────────────────────────────────────────────────────────
-          1D barcodes used to be a top-level tab. They are a minority need, so
-          they sit here instead: one row of chips, QR first. Picking a barcode
-          swaps the whole panel below — colours, shapes and logos are QR-only
-          ideas, and leaving them on screen would imply a barcode could carry
-          them. */}
-      <Section title="Type" desc="A QR code, or a 1D barcode for retail and shipping.">
+          Two choices only: what you are making. WHICH kind of QR (link, Wi-Fi,
+          contact…) or WHICH barcode symbology is a content decision, so both
+          live one level down, in the Content section — the QR side already
+          worked that way, and the barcode side now matches it rather than
+          spraying seven unrelated options across one row.
+
+          1D barcodes had a top-level tab until 2026-08-09; that was more
+          prominence than the usage justified. Picking Barcode swaps the whole
+          panel below — colours, shapes and logos are QR-only ideas, and leaving
+          them on screen would imply a barcode could carry them. */}
+      <Section title="Type" desc="What you're making.">
         <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Code type">
-          <TypeChip
-            label="QR code"
-            active={!isBarcode}
-            onClick={() => setCodeType('qr')}
-          />
-          {SYMBOLOGIES.map((s) => (
-            <TypeChip
-              key={s.id}
-              label={s.label}
-              active={isBarcode && symbology === s.id}
-              onClick={() => {
-                setSymbology(s.id as BarcodeSymbology)
-                setCodeType('barcode')
-              }}
-            />
-          ))}
+          <TypeChip label="QR Code" active={!isBarcode} onClick={() => setCodeType('qr')} />
+          <TypeChip label="Barcode" active={isBarcode} onClick={() => setCodeType('barcode')} />
         </div>
       </Section>
 
       {isBarcode ? (
         <BarcodeFields
           symbology={symbology}
+          setSymbology={setSymbology}
           value={barcodeValue}
           onChange={setBarcodeValue}
         />
@@ -351,14 +343,20 @@ function TypeChip({ label, active, onClick }: { label: string; active: boolean; 
   )
 }
 
-/** The barcode's one input. Its rules come from the symbology, so the hint,
- *  placeholder, keyboard and validation all change with the chosen type. */
+/** The barcode's Content section: which symbology, then its one value.
+ *
+ *  Deliberately the same shape as the QR side — an OptionRow labelled "Type"
+ *  above the field it configures — so the two halves of the designer read the
+ *  same way instead of one using chips and the other a grid. Everything about
+ *  the input follows the symbology: hint, placeholder, keyboard and validation. */
 function BarcodeFields({
   symbology,
+  setSymbology,
   value,
   onChange,
 }: {
   symbology: BarcodeSymbology
+  setSymbology: (s: BarcodeSymbology) => void
   value: string
   onChange: (v: string) => void
 }) {
@@ -366,7 +364,14 @@ function BarcodeFields({
   const trimmed = value.trim()
   const error = trimmed.length === 0 ? null : def.validate(trimmed)
   return (
-    <Section title="Value" desc={def.hint}>
+    <Section title="Content" desc="The barcode type your scanner or system expects, and its value.">
+      <OptionRow
+        label="Type"
+        value={symbology}
+        options={SYMBOLOGIES.map((s) => ({ value: s.id, label: s.label }))}
+        onChange={(v) => setSymbology(v as BarcodeSymbology)}
+      />
+      <FieldLabel>Value</FieldLabel>
       <input
         id="barcode-value"
         type="text"
@@ -384,7 +389,7 @@ function BarcodeFields({
       />
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
       <p className="mt-2 text-xs text-slate-500">
-        Barcodes are static and unstyled — no colours, logo or shape. Scan-test before printing.
+        {def.hint} Barcodes are static and unstyled — no colours, logo or shape.
       </p>
     </Section>
   )
