@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useUniversal, useUser, useCredits, useHostedUploads, useAppFreeToken, type HostedUpload } from '@unisim/sdk'
+import { useUniversal, useUser, useCredits, useFileDrop, useHostedUploads, useAppFreeToken, type HostedUpload } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { storeCurrentQr, deleteHostedQr, openHostedQr } from '../../lib/hostedStore'
 import { downloadBackup, readBackupFile } from '../../lib/qrBackup'
@@ -33,7 +33,14 @@ export default function HostedStoreDialog() {
   const [justStored, setJustStored] = useState(false)
   const [importMsg, setImportMsg] = useState<string | null>(null)
   const [importErr, setImportErr] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  // Button-driven, not a drop target: this sits inside a dialog whose whole
+  // surface is already scrollable content.
+  const importPicker = useFileDrop({
+    onFiles: (files) => { void onImportFile(files[0]) },
+    accept: '.json,application/json',
+    multiple: false,
+    clickToBrowse: false,
+  })
 
   if (!open) return null
 
@@ -55,9 +62,7 @@ export default function HostedStoreDialog() {
     downloadBackup(config, mode)
   }
 
-  async function onImportFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    e.target.value = '' // let the same file be re-picked later
+  async function onImportFile(file: File | undefined) {
     if (!file) return
     setImportErr(null)
     setImportMsg(null)
@@ -167,7 +172,7 @@ export default function HostedStoreDialog() {
               </button>
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={importPicker.open}
                 className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-400 hover:bg-slate-50"
               >
                 <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -175,13 +180,7 @@ export default function HostedStoreDialog() {
                 </svg>
                 Import a backup
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json,application/json"
-                onChange={onImportFile}
-                className="hidden"
-              />
+              <input {...importPicker.inputProps} className="hidden" />
             </div>
             {!hasData && <p className="mt-2 text-xs text-slate-400">Enter a URL or some text to back up your design.</p>}
             {importMsg && <p className="mt-2 text-sm text-emerald-600">{importMsg}</p>}

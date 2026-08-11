@@ -1,4 +1,5 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { useFileDrop } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import {
   CORNER_DOT_TYPES,
@@ -23,7 +24,6 @@ export default function Controls() {
   const activePreset = useQrStore((s) => s.presetName)
   const setLogo = useQrStore((s) => s.setLogo)
   const clearLogo = useQrStore((s) => s.clearLogo)
-  const fileRef = useRef<HTMLInputElement>(null)
   const frameNote = frameSizeNote(config.frameShape, config.size, decorScaleOf(config))
   const contrast = qrContrastIssue(config)
   const codeType = useQrStore((s) => s.codeType)
@@ -34,9 +34,17 @@ export default function Controls() {
   const setBarcodeValue = useQrStore((s) => s.setBarcodeValue)
   const isBarcode = codeType === 'barcode'
 
-  function onLogoPick(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    e.target.value = ''
+  // Mechanics from the SDK, so the empty state below can take a dragged image
+  // as well as a click — the panel has always said "drop your brand mark" and
+  // now it means it.
+  const logo = useFileDrop({
+    onFiles: (files) => onLogoFile(files[0]),
+    accept: 'image/*,.svg',
+    multiple: false,
+    label: 'Drop a logo here, or click to choose one',
+  })
+
+  function onLogoFile(file: File | undefined) {
     if (!file) return
     if (!file.type.startsWith('image/')) {
       alert('Please choose an image file (PNG, JPG, or SVG).')
@@ -312,7 +320,7 @@ export default function Controls() {
 
       {/* ── Logo & branding ─────────────────────────────────────────────── */}
       <Section title="Logo & branding" desc="Drop your brand mark into the centre.">
-        <input ref={fileRef} type="file" accept="image/*,.svg" hidden onChange={onLogoPick} />
+        <input {...logo.inputProps} hidden />
         {config.logoDataUrl ? (
           <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-slate-50">
             <img
@@ -323,7 +331,7 @@ export default function Controls() {
             <div className="flex-1 text-sm text-slate-600">Custom logo added</div>
             <button
               type="button"
-              onClick={() => fileRef.current?.click()}
+              onClick={logo.open}
               className="text-xs font-medium text-slate-600 hover:text-orange-700 px-2 py-1"
             >
               Replace
@@ -337,13 +345,16 @@ export default function Controls() {
             </button>
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 text-sm font-medium text-slate-600 hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-700 transition-colors"
+          <div
+            {...logo.dropzoneProps}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed cursor-pointer text-sm font-medium transition-colors focus:outline-none focus-visible:outline-2 focus-visible:outline-orange-600 ${
+              logo.over
+                ? 'border-orange-500 bg-orange-50 text-orange-700'
+                : 'border-slate-300 text-slate-600 hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-700'
+            }`}
           >
-            <span aria-hidden="true">🖼</span> Upload a logo (PNG, JPG, SVG)
-          </button>
+            <span aria-hidden="true">🖼</span> Drop a logo here, or click to choose (PNG, JPG, SVG)
+          </div>
         )}
 
         {config.logoDataUrl && (

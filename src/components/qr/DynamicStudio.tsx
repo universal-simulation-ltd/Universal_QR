@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding } from '@unisim/sdk'
+import { useUniversal, useUser, useCredits, useAppFreeToken, useFileDrop, useOrgBranding } from '@unisim/sdk'
 import { CONTAINER } from '../../lib/layout'
 import { DEFAULT_CONFIG, PRESETS, buildQrOptions, type QrConfig } from '../../lib/qr'
 import QRCodeStyling from 'qr-code-styling'
@@ -30,7 +30,14 @@ export default function DynamicStudio() {
   const dynamicBrand = useQrStore((s) => s.dynamicBrand)
   const setDynamicBrand = useQrStore((s) => s.setDynamicBrand)
   const resetDynamicBrand = useQrStore((s) => s.resetDynamicBrand)
-  const logoInputRef = useRef<HTMLInputElement>(null)
+  // A chip in a row of chips, so no drop target here — the SDK just owns the
+  // input, which means re-picking the same logo still fires.
+  const logoPicker = useFileDrop({
+    onFiles: (files) => onUploadLogo(files[0]),
+    accept: 'image/*',
+    multiple: false,
+    clickToBrowse: false,
+  })
   // Branding is a lot of controls — keep it collapsed by default so the create
   // form and code list are front and centre.
   const [brandingOpen, setBrandingOpen] = useState(false)
@@ -106,9 +113,7 @@ export default function DynamicStudio() {
     setDynamicBrand(b)
   }
 
-  function onUploadLogo(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    e.target.value = ''
+  function onUploadLogo(file: File | undefined) {
     if (!file) return
     const fr = new FileReader()
     fr.onload = () => setDynamicBrand({ logoMode: 'custom', logo: String(fr.result) })
@@ -327,10 +332,10 @@ export default function DynamicStudio() {
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   <BrandChip active={dynamicBrand.logoMode === 'org'} disabled={!orgIcon} onClick={() => setDynamicBrand({ logoMode: 'org' })}>Org icon</BrandChip>
-                  <BrandChip active={dynamicBrand.logoMode === 'custom'} onClick={() => logoInputRef.current?.click()}>Upload…</BrandChip>
+                  <BrandChip active={dynamicBrand.logoMode === 'custom'} onClick={logoPicker.open}>Upload…</BrandChip>
                   <BrandChip active={dynamicBrand.logoMode === 'none'} onClick={() => setDynamicBrand({ logoMode: 'none' })}>None</BrandChip>
                 </div>
-                <input ref={logoInputRef} type="file" accept="image/*" onChange={onUploadLogo} className="hidden" />
+                <input {...logoPicker.inputProps} className="hidden" />
               </div>
             </div>
           </div>
