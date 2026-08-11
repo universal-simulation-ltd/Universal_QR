@@ -20,7 +20,7 @@
     "cap:open:android": "npx cap open android"
   },
   "dependencies": {
-    "@unisim/sdk": "^0.93.0",
+    "@unisim/sdk": "^0.93.1",
     "@zxing/browser": "^0.2.1",
     "bwip-js": "^4.11.2",
     "qr-code-styling": "^1.9.2",
