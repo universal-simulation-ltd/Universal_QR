@@ -167,13 +167,18 @@ export const useQrStore = create<QrState>()(
     }),
     {
       name: 'universal-qr:config',
-      version: 6,
-      // Only the design + chosen tabs persist — not the transient dialog flag.
+      version: 7,
+      // The content persists; the tabs deliberately do NOT (and the style is
+      // re-rolled on load — see onRehydrateStorage). Every load opens the
+      // Simple panel of the static designer, because that is the clean front
+      // door — a returning visitor should not be dropped into the Advanced
+      // control wall (or a camera-permission prompt) they happened to end on
+      // last time. `codeType` goes with them: a barcode preview under the
+      // Simple URL box is the exact controls/preview mismatch onModeChange
+      // guards against, and `barcodeValue` still persists, so re-picking
+      // Advanced ▸ Type ▸ Barcode brings the work straight back.
       partialize: (s) => ({
         config: s.config,
-        mode: s.mode,
-        view: s.view,
-        codeType: s.codeType,
         presetName: s.presetName,
         dynamicBrand: s.dynamicBrand,
         barcodeSymbology: s.barcodeSymbology,
@@ -195,6 +200,7 @@ export const useQrStore = create<QrState>()(
           dynamicBrand?: Partial<DynamicBrand>
           config?: Partial<QrConfig>
           view?: string
+          mode?: StudioMode
           codeType?: CodeType
         }
         if (version < 2) p.dynamicBrand = { ...DEFAULT_DYNAMIC_BRAND, ...(p.dynamicBrand ?? {}) }
@@ -222,6 +228,16 @@ export const useQrStore = create<QrState>()(
             matchDecorColor: p.config.matchDecorColor ?? true,
             decorColor: p.config.decorColor ?? '#e05504'
           }
+        }
+        // v7 stopped persisting the tabs. Dropping them from `partialize` alone
+        // is not enough: persist shallow-merges the stored record over the
+        // initial state, so an existing v6 record would keep restoring its old
+        // `mode` / `view` / `codeType` forever and the app would still open
+        // wherever that user last was. Strip them once, here.
+        if (version < 7) {
+          delete p.mode
+          delete p.view
+          delete p.codeType
         }
         return p as unknown as QrState
       },
