@@ -21,14 +21,17 @@ export default function QrPreview() {
 
   const shaped = config.frameShape !== 'square'
 
-  // Create the instance once and mount its canvas into the holder.
+  // Create the instance once. It is deliberately NOT appended here — the render
+  // effect below owns the holder's contents.
+  //
+  // ⚠️ Appending on mount painted the plain SQUARE code, unstyled, at its full
+  // `config.size` (512 px) inside a card that is at most 360 px wide, and left
+  // it there until the async composite resolved. On a shaped preset — and every
+  // load deals a random one, so Star or Circle most visits — that read as the
+  // QR flashing up oversized and then snapping into the plate, made worse by
+  // `qr-pop` fading the wrong frame in over 320 ms.
   useEffect(() => {
-    const qr = new QRCodeStyling(buildQrOptions(config))
-    qrRef.current = qr
-    if (holderRef.current) {
-      holderRef.current.innerHTML = ''
-      qr.append(holderRef.current)
-    }
+    qrRef.current = new QRCodeStyling(buildQrOptions(config))
     return () => {
       qrRef.current = null
     }
@@ -52,11 +55,13 @@ export default function QrPreview() {
     }
 
     if (!shaped) {
-      // Coming back from a shaped design, the holder is showing OUR canvas and
-      // the library's is detached — updating it would repaint something nobody
-      // can see. Re-append before updating.
-      const composed = holderRef.current?.querySelector('canvas[data-composed]')
-      if (composed && holderRef.current && qrRef.current) {
+      // The holder is showing the library's own canvas only if it has been
+      // appended and not since replaced. On first paint it is empty; coming back
+      // from a shaped design it holds OUR canvas with the library's detached, and
+      // updating that would repaint something nobody can see. Either way,
+      // (re-)append before updating.
+      const live = holderRef.current?.querySelector('canvas:not([data-composed])')
+      if (!live && holderRef.current && qrRef.current) {
         holderRef.current.innerHTML = ''
         qrRef.current.append(holderRef.current)
       }
@@ -110,7 +115,15 @@ export default function QrPreview() {
       >
         {/* Tight wrapper so the corner-stamp % coordinates line up with the canvas */}
         <div className="relative leading-[0] qr-pop">
-          <div ref={holderRef} aria-label={`QR code for ${qrDisplayName(config)}`} role="img" />
+          {/* Square by CSS, not by its contents: a shaped design composites
+              asynchronously, so the holder is briefly empty on first paint and
+              an auto-height box would collapse and then pop the card open. */}
+          <div
+            ref={holderRef}
+            className="w-full aspect-square"
+            aria-label={`QR code for ${qrDisplayName(config)}`}
+            role="img"
+          />
 
           {stamp && (
             <div
