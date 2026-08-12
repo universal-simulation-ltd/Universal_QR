@@ -193,6 +193,16 @@ export default function QrStudio() {
                 </button>
               )}
             </div>
+            {/* Regenerate — the same roll of the dice a page reload does, minus
+                the reload. Moved out of the preview column on 2026-08-12 (owner
+                ask): it is a control, and the right-hand column is the code
+                itself plus what you do with it. Above the panel rather than
+                below it because Advanced is tall — under it, the one styling
+                control Simple has would sit off the bottom of a scrolled page.
+                Rendered in every mode: the preset row only exists in two of the
+                three, and in Simple this is the whole styling UI. */}
+            {!isBarcode && <RegenerateStyle />}
+
             {mode === 'simple' && <SimplePanel />}
             {mode === 'branding' && <BrandingPanel />}
             {mode === 'advanced' && <Controls />}
@@ -207,13 +217,6 @@ export default function QrStudio() {
             ) : (
               <QrPreview />
             )}
-
-            {/* Regenerate — the same roll of the dice a page reload does, minus
-                the reload. Under the preview rather than beside the preset row
-                because it belongs to the code you are looking at, and because
-                the preset row only exists in two of the three modes; Simple has
-                no styling controls at all, and this is its whole styling UI. */}
-            {!isBarcode && <RegenerateStyle />}
 
             <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
               <div>
@@ -293,12 +296,15 @@ export default function QrStudio() {
 function RegenerateStyle() {
   const shufflePreset = useQrStore((s) => s.shufflePreset)
   const presetName = useQrStore((s) => s.presetName)
+  // Sized to its content, not the column: the controls column is the wide one,
+  // and a full-width button there reads as the page's primary action — which is
+  // Download, over in the preview column.
   return (
-    <div className="text-center">
+    <div className="flex items-center gap-3 flex-wrap">
       <button
         type="button"
         onClick={shufflePreset}
-        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 transition-colors"
+        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 transition-colors"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M21 12a9 9 0 1 1-2.64-6.36" />
@@ -306,7 +312,7 @@ function RegenerateStyle() {
         </svg>
         Regenerate style
       </button>
-      <p className="mt-1.5 text-xs text-slate-500">
+      <p className="text-xs text-slate-500">
         {presetName ? `${presetName} — pick` : 'Pick'} another at random. Your link and logo stay put.
       </p>
     </div>
