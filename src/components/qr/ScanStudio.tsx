@@ -113,7 +113,7 @@ export default function ScanStudio() {
                 type="button"
                 onClick={start}
                 disabled={starting}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-orange-600 text-white text-sm font-semibold shadow-sm hover:bg-orange-700 disabled:opacity-60 transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-orange-700 text-white text-sm font-semibold shadow-sm hover:bg-orange-800 disabled:opacity-60 transition-colors"
               >
                 {starting ? 'Starting camera…' : result ? 'Scan again' : 'Start scanning'}
               </button>
@@ -159,7 +159,7 @@ export default function ScanStudio() {
                   href={result.text}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-xl bg-orange-600 text-white text-sm font-semibold hover:bg-orange-700 transition-colors"
+                  className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-xl bg-orange-700 text-white text-sm font-semibold hover:bg-orange-800 transition-colors"
                 >
                   Open link ↗
                 </a>

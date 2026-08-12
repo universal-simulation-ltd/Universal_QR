@@ -238,7 +238,7 @@ export default function DynamicStudio() {
             record scans. Each live code uses one token — every account gets one free, and deleting a code
             returns its token. The plain <button type="button" className="font-semibold text-orange-600 hover:text-orange-700" onClick={() => setView('static')}>Static</button> designer stays 100% free and on-device.
           </p>
-          <a href={SIGNIN_URL} className="mt-4 inline-flex rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-700">
+          <a href={SIGNIN_URL} className="mt-4 inline-flex rounded-lg bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800">
             Create / sign in with Universal ID →
           </a>
         </div>
@@ -381,7 +381,7 @@ export default function DynamicStudio() {
                 type="button"
                 onClick={onCreate}
                 disabled={busy || !target.trim()}
-                className="mt-4 w-full rounded-xl bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-700 disabled:opacity-50"
+                className="mt-4 w-full rounded-xl bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800 disabled:opacity-50"
               >
                 {busy ? 'Creating…' : 'Create dynamic code (1 token)'}
               </button>
@@ -394,7 +394,7 @@ export default function DynamicStudio() {
                     ? 'Your free QR token is in use — delete a code below to get it back, or add tokens.'
                     : 'You have no tokens left.'}
                 </p>
-                <a href={GET_TOKENS_URL} target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-lg bg-orange-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-orange-700">
+                <a href={GET_TOKENS_URL} target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-lg bg-orange-700 px-3.5 py-2 text-sm font-semibold text-white hover:bg-orange-800">
                   Get tokens →
                 </a>
               </div>

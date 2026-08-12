@@ -107,7 +107,7 @@ export default function SavePanel() {
               <button
                 type="button"
                 onClick={() => onOpen(design)}
-                className="shrink-0 rounded-md bg-orange-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-700"
+                className="shrink-0 rounded-md bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800"
               >
                 Open
               </button>

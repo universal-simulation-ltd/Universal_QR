@@ -219,7 +219,7 @@ export default function QrStudio() {
                   type="button"
                   onClick={onDownload}
                   disabled={!hasData || busy}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-orange-600 text-white text-sm font-semibold shadow-sm hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-orange-700 text-white text-sm font-semibold shadow-sm hover:bg-orange-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 16h12" />
