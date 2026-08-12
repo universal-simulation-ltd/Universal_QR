@@ -50,6 +50,9 @@ Part of the [Universal Apps](https://opensource.unisim.co.uk) suite by
 - **UNI·SIM mark** — every code carries a small UNI·SIM mark: in the centre by
   default, or tucked into the bottom-right corner once you add your own logo
   (toggle it off any time)
+- **Style roulette** — every load opens on a random one of the six presets, and
+  **Regenerate style** under the preview deals another without a reload. Only
+  the look changes: your URL, name and logo stay exactly where they were
 - **Live preview** — the code re-renders as you type; what you see is exactly
   what exports
 - **Export** — download as **PNG, SVG, JPEG or WebP**, or copy the PNG straight
@@ -123,7 +126,8 @@ they need somewhere to live in order to redirect and to count scans.
 **To design a QR code:**
 
 1. **Enter a URL** (or any text) and give your code a name
-2. **Pick a preset** to start, then fine-tune colours, module shape and size
+2. **Keep the style you landed on, hit Regenerate for another, or pick a preset**
+   — then fine-tune colours, module shape and size
 3. **Add your logo** under *Logo & branding* if you want your own mark in the
    centre
 4. **Choose a format** and hit **Download** — or **Copy** the PNG to paste

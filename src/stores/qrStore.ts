@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { DEFAULT_CONFIG, type QrConfig, type DotType, type CornerSquareType, type CornerDotType } from '../lib/qr'
+import { DEFAULT_CONFIG, randomPreset, type QrConfig, type DotType, type CornerSquareType, type CornerDotType } from '../lib/qr'
 import type { BarcodeSymbology } from '../lib/barcode'
 
 export type StudioMode = 'simple' | 'branding' | 'advanced'
@@ -84,6 +84,19 @@ interface QrState {
    */
   presetName: string | null
   applyPreset: (name: string, patch: Partial<QrConfig>) => void
+  /**
+   * Jump to a random style — a different one from the current pick.
+   *
+   * Runs once on every load (see onRehydrateStorage below) and again on each
+   * press of Regenerate, so the two routes cannot drift apart: the button IS a
+   * reload as far as the design is concerned.
+   *
+   * It patches the STYLE and leaves the content alone — the URL, the name and
+   * an uploaded logo all survive, because a new look is not a new code. That is
+   * also why what persists still persists: come back tomorrow and your link is
+   * where you left it, wearing a different outfit.
+   */
+  shufflePreset: () => void
   setLogo: (dataUrl: string) => void
   clearLogo: () => void
   reset: () => void
@@ -117,6 +130,11 @@ export const useQrStore = create<QrState>()(
       presetName: null,
       applyPreset: (presetName, patch) =>
         set((s) => ({ presetName, config: { ...s.config, ...patch } })),
+      shufflePreset: () =>
+        set((s) => {
+          const preset = randomPreset(s.presetName)
+          return { presetName: preset.name, config: { ...s.config, ...preset.patch } }
+        }),
       setLogo: (dataUrl) => set((s) => ({ config: { ...s.config, logoDataUrl: dataUrl } })),
       clearLogo: () => set((s) => ({ config: { ...s.config, logoDataUrl: null } })),
       reset: () => set((s) => ({ config: DEFAULT_CONFIG, mode: s.mode, presetName: null })),
@@ -191,6 +209,17 @@ export const useQrStore = create<QrState>()(
           }
         }
         return p as unknown as QrState
+      },
+      // Every load opens on a random style — Classic one visit, Star the next.
+      //
+      // It hangs off rehydration rather than a mount effect in a component for
+      // two reasons. Order: the persisted config is written into the store here,
+      // so a shuffle anywhere earlier would be immediately overwritten by last
+      // session's design. And count: a component effect runs again on every
+      // remount (and twice per mount under StrictMode), which would re-roll the
+      // style when you switch tabs — this fires exactly once per page load.
+      onRehydrateStorage: () => (state) => {
+        state?.shufflePreset()
       }
     }
   )

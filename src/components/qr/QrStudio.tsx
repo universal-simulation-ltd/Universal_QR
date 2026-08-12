@@ -22,8 +22,21 @@ const ADVANCED_KEYS: (keyof QrConfig)[] = [
   'dotType', 'cornerSquareType', 'cornerDotType', 'size', 'margin',
 ]
 
-function hasChangedFrom(config: QrConfig, keys: (keyof QrConfig)[]): boolean {
-  return keys.some((k) => JSON.stringify(config[k]) !== JSON.stringify(DEFAULT_CONFIG[k]))
+function hasChangedFrom(config: QrConfig, keys: (keyof QrConfig)[], baseline: QrConfig): boolean {
+  return keys.some((k) => JSON.stringify(config[k]) !== JSON.stringify(baseline[k]))
+}
+
+/** What "untouched" means for this session.
+ *
+ *  Not DEFAULT_CONFIG any more. Every load now lands on a random preset, so a
+ *  visitor who has changed nothing at all still has a config that differs from
+ *  the defaults in half a dozen colour and shape fields — which would light up
+ *  "Reset all" before they had done anything to reset, and switch OFF the
+ *  Branding nudge for exactly the un-branded visitors it is there to catch.
+ *  Measuring against the preset the style came from restores both. */
+function presetBaseline(presetName: string | null): QrConfig {
+  const patch = PRESETS.find((p) => p.name === presetName)?.patch
+  return patch ? { ...DEFAULT_CONFIG, ...patch } : DEFAULT_CONFIG
 }
 
 const FORMATS: { value: ExportFormat; label: string }[] = [
@@ -59,6 +72,7 @@ export default function QrStudio() {
   const mode = useQrStore((s) => s.mode)
   const setMode = useQrStore((s) => s.setMode)
   const reset = useQrStore((s) => s.reset)
+  const presetName = useQrStore((s) => s.presetName)
   const setHostedStoreOpen = useQrStore((s) => s.setHostedStoreOpen)
   const [format, setFormat] = useState<ExportFormat>('png')
   const [busy, setBusy] = useState(false)
@@ -82,8 +96,9 @@ export default function QrStudio() {
       !symbologyById(symbology).validate(trimmedBarcode) &&
       !barcodeError
     : config.data.trim().length > 0
-  const brandingChanged = hasChangedFrom(config, BRANDING_KEYS)
-  const advancedChanged = hasChangedFrom(config, ADVANCED_KEYS)
+  const baseline = presetBaseline(presetName)
+  const brandingChanged = hasChangedFrom(config, BRANDING_KEYS, baseline)
+  const advancedChanged = hasChangedFrom(config, ADVANCED_KEYS, baseline)
   // Nudge un-branded visitors towards the Branding tab. A signed-in user is
   // treated as already having company branding, so they don't get nudged.
   const brandingNudge = !brandingChanged && !signedIn
@@ -193,6 +208,13 @@ export default function QrStudio() {
               <QrPreview />
             )}
 
+            {/* Regenerate — the same roll of the dice a page reload does, minus
+                the reload. Under the preview rather than beside the preset row
+                because it belongs to the code you are looking at, and because
+                the preset row only exists in two of the three modes; Simple has
+                no styling controls at all, and this is its whole styling UI. */}
+            {!isBarcode && <RegenerateStyle />}
+
             <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
               <div>
                 <span className="block text-sm font-medium text-slate-700 mb-1.5">Format</span>
@@ -263,6 +285,30 @@ export default function QrStudio() {
       </div>
 
       <HostedStoreDialog />
+    </div>
+  )
+}
+
+// "Give me a different look" — one press, one new style, no reload.
+function RegenerateStyle() {
+  const shufflePreset = useQrStore((s) => s.shufflePreset)
+  const presetName = useQrStore((s) => s.presetName)
+  return (
+    <div className="text-center">
+      <button
+        type="button"
+        onClick={shufflePreset}
+        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 transition-colors"
+      >
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+          <path d="M21 4v5h-5" />
+        </svg>
+        Regenerate style
+      </button>
+      <p className="mt-1.5 text-xs text-slate-500">
+        {presetName ? `${presetName} — pick` : 'Pick'} another at random. Your link and logo stay put.
+      </p>
     </div>
   )
 }

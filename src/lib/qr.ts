@@ -160,9 +160,18 @@ export const DEFAULT_CONFIG: QrConfig = {
 /** One-click starting points shown as a row of chips above the controls.
  *
  *  Every preset pins the fields another preset might have changed — background,
- *  frameShape, decorStyle — not just the ones it cares about. A patch merges
- *  onto whatever the user already had, so without pinning them "Classic" would
- *  quietly keep a star silhouette and a burst around it.
+ *  frameShape, decorStyle, logo size, gradient stops — not just the ones it
+ *  cares about. A patch merges onto whatever the user already had, so without
+ *  pinning them "Classic" would quietly keep a star silhouette and a burst
+ *  around it.
+ *
+ *  That rule stopped being a nicety when loads started on a random preset: the
+ *  app now switches style far more often than anyone clicking pills ever did,
+ *  so an unpinned field is a value that follows you around. Two were, until
+ *  the randomiser found them — Radial's enlarged centre mark (logoSize 0.3) and
+ *  Sunset's gradient stops stayed behind on the next style, the second one
+ *  invisibly, waiting to reappear the moment gradients were switched back on.
+ *  Hence the repeated defaults below: 0.28, #e05504 at 45°.
  *
  *  Every preset sets an explicit, opaque background alongside its module
  *  colours. A preset patch is merged onto the user's current config, so if it
@@ -171,7 +180,12 @@ export const DEFAULT_CONFIG: QrConfig = {
  *  background here guarantees each preset keeps a strong module↔background
  *  contrast ratio — comfortably above what a scanner needs — no matter what the
  *  user had selected before. */
-export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
+export interface Preset {
+  name: string
+  patch: Partial<QrConfig>
+}
+
+export const PRESETS: Preset[] = [
   {
     name: 'Classic',
     patch: {
@@ -184,7 +198,10 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       bgColor: '#ffffff',
       bgTransparent: false,
       useGradient: false,
+      gradientColor: '#e05504',
+      gradientRotation: 45,
       matchCornerColor: true,
+      logoSize: 0.28,
       frameShape: 'square'
     }
   },
@@ -200,7 +217,10 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       bgColor: '#ffffff',
       bgTransparent: false,
       useGradient: false,
+      gradientColor: '#e05504',
+      gradientRotation: 45,
       matchCornerColor: true,
+      logoSize: 0.28,
       frameShape: 'square'
     }
   },
@@ -216,8 +236,11 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       bgColor: '#ffffff',
       bgTransparent: false,
       useGradient: false,
+      gradientColor: '#e05504',
+      gradientRotation: 45,
       matchCornerColor: false,
       cornerColor: '#e05504',
+      logoSize: 0.28,
       frameShape: 'square'
     }
   },
@@ -242,6 +265,7 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       bgColor: '#fff7ed',
       bgTransparent: false,
       matchCornerColor: true,
+      logoSize: 0.28,
       frameShape: 'square'
     }
   },
@@ -260,6 +284,8 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       bgColor: '#ffffff',
       bgTransparent: false,
       useGradient: false,
+      gradientColor: '#e05504',
+      gradientRotation: 45,
       matchCornerColor: false,
       cornerColor: '#e05504',
       frameShape: 'circle',
@@ -287,11 +313,33 @@ export const PRESETS: { name: string; patch: Partial<QrConfig> }[] = [
       bgColor: '#e05504',
       bgTransparent: false,
       useGradient: false,
+      gradientColor: '#e05504',
+      gradientRotation: 45,
       matchCornerColor: true,
+      logoSize: 0.28,
       frameShape: 'star'
     }
   }
 ]
+
+/** A preset picked at random — the design a fresh load starts on, and what the
+ *  Regenerate button hands out.
+ *
+ *  `exclude` is the preset already showing, and it is dropped from the pool
+ *  rather than merely re-rolled: with six presets, one in six clicks of a button
+ *  labelled "Regenerate" would otherwise change nothing on screen, which reads
+ *  as a broken button rather than as chance.
+ *
+ *  Picking from PRESETS and nothing else is deliberate. Generating a style from
+ *  scratch — random colours, random shapes — would happily produce a light-on-
+ *  dark or thin-contrast code, the exact failure qrContrastIssue exists to catch
+ *  and the one this file's comments are a long record of. Every preset here has
+ *  been decoded through this pipeline, so a random one is always scannable. */
+export function randomPreset(exclude?: string | null): Preset {
+  const pool = PRESETS.filter((p) => p.name !== exclude)
+  const choices = pool.length > 0 ? pool : PRESETS
+  return choices[Math.floor(Math.random() * choices.length)]
+}
 
 /** The colour the decoration is actually drawn in.
  *
