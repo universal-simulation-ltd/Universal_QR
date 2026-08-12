@@ -96,9 +96,18 @@ export const CORNER_DOT_TYPES: { value: CornerDotType; label: string }[] = [
 
 export const DEFAULT_CONFIG: QrConfig = {
   name: '',
-  // Blank by default so a fresh generator never bakes a stale URL (previously
-  // www.unisim.co.uk) into a code — the input placeholder guides the user.
-  data: '',
+  // Prefilled with the UNI·SIM address rather than left blank.
+  //
+  // It was blank for a while, so that a fresh generator could never bake a
+  // stale URL into someone's download. That is a fear about a HIDDEN default,
+  // though, and this one is not hidden: it arrives sitting in the address
+  // field, is printed under the preview, and is one select-all away from being
+  // replaced. Nothing gets encoded that the page is not also saying out loud.
+  //
+  // Blank also cost the page its demonstration. The preview sat behind an
+  // "enter a URL" curtain, which since every load started dealing a random
+  // style meant arriving to a curtain instead of to the thing the app makes.
+  data: 'https://unisim.co.uk',
   size: 512,
   margin: 12,
   // Always highest correction so a centre logo never breaks scanning.

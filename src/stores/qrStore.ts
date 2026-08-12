@@ -97,6 +97,19 @@ interface QrState {
    * where you left it, wearing a different outfit.
    */
   shufflePreset: () => void
+  /**
+   * Put the default web address back when the field is empty.
+   *
+   * Runs on load beside the shuffle, so the generator always opens on a code
+   * you can actually see rather than on the "enter a URL" curtain.
+   *
+   * Empty ONLY. An address you typed is yours and survives a reload — the
+   * style is the thing this app re-rolls, and quietly replacing someone's link
+   * with ours on every refresh would be the version of this feature that
+   * hands out the wrong QR code. Clearing the box and reloading is how you ask
+   * for the default back.
+   */
+  restoreDefaultAddress: () => void
   setLogo: (dataUrl: string) => void
   clearLogo: () => void
   reset: () => void
@@ -135,6 +148,8 @@ export const useQrStore = create<QrState>()(
           const preset = randomPreset(s.presetName)
           return { presetName: preset.name, config: { ...s.config, ...preset.patch } }
         }),
+      restoreDefaultAddress: () =>
+        set((s) => (s.config.data.trim() ? {} : { config: { ...s.config, data: DEFAULT_CONFIG.data } })),
       setLogo: (dataUrl) => set((s) => ({ config: { ...s.config, logoDataUrl: dataUrl } })),
       clearLogo: () => set((s) => ({ config: { ...s.config, logoDataUrl: null } })),
       reset: () => set((s) => ({ config: DEFAULT_CONFIG, mode: s.mode, presetName: null })),
@@ -220,6 +235,7 @@ export const useQrStore = create<QrState>()(
       // style when you switch tabs — this fires exactly once per page load.
       onRehydrateStorage: () => (state) => {
         state?.shufflePreset()
+        state?.restoreDefaultAddress()
       }
     }
   )

@@ -125,7 +125,9 @@ they need somewhere to live in order to redirect and to count scans.
 
 **To design a QR code:**
 
-1. **Enter a URL** (or any text) and give your code a name
+1. **Enter a URL** (or any text) and give your code a name — the box starts on
+   `https://unisim.co.uk` so there is a real code on screen from the first
+   second; your own address replaces it and survives a reload
 2. **Keep the style you landed on, hit Regenerate for another, or pick a preset**
    — then fine-tune colours, module shape and size
 3. **Add your logo** under *Logo & branding* if you want your own mark in the
