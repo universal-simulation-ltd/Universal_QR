@@ -110,9 +110,9 @@ export default function DynamicCodeCard({
             <div ref={holderRef} role="img" aria-label={`Dynamic QR code for ${targetLabel(code.target_url)}`} className="leading-[0]" />
           </button>
           <div className="mt-2 flex justify-center gap-2">
-            <button type="button" onClick={() => downloadQr({ ...config, size: 1024 }, 'png')} className="text-[11px] font-semibold text-slate-500 hover:text-orange-600">PNG</button>
+            <button type="button" onClick={() => downloadQr({ ...config, size: 1024 }, 'png')} className="text-[11px] font-semibold text-slate-500 hover:text-orange-700">PNG</button>
             <span className="text-slate-300" aria-hidden="true">·</span>
-            <button type="button" onClick={() => downloadQr({ ...config, size: 1024 }, 'svg')} className="text-[11px] font-semibold text-slate-500 hover:text-orange-600">SVG</button>
+            <button type="button" onClick={() => downloadQr({ ...config, size: 1024 }, 'svg')} className="text-[11px] font-semibold text-slate-500 hover:text-orange-700">SVG</button>
           </div>
         </div>
 
@@ -149,7 +149,7 @@ export default function DynamicCodeCard({
             <div className="flex items-center justify-between gap-2">
               <span className="text-[11px] font-bold uppercase tracking-wide text-slate-500">Redirects to</span>
               {!editing && (
-                <button type="button" onClick={() => { setDraftUrl(code.target_url); setEditing(true) }} className="text-xs font-semibold text-orange-600 hover:text-orange-700">
+                <button type="button" onClick={() => { setDraftUrl(code.target_url); setEditing(true) }} className="text-xs font-semibold text-orange-700 hover:text-orange-800">
                   Change destination
                 </button>
               )}
@@ -173,7 +173,7 @@ export default function DynamicCodeCard({
                 <p className="text-[11px] text-slate-400">The printed code stays the same — only where it sends people changes.</p>
               </div>
             ) : (
-              <a href={code.target_url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-sm text-slate-700 underline-offset-2 hover:text-orange-600 hover:underline" title={code.target_url}>
+              <a href={code.target_url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-sm text-slate-700 underline-offset-2 hover:text-orange-700 hover:underline" title={code.target_url}>
                 {code.target_url}
               </a>
             )}

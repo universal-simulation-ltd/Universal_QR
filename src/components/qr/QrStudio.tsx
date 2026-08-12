@@ -187,7 +187,7 @@ export default function QrStudio() {
                 <button
                   type="button"
                   onClick={reset}
-                  className="text-xs font-medium text-slate-500 hover:text-orange-600 border border-slate-200 px-3 py-1.5 rounded-lg hover:border-orange-300 transition-colors"
+                  className="text-xs font-medium text-slate-500 hover:text-orange-700 border border-slate-200 px-3 py-1.5 rounded-lg hover:border-orange-300 transition-colors"
                 >
                   Reset all
                 </button>

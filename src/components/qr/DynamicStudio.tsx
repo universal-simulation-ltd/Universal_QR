@@ -236,7 +236,7 @@ export default function DynamicStudio() {
           <p className="mt-1 text-sm text-slate-600">
             Dynamic codes are hosted against your <strong>Universal ID</strong> so they can redirect and
             record scans. Each live code uses one token — every account gets one free, and deleting a code
-            returns its token. The plain <button type="button" className="font-semibold text-orange-600 hover:text-orange-700" onClick={() => setView('static')}>Static</button> designer stays 100% free and on-device.
+            returns its token. The plain <button type="button" className="font-semibold text-orange-700 hover:text-orange-800" onClick={() => setView('static')}>Static</button> designer stays 100% free and on-device.
           </p>
           <a href={SIGNIN_URL} className="mt-4 inline-flex rounded-lg bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800">
             Create / sign in with Universal ID →
@@ -257,7 +257,7 @@ export default function DynamicStudio() {
                 <path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <div className="min-w-0">
-                <h2 className="font-semibold text-slate-900 group-hover:text-orange-600">Code branding</h2>
+                <h2 className="font-semibold text-slate-900 group-hover:text-orange-700">Code branding</h2>
                 <p className="mt-0.5 text-xs text-slate-500">
                   {hasOrgBranding
                     ? 'Defaults to your organisation’s icon and colour — applies to every dynamic code, so a rebrand flows through automatically.'
@@ -266,7 +266,7 @@ export default function DynamicStudio() {
               </div>
             </button>
             {brandingOpen && (
-              <button type="button" onClick={resetDynamicBrand} className="shrink-0 text-xs font-semibold text-slate-500 hover:text-orange-600">Reset</button>
+              <button type="button" onClick={resetDynamicBrand} className="shrink-0 text-xs font-semibold text-slate-500 hover:text-orange-700">Reset</button>
             )}
           </div>
 
@@ -292,7 +292,7 @@ export default function DynamicStudio() {
               <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                 <ColorField label="Modules" value={brandColor} onChange={(v) => setDynamicBrand({ color: v })}>
                   {dynamicBrand.color != null && orgColor
-                    ? <button type="button" onClick={() => setDynamicBrand({ color: null })} className="text-[11px] font-semibold text-slate-400 hover:text-orange-600">use org</button>
+                    ? <button type="button" onClick={() => setDynamicBrand({ color: null })} className="text-[11px] font-semibold text-slate-400 hover:text-orange-700">use org</button>
                     : null}
                 </ColorField>
                 <ColorField label="Background" value={dynamicBrand.bgColor} onChange={(v) => setDynamicBrand({ bgColor: v })} disabled={dynamicBrand.bgTransparent} />
