@@ -77,6 +77,23 @@ export async function renderThumbnailDataUrl(config: QrConfig, size = 160): Prom
   return blobToDataUrl(raw)
 }
 
+/** Render `config` to a PNG data URL at `size` — the same pixels `downloadQr`
+ *  would produce, corner stamp and shaped plate baked in.
+ *
+ *  A `data:` URL rather than a `blob:` one on purpose: this feeds an `<img>` the
+ *  user is meant to long-press on a phone, and iOS Safari's "Save Image" /
+ *  "Share" sheet does not reliably act on blob: sources. A 900 px QR is a few
+ *  tens of KB base64'd, so the cost is nothing.
+ *
+ *  The quiet-zone margin is scaled with the size, so a code blown up to 900 px
+ *  keeps the same proportions as the 512 px preview instead of losing its
+ *  border. */
+export async function renderPngDataUrl(config: QrConfig, size: number): Promise<string> {
+  const margin = Math.max(2, Math.round((config.margin / config.size) * size))
+  const { blob } = await renderQrBlob({ ...config, size, margin }, 'png')
+  return blobToDataUrl(blob)
+}
+
 function triggerDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

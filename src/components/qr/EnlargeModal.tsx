@@ -1,49 +1,29 @@
-import { useEffect, useRef } from 'react'
-import QRCodeStyling from 'qr-code-styling'
+import { useEffect, useState } from 'react'
 import type { QrConfig } from '../../lib/qr'
-import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark } from '../../lib/qr'
-import { composeShapedCanvas } from '../../lib/compose'
-import { UNISIM_MARK } from '../../lib/unisimMark'
+import { qrDisplayName } from '../../lib/qr'
+import { renderPngDataUrl } from '../../lib/download'
 
 // Renders the QR big and bright, filling the screen, so it's easy to scan from
 // another phone. A few hints help when a scan won't take.
 const ENLARGE_SIZE = 900
 
 export default function EnlargeModal({ config, onClose }: { config: QrConfig; onClose: () => void }) {
-  const holderRef = useRef<HTMLDivElement>(null)
+  const [png, setPng] = useState<string | null>(null)
 
-  const shaped = config.frameShape !== 'square'
-
+  // A real PNG in an <img>, not a live <canvas>. On a phone that is the whole
+  // point of this modal: long-pressing an image offers Save to Photos / Share /
+  // the preview sheet, and it can be dragged out on desktop. A canvas offers
+  // none of that — the code was on screen but the user could do nothing with it.
+  // `renderPngDataUrl` is the export path, so the pixels here (shaped plate,
+  // corner stamp and all) are exactly what Download would have given them.
   useEffect(() => {
-    function style(canvas: HTMLCanvasElement) {
-      canvas.style.width = '100%'
-      canvas.style.height = 'auto'
-      canvas.style.display = 'block'
-    }
-
-    if (shaped) {
-      // The point of this modal is that another phone can scan it, so it has to
-      // show the code as exported — plate and all — not a square stand-in.
-      let cancelled = false
-      composeShapedCanvas(config, ENLARGE_SIZE)
-        .then((canvas) => {
-          if (cancelled || !holderRef.current) return
-          style(canvas)
-          holderRef.current.innerHTML = ''
-          holderRef.current.appendChild(canvas)
-        })
-        .catch(() => { /* nothing to show; the modal stays blank rather than lying */ })
-      return () => { cancelled = true }
-    }
-
-    const qr = new QRCodeStyling(buildQrOptions({ ...config, size: ENLARGE_SIZE }))
-    if (holderRef.current) {
-      holderRef.current.innerHTML = ''
-      qr.append(holderRef.current)
-      const canvas = holderRef.current.querySelector('canvas')
-      if (canvas) style(canvas)
-    }
-  }, [config, shaped])
+    let cancelled = false
+    setPng(null)
+    renderPngDataUrl(config, ENLARGE_SIZE)
+      .then((url) => { if (!cancelled) setPng(url) })
+      .catch(() => { /* nothing to show; the modal stays blank rather than lying */ })
+    return () => { cancelled = true }
+  }, [config])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose() }
@@ -51,10 +31,7 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  const stamp = showsCornerMark(config) && !shaped
-  const { badge, inset } = cornerStampGeometry(ENLARGE_SIZE, config.margin)
-  const badgePct = (badge / ENLARGE_SIZE) * 100
-  const insetPct = (inset / ENLARGE_SIZE) * 100
+  const shaped = config.frameShape !== 'square'
 
   return (
     <div
@@ -87,16 +64,15 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
         style={{ background: config.bgTransparent || shaped ? '#ffffff' : config.bgColor }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative leading-[0]">
-          <div ref={holderRef} role="img" aria-label={`QR code for ${qrDisplayName(config)}`} />
-          {stamp && (
-            <div
-              aria-hidden="true"
-              className="absolute aspect-square rounded-lg bg-white p-[8%] shadow-md ring-1 ring-black/5"
-              style={{ width: `${badgePct}%`, right: `${insetPct}%`, bottom: `${insetPct}%` }}
-            >
-              <img src={UNISIM_MARK} alt="" className="h-full w-full object-contain" />
-            </div>
+        {/* Square by CSS: the PNG resolves asynchronously, and an auto-height
+            box would collapse and then pop the card open under it. */}
+        <div className="aspect-square w-full leading-[0]">
+          {png && (
+            <img
+              src={png}
+              alt={`QR code for ${qrDisplayName(config)}`}
+              className="block h-full w-full"
+            />
           )}
         </div>
       </div>
@@ -106,6 +82,9 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
         <p className="mt-1 text-xs text-white/70">
           Struggling? Turn your screen brightness up to max, and make sure the camera
           isn't in close-up (macro) mode — pull back a little so the whole code is in frame.
+        </p>
+        <p className="mt-1 text-xs text-white/70">
+          On a phone, press and hold the code to save or share it as an image.
         </p>
       </div>
     </div>
