@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import QRCodeStyling from 'qr-code-styling'
 import { useQrStore } from '../../stores/qrStore'
 import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark } from '../../lib/qr'
-import { composeShapedCanvas } from '../../lib/compose'
+import { composeShapedCanvas, fillsWholeImage } from '../../lib/compose'
 import { UNISIM_MARK } from '../../lib/unisimMark'
 import EnlargeModal from './EnlargeModal'
 
@@ -20,6 +20,11 @@ export default function QrPreview() {
   }
 
   const shaped = config.frameShape !== 'square'
+  // A shaped design normally leaves the corners of the image transparent, so the
+  // card behind it shows the checker. A star BEHIND the code is the exception —
+  // it paints the whole square — and checkering the card would then draw a
+  // checked border around an image that has no transparency in it.
+  const checker = config.bgTransparent || (shaped && !fillsWholeImage(config))
 
   // Create the instance once. It is deliberately NOT appended here — the render
   // effect below owns the holder's contents.
@@ -97,11 +102,12 @@ export default function QrPreview() {
       <div
         // A shaped code needs the checker behind it too, even with an opaque
         // plate colour: painting that same colour on the square card behind the
-        // circle would fill the corners back in and hide the silhouette.
+        // circle would fill the corners back in and hide the silhouette. See
+        // `checker` above for the one shape that opts back out.
         className={`relative w-full max-w-[360px] rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-200 group ${
-          config.bgTransparent || shaped ? 'checker-bg' : ''
+          checker ? 'checker-bg' : ''
         } ${hasData ? 'cursor-pointer' : ''}`}
-        style={config.bgTransparent || shaped ? undefined : { background: config.bgColor }}
+        style={checker ? undefined : { background: config.bgColor }}
         onClick={handlePreviewClick}
         role={hasData ? 'button' : undefined}
         tabIndex={hasData ? 0 : undefined}

@@ -1,6 +1,7 @@
 import type { Options as QrOptions, DotType, CornerSquareType, CornerDotType, ErrorCorrectionLevel } from 'qr-code-styling'
 import { UNISIM_MARK } from './unisimMark'
-import type { FrameShape } from './frames'
+import { starIsBehind } from './frames'
+import type { FrameShape, StarPlacement } from './frames'
 import type { DecorStyle } from './decor'
 
 export type { DotType, CornerSquareType, CornerDotType, ErrorCorrectionLevel }
@@ -47,6 +48,25 @@ export interface QrConfig {
    *  is rendered smaller and centred inside it, never clipped (see frames.ts).
    *  'square' is the default and takes the original render path untouched. */
   frameShape: FrameShape
+
+  /** Star only: whether the code sits INSIDE the star (the plate rule every
+   *  other shape follows) or the star sits BEHIND the code as a backdrop, with
+   *  its five points showing around it. Ignored on every other shape. See
+   *  frames.ts for the geometry and why 'behind' fits a much bigger code. */
+  starPlacement: StarPlacement
+
+  /** The star's colour when it is BEHIND the code.
+   *
+   *  A field of its own rather than reuse of `bgColor`, because 'behind' needs
+   *  two colours where 'inside' needs one: the star, and the background the
+   *  code's own quiet zone and overhanging corners sit on. Sharing one would
+   *  paint the star in the same colour as the ground it stands on — an
+   *  invisible star — which is exactly what happens if you take the Star preset
+   *  (orange plate) and simply move the code in front of it. The placement
+   *  control therefore hands the plate colour over to this field when you
+   *  switch, and hands it back when you switch away. Unused when the star is
+   *  the plate. */
+  starColor: string
 
   /** Marks filling the space a shaped plate leaves around the code, so the
    *  shape reads as designed rather than as a square code on a round
@@ -153,6 +173,8 @@ export const DEFAULT_CONFIG: QrConfig = {
   cornerSquareType: 'extra-rounded',
   cornerDotType: 'dot',
   frameShape: 'square',
+  starPlacement: 'inside',
+  starColor: '#e05504',
   decorStyle: 'none',
   // Decoration follows the modules by default: it frames the code rather than
   // competing with it, and matching means switching decoration on can never
@@ -211,7 +233,9 @@ export const PRESETS: Preset[] = [
       gradientRotation: 45,
       matchCornerColor: true,
       logoSize: 0.28,
-      frameShape: 'square'
+      frameShape: 'square',
+      starPlacement: 'inside',
+      starColor: '#e05504'
     }
   },
   {
@@ -230,7 +254,9 @@ export const PRESETS: Preset[] = [
       gradientRotation: 45,
       matchCornerColor: true,
       logoSize: 0.28,
-      frameShape: 'square'
+      frameShape: 'square',
+      starPlacement: 'inside',
+      starColor: '#e05504'
     }
   },
   {
@@ -250,7 +276,9 @@ export const PRESETS: Preset[] = [
       matchCornerColor: false,
       cornerColor: '#e05504',
       logoSize: 0.28,
-      frameShape: 'square'
+      frameShape: 'square',
+      starPlacement: 'inside',
+      starColor: '#e05504'
     }
   },
   {
@@ -275,7 +303,9 @@ export const PRESETS: Preset[] = [
       bgTransparent: false,
       matchCornerColor: true,
       logoSize: 0.28,
-      frameShape: 'square'
+      frameShape: 'square',
+      starPlacement: 'inside',
+      starColor: '#e05504'
     }
   },
   {
@@ -298,6 +328,8 @@ export const PRESETS: Preset[] = [
       matchCornerColor: false,
       cornerColor: '#e05504',
       frameShape: 'circle',
+      starPlacement: 'inside',
+      starColor: '#e05504',
       decorStyle: 'burst',
       logoSize: 0.3,
       hideBackgroundDots: true
@@ -326,7 +358,9 @@ export const PRESETS: Preset[] = [
       gradientRotation: 45,
       matchCornerColor: true,
       logoSize: 0.28,
-      frameShape: 'star'
+      frameShape: 'star',
+      starPlacement: 'inside',
+      starColor: '#e05504'
     }
   }
 ]
@@ -396,8 +430,11 @@ export function contrastRatio(a: string, b: string): number {
 export const MIN_QR_CONTRAST = 3
 
 export type ContrastIssue =
-  | { kind: 'inverted' }
-  | { kind: 'low'; ratio: number; where: 'modules' | 'corners' }
+  // `where: 'star'` on an inversion means the modules are lighter than the star
+  // BEHIND them rather than than the page — same fault, different pair of
+  // colours, and the advice has to name the right one.
+  | { kind: 'inverted'; where?: 'star' }
+  | { kind: 'low'; ratio: number; where: 'modules' | 'corners' | 'star' }
   | null
 
 /** What is wrong with this design's colours, if anything.
@@ -417,6 +454,24 @@ export type ContrastIssue =
  *  important of the two — a decoder locates those three squares before it reads
  *  a single module, so a low-contrast eye costs you the whole code. */
 export function qrContrastIssue(config: QrConfig): ContrastIssue {
+  const inks = [
+    config.fgColor,
+    ...(config.useGradient ? [config.gradientColor] : []),
+    ...(config.matchCornerColor ? [] : [config.cornerColor])
+  ]
+
+  // A star BEHIND the code is a second background: it sits under most of the
+  // modules, so every ink has to clear it as well as the page. Checked first
+  // and OUTSIDE the transparent-background escape below, because knocking the
+  // background out does not take the star with it — it is drawn either way, and
+  // a black code on a black star is unreadable on any surface you place it on.
+  if (starIsBehind(config.frameShape, config.starPlacement)) {
+    const star = luminance(config.starColor)
+    if (inks.some((c) => luminance(c) > star + 0.02)) return { kind: 'inverted', where: 'star' }
+    const worstOnStar = Math.min(...inks.map((c) => contrastRatio(c, config.starColor)))
+    if (worstOnStar < MIN_QR_CONTRAST) return { kind: 'low', ratio: worstOnStar, where: 'star' }
+  }
+
   if (config.bgTransparent) return null
   const bg = luminance(config.bgColor)
   const fgs = [config.fgColor, ...(config.useGradient ? [config.gradientColor] : [])]

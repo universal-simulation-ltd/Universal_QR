@@ -4,17 +4,19 @@ import { useQrStore } from '../../stores/qrStore'
 import {
   CORNER_DOT_TYPES,
   CORNER_SQUARE_TYPES,
+  DEFAULT_CONFIG,
   DOT_TYPES,
   PRESETS,
+  contrastRatio,
   qrContrastIssue,
   MIN_QR_CONTRAST,
   type CornerDotType,
   type CornerSquareType,
   type DotType
 } from '../../lib/qr'
-import { FRAME_SHAPES, frameSizeNote, type FrameShape } from '../../lib/frames'
+import { FRAME_SHAPES, STAR_PLACEMENTS, frameSizeNote, type FrameShape, type StarPlacement } from '../../lib/frames'
 import { DECOR_STYLES, type DecorStyle } from '../../lib/decor'
-import { decorScaleOf } from '../../lib/compose'
+import { decorScaleOf, starBehind } from '../../lib/compose'
 import { SYMBOLOGIES, symbologyById, type BarcodeSymbology } from '../../lib/barcode'
 
 export default function Controls() {
@@ -24,7 +26,8 @@ export default function Controls() {
   const activePreset = useQrStore((s) => s.presetName)
   const setLogo = useQrStore((s) => s.setLogo)
   const clearLogo = useQrStore((s) => s.clearLogo)
-  const frameNote = frameSizeNote(config.frameShape, config.size, decorScaleOf(config))
+  const frameNote = frameSizeNote(config.frameShape, config.size, decorScaleOf(config), config.starPlacement)
+  const behind = starBehind(config)
   const contrast = qrContrastIssue(config)
   const codeType = useQrStore((s) => s.codeType)
   const setCodeType = useQrStore((s) => s.setCodeType)
@@ -174,14 +177,31 @@ export default function Controls() {
 
         {contrast?.kind === 'inverted' && (
           <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
-            <strong className="font-semibold">Light modules on a dark background.</strong>{' '}
+            <strong className="font-semibold">
+              Light modules on a dark {contrast.where === 'star' ? 'star' : 'background'}.
+            </strong>{' '}
             The QR standard expects the opposite, and strict readers refuse an inverted
             code outright — this app's own Scan tab is one of them. Most phone cameras
-            cope, but swap the two colours if the code has to work everywhere.
+            cope, but {contrast.where === 'star'
+              ? 'darken the modules or lighten the star behind them'
+              : 'swap the two colours'}{' '}
+            if the code has to work everywhere.
           </p>
         )}
 
-        {contrast?.kind === 'low' && (
+        {contrast?.kind === 'low' && contrast.where === 'star' && (
+          <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
+            <strong className="font-semibold">
+              Not much contrast between the modules and the star behind them.
+            </strong>{' '}
+            {contrast.ratio.toFixed(1)}:1, where a reader wants at least {MIN_QR_CONTRAST}:1.
+            The star sits under most of the code, so it is a background as far as a scanner
+            is concerned — however light the page around it is. Lighten the star or darken
+            the modules.
+          </p>
+        )}
+
+        {contrast?.kind === 'low' && contrast.where !== 'star' && (
           <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
             <strong className="font-semibold">
               Not much contrast between the {contrast.where === 'corners' ? 'corners' : 'modules'} and the
@@ -216,29 +236,82 @@ export default function Controls() {
           }}
         />
 
-        {/* ALWAYS shown, including on a square plate.
+        {/* Star only, because "behind" is the one arrangement that isn't a
+            plate and the other shapes have nothing to gain from it: a circle or
+            a hexagon behind a square code shows a sliver of curve, where a star
+            shows five points. */}
+        {config.frameShape === 'star' && (
+          <>
+            <OptionRow
+              label="Star placement"
+              value={config.starPlacement}
+              options={STAR_PLACEMENTS}
+              onChange={(v) => {
+                const starPlacement = v as StarPlacement
+                // The colours move WITH the switch, so the design keeps the look
+                // it had. Going behind, the plate colour becomes the star's and
+                // the code gets a white ground under it — leave both on one
+                // colour and you get an invisible star standing on a field of
+                // itself, which reads as a control that did nothing. Coming
+                // back, the star's colour becomes the plate again.
+                if (starPlacement === 'inside') {
+                  update({ starPlacement, bgColor: config.starColor })
+                  return
+                }
+                const plateIsPaper = contrastRatio(config.bgColor, '#ffffff') < 1.5
+                update({
+                  starPlacement,
+                  starColor: plateIsPaper ? DEFAULT_CONFIG.starColor : config.bgColor,
+                  bgColor: '#ffffff'
+                })
+              }}
+              compact
+            />
+            {behind && (
+              <Swatch
+                label="Star colour"
+                value={config.starColor}
+                onChange={(v) => update({ starColor: v })}
+              />
+            )}
+            <p className="text-xs text-slate-500">
+              {behind
+                ? 'The star sits behind the code as a backdrop, with its points showing around it — the look of the QR star mark in Universal PDF. The code is drawn over the star rather than squeezed inside its points, so it is around half again as big as the same design set to Inside, and correspondingly easier to scan. Decoration has no ring to fill in this arrangement, so it is not offered.'
+                : 'The code sits inside the star, never crossing its edges. That keeps the star whole, at the cost of a much smaller code — the five notches cut into every side of the square that fits.'}
+            </p>
+          </>
+        )}
+
+        {/* Shown on every shape INCLUDING square, and hidden on exactly one
+            arrangement — the star behind the code.
             It was hidden unless the shape was already non-square, on the
             reasoning that a square plate has no space to decorate — true, and
             beside the point: the default shape IS square, so the control was
             invisible on a fresh load and the only way to find decoration at all
             was to happen to click the Radial preset. A control you cannot
             discover is not a control. Picking a decoration on a square plate
-            therefore switches the shape too, so the option is never a dead end. */}
-        <OptionRow
-          label="Decoration"
-          value={config.decorStyle}
-          options={DECOR_STYLES}
-          onChange={(v) => {
-            const decorStyle = v as DecorStyle
-            update(
-              decorStyle !== 'none' && config.frameShape === 'square'
-                ? { decorStyle, frameShape: 'circle' }
-                : { decorStyle }
-            )
-          }}
-          compact
-        />
-        {config.decorStyle !== 'none' && (
+            therefore switches the shape too, so the option is never a dead end.
+            A star behind the code is the different case: there is no ring
+            between the two to fill, and decorating anyway would only shrink the
+            code that just got bigger. The chosen style is kept, not cleared, so
+            switching back to Inside brings the burst back with it. */}
+        {!behind && (
+          <OptionRow
+            label="Decoration"
+            value={config.decorStyle}
+            options={DECOR_STYLES}
+            onChange={(v) => {
+              const decorStyle = v as DecorStyle
+              update(
+                decorStyle !== 'none' && config.frameShape === 'square'
+                  ? { decorStyle, frameShape: 'circle' }
+                  : { decorStyle }
+              )
+            }}
+            compact
+          />
+        )}
+        {!behind && config.decorStyle !== 'none' && (
           <>
             <Toggle
               label="Decoration matches the modules"
@@ -258,7 +331,7 @@ export default function Controls() {
           </>
         )}
 
-        {config.decorStyle !== 'none' ? (
+        {behind ? null : config.decorStyle !== 'none' ? (
           <p className="text-xs text-slate-500">
             Decoration fills the space the shape leaves around the code — and needs that
             space, so the code is drawn smaller to make it. Export larger than usual, and

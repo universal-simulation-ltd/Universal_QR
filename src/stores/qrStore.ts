@@ -167,7 +167,7 @@ export const useQrStore = create<QrState>()(
     }),
     {
       name: 'universal-qr:config',
-      version: 7,
+      version: 8,
       // The content persists; the tabs deliberately do NOT (and the style is
       // re-rolled on load — see onRehydrateStorage). Every load opens the
       // Simple panel of the static designer, because that is the clean front
@@ -238,6 +238,20 @@ export const useQrStore = create<QrState>()(
           delete p.mode
           delete p.view
           delete p.codeType
+        }
+        // v8 added the star's placement and its backdrop colour. Same backfill
+        // reasoning as every one above — persist replaces `config` wholesale —
+        // and with a sharper edge than most: `starPlacement` undefined is not
+        // 'inside', it is a value the geometry compares against 'behind' and the
+        // controls feed to a radio group. A returning user with a Star design
+        // would get the right picture by luck and a control with nothing
+        // selected. Missing has to mean 'inside', the arrangement they saved.
+        if (version < 8 && p.config) {
+          p.config = {
+            ...p.config,
+            starPlacement: p.config.starPlacement ?? 'inside',
+            starColor: p.config.starColor ?? DEFAULT_CONFIG.starColor
+          }
         }
         return p as unknown as QrState
       },

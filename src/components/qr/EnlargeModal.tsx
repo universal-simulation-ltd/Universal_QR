@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { QrConfig } from '../../lib/qr'
 import { qrDisplayName } from '../../lib/qr'
 import { renderPngDataUrl } from '../../lib/download'
+import { fillsWholeImage } from '../../lib/compose'
 
 // Renders the QR big and bright, filling the screen, so it's easy to scan from
 // another phone. A few hints help when a scan won't take.
@@ -31,7 +32,9 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  const shaped = config.frameShape !== 'square'
+  // A behind-the-code star paints its whole square, so the card can carry the
+  // design's own background instead of the white a see-through shape needs.
+  const shaped = config.frameShape !== 'square' && !fillsWholeImage(config)
 
   return (
     <div

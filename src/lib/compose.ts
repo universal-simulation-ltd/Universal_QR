@@ -1,6 +1,6 @@
 import QRCodeStyling from 'qr-code-styling'
 import { buildQrOptions, cornerStampGeometry, decorColour, showsCornerMark, type QrConfig } from './qr'
-import { frameGeometry, framePathData, traceFrame } from './frames'
+import { frameGeometry, framePathData, starIsBehind, traceFrame } from './frames'
 import { DECOR_CODE_SCALE, decorSvg, drawDecor } from './decor'
 import { UNISIM_MARK } from './unisimMark'
 
@@ -8,7 +8,26 @@ import { UNISIM_MARK } from './unisimMark'
  *  room. One helper, so the canvas, the SVG and the UI's size note cannot
  *  disagree about how big the code actually is. */
 export function decorScaleOf(config: QrConfig): number {
+  if (starBehind(config)) return 1
   return config.decorStyle && config.decorStyle !== 'none' ? DECOR_CODE_SCALE : 1
+}
+
+/** True when this design puts the star behind the code rather than under it as
+ *  a plate. Decoration is off in that arrangement — there is no ring to fill,
+ *  the code covers the middle of the star — and it is switched off HERE rather
+ *  than by clearing the user's decorStyle, so switching back to 'inside' gets
+ *  the burst they chose back rather than a design quietly stripped of it. */
+export function starBehind(config: QrConfig): boolean {
+  return starIsBehind(config.frameShape, config.starPlacement)
+}
+
+/** True when the composed image fills its whole square with `bgColor` — a
+ *  behind-the-code star is the one shaped arrangement that does, because the
+ *  code hangs off the silhouette and needs a defined ground under it. The UI
+ *  uses this to decide whether the transparency checker belongs behind the
+ *  preview. */
+export function fillsWholeImage(config: QrConfig): boolean {
+  return starBehind(config) && !config.bgTransparent
 }
 
 // Composing a shaped QR: a plate in the chosen silhouette, with the code drawn
@@ -78,7 +97,7 @@ function innerConfig(config: QrConfig, inner: number): QrConfig {
 export async function composeShapedCanvas(config: QrConfig, size: number): Promise<HTMLCanvasElement> {
   if (config.frameShape === 'square') throw new Error('composeShapedCanvas: square has no plate')
 
-  const { inner, offset } = frameGeometry(config.frameShape, size, decorScaleOf(config))
+  const { inner, offset } = frameGeometry(config.frameShape, size, decorScaleOf(config), config.starPlacement)
 
   const qr = new QRCodeStyling(buildQrOptions(innerConfig(config, inner), 'canvas'))
   const raw = (await qr.getRawData('png')) as Blob | null
@@ -92,10 +111,29 @@ export async function composeShapedCanvas(config: QrConfig, size: number): Promi
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Canvas not supported')
 
+  // A star BEHIND the code inverts the layering: the background is the whole
+  // square (the code overhangs the star, so the silhouette cannot be the thing
+  // that carries it), and the star is painted on top of that as a backdrop in
+  // its own colour. Everything else — code, stamp — is unchanged.
+  if (starBehind(config)) {
+    if (!config.bgTransparent) {
+      ctx.fillStyle = config.bgColor
+      ctx.fillRect(0, 0, size, size)
+    }
+    // Drawn even on a transparent background: it is the picture, not the plate,
+    // so knocking the background out should leave a star-backed code on
+    // transparency rather than nothing at all.
+    ctx.save()
+    traceFrame(ctx, config.frameShape, size)
+    ctx.fillStyle = config.starColor
+    ctx.fill()
+    ctx.restore()
+  }
+
   // The plate. With a transparent background this is skipped entirely, which
   // gives the genuinely useful result: a circular (or star, or hexagon) sticker
   // on transparency, rather than a shape you cannot see.
-  if (!config.bgTransparent) {
+  if (!config.bgTransparent && !starBehind(config)) {
     ctx.save()
     traceFrame(ctx, config.frameShape, size)
     ctx.clip()
@@ -108,7 +146,7 @@ export async function composeShapedCanvas(config: QrConfig, size: number): Promi
   // same marks fill a circle, a hexagon or a star without decor.ts knowing
   // which. It is generated outside the code's circumscribed circle, so the
   // draw order is belt and braces rather than load-bearing.
-  if (config.decorStyle && config.decorStyle !== 'none') {
+  if (config.decorStyle && config.decorStyle !== 'none' && !starBehind(config)) {
     ctx.save()
     traceFrame(ctx, config.frameShape, size)
     ctx.clip()
@@ -133,7 +171,7 @@ export async function composeShapedCanvas(config: QrConfig, size: number): Promi
 export async function composeShapedSvg(config: QrConfig, size: number): Promise<string> {
   if (config.frameShape === 'square') throw new Error('composeShapedSvg: square has no plate')
 
-  const { inner, offset } = frameGeometry(config.frameShape, size, decorScaleOf(config))
+  const { inner, offset } = frameGeometry(config.frameShape, size, decorScaleOf(config), config.starPlacement)
   const cfg = innerConfig(config, inner)
 
   const qr = new QRCodeStyling(buildQrOptions(cfg, 'svg'))
@@ -161,16 +199,21 @@ export async function composeShapedSvg(config: QrConfig, size: number): Promise<
     innerSvg = innerSvg.replace('</svg>', `${tile}${img}</svg>`)
   }
 
-  const plate = config.bgTransparent
-    ? ''
-    : `<path d="${framePathData(config.frameShape, size)}" fill="${config.bgColor}" />`
+  // Same layering as the canvas: a behind-the-code star gets a full-square
+  // background with the star painted over it, everything else gets the plate.
+  const plate = starBehind(config)
+    ? (config.bgTransparent ? '' : `<rect width="${size}" height="${size}" fill="${config.bgColor}" />`) +
+      `<path d="${framePathData(config.frameShape, size)}" fill="${config.starColor}" />`
+    : config.bgTransparent
+      ? ''
+      : `<path d="${framePathData(config.frameShape, size)}" fill="${config.bgColor}" />`
 
   // Same marks as the canvas, clipped by the same outline — a real clipPath
   // rather than a re-derived polygon, so the vector export cannot drift from
   // the raster one.
   let decor = ''
   let clip = ''
-  if (config.decorStyle && config.decorStyle !== 'none') {
+  if (config.decorStyle && config.decorStyle !== 'none' && !starBehind(config)) {
     const id = 'plate-clip'
     clip =
       `<clipPath id="${id}"><path d="${framePathData(config.frameShape, size)}" /></clipPath>`
