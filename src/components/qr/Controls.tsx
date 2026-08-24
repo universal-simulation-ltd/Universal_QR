@@ -4,11 +4,10 @@ import { useQrStore } from '../../stores/qrStore'
 import {
   CORNER_DOT_TYPES,
   CORNER_SQUARE_TYPES,
-  DEFAULT_CONFIG,
   DOT_TYPES,
   PRESETS,
-  contrastRatio,
   qrContrastIssue,
+  starPlacementPatch,
   MIN_QR_CONTRAST,
   type CornerDotType,
   type CornerSquareType,
@@ -229,10 +228,24 @@ export default function Controls() {
             // as a starting point — they can still turn it off. Square goes back
             // to none, because there is no gap to fill and leaving a style set
             // would silently re-decorate the next shape they picked.
+            //
+            // A star arrives with the code IN FRONT of it, for the same reason
+            // and one more: the arrangement it would otherwise land in fits the
+            // code into 37% of the image, which is the version people try once
+            // and abandon. Inside is one click away and keeps the burst that
+            // was just switched on.
             const frameShape = v as FrameShape
-            if (frameShape === 'square') update({ frameShape, decorStyle: 'none' })
-            else if (config.decorStyle === 'none') update({ frameShape, decorStyle: 'burst' })
-            else update({ frameShape })
+            const decor =
+              frameShape === 'square'
+                ? { decorStyle: 'none' as DecorStyle }
+                : config.decorStyle === 'none'
+                  ? { decorStyle: 'burst' as DecorStyle }
+                  : {}
+            const star =
+              frameShape === 'star' && config.starPlacement !== 'behind'
+                ? starPlacementPatch(config, 'behind')
+                : {}
+            update({ frameShape, ...decor, ...star })
           }}
         />
 
@@ -246,25 +259,9 @@ export default function Controls() {
               label="Star placement"
               value={config.starPlacement}
               options={STAR_PLACEMENTS}
-              onChange={(v) => {
-                const starPlacement = v as StarPlacement
-                // The colours move WITH the switch, so the design keeps the look
-                // it had. Going behind, the plate colour becomes the star's and
-                // the code gets a white ground under it — leave both on one
-                // colour and you get an invisible star standing on a field of
-                // itself, which reads as a control that did nothing. Coming
-                // back, the star's colour becomes the plate again.
-                if (starPlacement === 'inside') {
-                  update({ starPlacement, bgColor: config.starColor })
-                  return
-                }
-                const plateIsPaper = contrastRatio(config.bgColor, '#ffffff') < 1.5
-                update({
-                  starPlacement,
-                  starColor: plateIsPaper ? DEFAULT_CONFIG.starColor : config.bgColor,
-                  bgColor: '#ffffff'
-                })
-              }}
+              // The colours move WITH the switch — see starPlacementPatch for
+              // why a placement change cannot be just a placement change.
+              onChange={(v) => update(starPlacementPatch(config, v as StarPlacement))}
               compact
             />
             {behind && (

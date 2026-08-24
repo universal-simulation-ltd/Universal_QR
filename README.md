@@ -44,8 +44,9 @@ Part of the [Universal Apps](https://opensource.unisim.co.uk) suite by
 - **Star placement** — a star can hold the code *inside* its points, or sit
   **behind** it as a backdrop with the five points showing around the code. The
   backdrop version fits a much bigger code (72% of the image against 47%), so it
-  is both the bolder look and the easier one to scan; it gets its own **star
-  colour**, since the code now needs a background of its own underneath
+  is both the bolder look and the easier one to scan; it is what the **Star**
+  preset and the Star shape now arrive as, and it gets its own **star colour**,
+  since the code needs a background of its own underneath
 - **Plate decoration** — fill the space a shaped plate leaves around the code
   with a radiating **Burst** or a **Scatter** of dots, so the shape reads as
   designed rather than as a square code on a round background. It needs that

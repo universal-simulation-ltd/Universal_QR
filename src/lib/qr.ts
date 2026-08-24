@@ -173,6 +173,11 @@ export const DEFAULT_CONFIG: QrConfig = {
   cornerSquareType: 'extra-rounded',
   cornerDotType: 'dot',
   frameShape: 'square',
+  // 'inside' even though the Star PRESET (and picking Star from the shape row)
+  // now arrives 'behind'. This value is the floor an old record lands on:
+  // saved designs and backups are merged over DEFAULT_CONFIG, and every star
+  // saved before the placement existed was drawn inside the points. Making the
+  // default 'behind' would redraw all of them.
   starPlacement: 'inside',
   starColor: '#e05504',
   decorStyle: 'none',
@@ -336,13 +341,28 @@ export const PRESETS: Preset[] = [
     }
   },
   {
-    // BLACK on orange, not white on orange. White modules on an orange plate is
-    // an INVERTED code — the exact fault that made the old default unscannable —
-    // and it survived that clean-up because the decode harness was run with the
-    // star SHAPE and its own colours, never with this preset's palette. Black on
-    // #e05504 is 5.5:1 with the dark side down, which is what a reader needs.
-    // The plate also moves to the canonical brand orange; #ea580c was the
-    // Tailwind pair BRANDING.md retired.
+    // The star stands BEHIND the code (changed 2026-08-24, and it is what puts
+    // that arrangement into the random rotation — the presets are the pool
+    // Regenerate deals from, so a look that no preset uses is a look most
+    // visitors never see). It is the better half of the trade on both counts:
+    // the code goes from 37% of the image to 72%, and the star reads as a mark
+    // rather than as a square code dropped on a spiky background.
+    //
+    // The palette moves with it, because 'behind' needs two colours where the
+    // plate needed one: white is now the GROUND the code and its quiet zone sit
+    // on, and the brand orange moves to `starColor`. Black modules therefore
+    // meet two backgrounds and clear both — 5.5:1 on the orange, 21:1 on the
+    // white. Decoded through this pipeline at 512 and 256 px before shipping.
+    //
+    // BLACK modules, not white. White on orange is an INVERTED code — the exact
+    // fault that made the old default unscannable — and it survived that
+    // clean-up once because the decode harness had been run with the star SHAPE
+    // and its own colours, never with this preset's palette.
+    //
+    // `decorStyle: 'burst'` is pinned even though decoration is not drawn in
+    // this arrangement: it is what the design becomes if you switch the
+    // placement back to Inside, and pinning it stops another preset's choice
+    // following you there.
     name: 'Star',
     patch: {
       matchDecorColor: true,
@@ -351,7 +371,7 @@ export const PRESETS: Preset[] = [
       cornerSquareType: 'extra-rounded',
       cornerDotType: 'dot',
       fgColor: '#000000',
-      bgColor: '#e05504',
+      bgColor: '#ffffff',
       bgTransparent: false,
       useGradient: false,
       gradientColor: '#e05504',
@@ -359,7 +379,7 @@ export const PRESETS: Preset[] = [
       matchCornerColor: true,
       logoSize: 0.28,
       frameShape: 'star',
-      starPlacement: 'inside',
+      starPlacement: 'behind',
       starColor: '#e05504'
     }
   }
@@ -391,6 +411,33 @@ export function randomPreset(exclude?: string | null): Preset {
  *  of bug this file keeps having to design against. */
 export function decorColour(config: QrConfig): string {
   return config.matchDecorColor ? config.fgColor : config.decorColor
+}
+
+/** The patch that moves a design between the two star arrangements — the
+ *  placement itself, and the colour hand-off that has to come with it.
+ *
+ *  One helper because two controls change placement: the Star placement row,
+ *  and the Code shape row, where picking Star arrives in front of the star the
+ *  way picking any other shape arrives decorated.
+ *
+ *  The hand-off is the whole point. As a plate the star simply IS `bgColor`;
+ *  in front of it the code's quiet zone and its overhanging corners need a
+ *  ground of their own. Set both from one field and you get an invisible star
+ *  standing on a field of itself — a control that appears to do nothing. So
+ *  going behind, the plate colour becomes the star's and the code gets white
+ *  under it; coming back, the star's colour becomes the plate again.
+ *
+ *  A plate that was already paper-white hands over nothing useful, so the star
+ *  takes the brand orange instead — otherwise the one design most likely to be
+ *  on screen (a white background) is the one where the switch looks broken. */
+export function starPlacementPatch(config: QrConfig, starPlacement: StarPlacement): Partial<QrConfig> {
+  if (starPlacement === 'inside') return { starPlacement, bgColor: config.starColor }
+  const plateIsPaper = contrastRatio(config.bgColor, '#ffffff') < 1.5
+  return {
+    starPlacement,
+    starColor: plateIsPaper ? DEFAULT_CONFIG.starColor : config.bgColor,
+    bgColor: '#ffffff'
+  }
 }
 
 /** WCAG relative luminance (0–1) of a `#rrggbb` colour.
