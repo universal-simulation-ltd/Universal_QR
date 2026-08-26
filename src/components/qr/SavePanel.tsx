@@ -11,7 +11,7 @@ import {
 
 // Free, no-account "Save to this device" — keep the QR codes you design in this
 // browser and reopen them later. Cross-device / online save lives in the same
-// backup dialog under "Hosted by UNI·SIM".
+// backup dialog under the Universal ID sign-in.
 export default function SavePanel() {
   const config = useQrStore((s) => s.config)
   const applyPatch = useQrStore((s) => s.applyPatch)

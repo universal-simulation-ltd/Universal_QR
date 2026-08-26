@@ -35,9 +35,25 @@ top-level `view` in `stores/qrStore.ts`).
   destination any time and see **scan analytics** (total + last scan + a 30-day
   sparkline). Each live code **holds one token** (the org's free "Everyday" token
   first, then a purchased `subscriptions.credits` token) for its lifetime,
-  returned when the code is deleted — same wallet model as "Hosted by UNI·SIM".
+  returned when the code is deleted.
   UI: `components/qr/DynamicStudio.tsx` + `DynamicCodeCard.tsx`; data helpers in
   `lib/dynamicCodes.ts`.
+
+### Backing up a static design ("Back up this QR code" dialog)
+
+Two tiers, both in `components/qr/HostedStoreDialog.tsx`:
+
+- **Save to this device** (`SavePanel.tsx`) — free, no account, localStorage.
+  Universal PDF's QR dialog reads this store directly on the shared origin.
+- **Save to your account** — signed in with a Universal ID, the PNG is stored
+  online (`hosted_uploads`, product `'qr'`) **with the full design as a
+  `<png-path>.json` sidecar**, so Universal PDF's QR dialog lists account saves
+  as editable designs on any device. Every account gets **five free static
+  saves** (migration 0127 — counted as live free-funded rows, freed on delete;
+  deliberately not surfaced in the UI), then the purchased wallet takes over.
+  These slots are separate from the Dynamic free token: static saves can
+  neither consume nor block it. The old "Save to desktop" backup-file tier was
+  removed 2026-08-26 (account saves cover the cross-device case).
 
 ### How the redirect works (no shared-repo changes)
 

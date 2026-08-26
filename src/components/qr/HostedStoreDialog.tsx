@@ -1,98 +1,59 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useUniversal, useUser, useCredits, useFileDrop, useHostedUploads, useAppFreeToken, type HostedUpload } from '@unisim/sdk'
+import { useUniversal, useUser, useHostedUploads, type HostedUpload } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { storeCurrentQr, deleteHostedQr, openHostedQr } from '../../lib/hostedStore'
-import { downloadBackup, readBackupFile } from '../../lib/qrBackup'
 import SavePanel from './SavePanel'
 
 const SIGNIN_URL = 'https://app.unisim.co.uk/login'
 const GET_TOKENS_URL = 'https://www.unisim.co.uk/subscription.html'
 
-// "Back up this QR code" — the free device gallery (SavePanel) plus the paid
-// "Hosted by UNI·SIM" cloud option (one token per upload, refunded on delete)
-// gated behind a Universal ID. Backend: 0041 + the SDK hosted helpers.
+// "Back up this QR code" — the free device gallery (SavePanel) plus online
+// save against a Universal ID. Every account gets five free static QR saves
+// (deliberately not advertised in the UI — migration 0127); past those the
+// backend falls back to purchased tokens, which is when the "Get tokens"
+// prompt appears. Dynamic codes keep their own single free token and are
+// untouched by any of this. Backend: 0041 + 0127 + the SDK hosted helpers.
 export default function HostedStoreDialog() {
   const open = useQrStore((s) => s.hostedStoreOpen)
   const setOpen = useQrStore((s) => s.setHostedStoreOpen)
   const config = useQrStore((s) => s.config)
-  const mode = useQrStore((s) => s.mode)
-  const applyPatch = useQrStore((s) => s.applyPatch)
-  const setMode = useQrStore((s) => s.setMode)
 
   const { supabase, session, activeOrgId } = useUniversal()
   const { user } = useUser()
-  const { credits, refresh: refreshCredits } = useCredits()
-  // Every org gets one free returnable QR token (migration 0045) — the RPC
-  // spends it before the purchased wallet, so the button gates on either.
-  const { status: freeToken, refresh: refreshFreeToken } = useAppFreeToken('qr')
   const { uploads, loading: listLoading, refresh: refreshList } = useHostedUploads('qr')
 
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // The backend has refused for lack of tokens (past the free saves AND the
+  // wallet) — the one moment tokens are worth mentioning.
+  const [outOfTokens, setOutOfTokens] = useState(false)
   const [justStored, setJustStored] = useState(false)
-  const [importMsg, setImportMsg] = useState<string | null>(null)
-  const [importErr, setImportErr] = useState<string | null>(null)
-  // Button-driven, not a drop target: this sits inside a dialog whose whole
-  // surface is already scrollable content.
-  const importPicker = useFileDrop({
-    onFiles: (files) => { void onImportFile(files[0]) },
-    accept: '.json,application/json',
-    multiple: false,
-    clickToBrowse: false,
-  })
 
   if (!open) return null
 
   const signedIn = !!session?.user && session.user.is_anonymous !== true
-  const tokens = credits ?? 0
-  const canStore = freeToken === 'available' || tokens > 0
   const hasData = config.data.trim().length > 0
 
   function close() {
     setOpen(false)
     setError(null)
+    setOutOfTokens(false)
     setJustStored(false)
-    setImportMsg(null)
-    setImportErr(null)
-  }
-
-  function onDownloadBackup() {
-    if (!hasData) return
-    downloadBackup(config, mode)
-  }
-
-  async function onImportFile(file: File | undefined) {
-    if (!file) return
-    setImportErr(null)
-    setImportMsg(null)
-    try {
-      const { config: restored, mode: restoredMode } = await readBackupFile(file)
-      applyPatch(restored)
-      setMode(restoredMode ?? 'advanced')
-      setImportMsg('✓ Backup restored — your design is loaded.')
-      window.setTimeout(() => setImportMsg(null), 2600)
-    } catch (err) {
-      setImportErr((err as Error).message)
-    }
   }
 
   async function onStore() {
     if (!hasData || !activeOrgId || busy) return
     setBusy(true)
     setError(null)
+    setOutOfTokens(false)
     try {
       const res = await storeCurrentQr(supabase, activeOrgId, config)
       if (!res.ok) {
-        setError(
-          res.error === 'no_credits'
-            ? 'You have no tokens left. Get more to keep storing QR codes online.'
-            : res.error ?? 'Could not store this QR code.',
-        )
+        if (res.error === 'no_credits') setOutOfTokens(true)
+        else setError(res.error ?? 'Could not store this QR code.')
       } else {
         setJustStored(true)
-        refreshCredits()
-        refreshFreeToken()
         refreshList()
         window.setTimeout(() => setJustStored(false), 2200)
       }
@@ -122,8 +83,7 @@ export default function HostedStoreDialog() {
       const res = await deleteHostedQr(supabase, upload)
       if (!res.ok) setError(res.error ?? 'Could not delete this QR code.')
       else {
-        refreshCredits()
-        refreshFreeToken()
+        setOutOfTokens(false)
         refreshList()
       }
     } finally {
@@ -145,99 +105,44 @@ export default function HostedStoreDialog() {
         </div>
 
         <div className="space-y-4 p-5">
-          {/* Tier 1 — Save to browser (local, temporary): the device gallery. */}
+          {/* Save to browser (local, this device only): the device gallery. */}
           <SavePanel />
 
-          {/* Tier 2 — Save to desktop: a re-importable backup file the guest keeps. */}
-          <div className="rounded-xl border border-slate-200 bg-white p-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-slate-900">Save to desktop</span>
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-600">Re-import later</span>
-            </div>
-            <p className="mt-1 text-xs text-slate-500">
-              Download this design as a backup file and keep it anywhere. Import it any time — on any device — to carry on editing exactly where you left off.
-            </p>
-
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={onDownloadBackup}
-                disabled={!hasData}
-                className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-black disabled:opacity-50"
-              >
-                <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 16h12" />
-                </svg>
-                Download backup
-              </button>
-              <button
-                type="button"
-                onClick={importPicker.open}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-400 hover:bg-slate-50"
-              >
-                <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M10 17V7m0 0L6.5 10.5M10 7l3.5 3.5M4 4h12" />
-                </svg>
-                Import a backup
-              </button>
-              <input {...importPicker.inputProps} className="hidden" />
-            </div>
-            {!hasData && <p className="mt-2 text-xs text-slate-400">Enter a URL or some text to back up your design.</p>}
-            {importMsg && <p className="mt-2 text-sm text-emerald-600">{importMsg}</p>}
-            {importErr && <p className="mt-2 text-sm text-rose-600">{importErr}</p>}
-          </div>
-
-          {/* Tier 3 — Universal subscription: paid "Hosted by UNI·SIM" cloud. */}
+          {/* Save to your account — online, against a Universal ID. Saved codes
+              also surface in Universal PDF's QR dialog for the same account. */}
           <div className="rounded-xl border border-orange-200 bg-white p-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-slate-900">Hosted by UNI SIM</span>
-              <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">Universal subscription</span>
-            </div>
-            <p className="mt-1 text-xs text-slate-500">
-              Keep this QR code (PNG) online against your Universal ID. One token per upload — delete it and your token comes straight back.
-            </p>
-
             {!signedIn ? (
-              <div className="mt-3 rounded-lg bg-slate-50 p-3">
+              <div className="rounded-lg bg-slate-50 p-3">
                 <p className="text-sm text-slate-700">Sign in with your <strong>Universal ID</strong> to store QR codes online.</p>
                 <a href={SIGNIN_URL} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
                   Create / sign in with Universal ID →
                 </a>
               </div>
             ) : (
-              <div className="mt-3">
-                <div className="flex items-center justify-between rounded-lg bg-orange-50/60 px-3 py-2 text-sm">
-                  <span className="text-slate-600">{user?.email}</span>
-                  <span className="font-semibold text-orange-700">
-                    {freeToken === 'available'
-                      ? `Free token${tokens > 0 ? ` + ${tokens} purchased` : ' available'}`
-                      : `${tokens} token${tokens === 1 ? '' : 's'}`}
-                  </span>
-                </div>
+              <div>
+                <div className="rounded-lg bg-orange-50/60 px-3 py-2 text-sm text-slate-600">{user?.email}</div>
 
                 {hasData ? (
-                  canStore ? (
-                    <button
-                      onClick={onStore}
-                      disabled={busy}
-                      className="mt-3 w-full rounded-lg bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800 disabled:opacity-50"
-                    >
-                      {busy ? 'Backing up…' : justStored ? '✓ Backed up (1 token used)' : 'Back up this QR online (1 token)'}
-                    </button>
-                  ) : freeToken === null ? null : (
-                    <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
-                      <p className="text-sm text-amber-800">
-                        {freeToken === 'held'
-                          ? 'Your free QR token is in use — delete the stored QR code below to get it back, or add tokens.'
-                          : 'You have no tokens left.'}
-                      </p>
-                      <a href={GET_TOKENS_URL} target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-lg bg-orange-700 px-3.5 py-2 text-sm font-semibold text-white hover:bg-orange-800">
-                        Get tokens →
-                      </a>
-                    </div>
-                  )
+                  <button
+                    onClick={onStore}
+                    disabled={busy}
+                    className="mt-3 w-full rounded-lg bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800 disabled:opacity-50"
+                  >
+                    {busy ? 'Backing up…' : justStored ? '✓ Backed up' : 'Back up this QR online'}
+                  </button>
                 ) : (
                   <p className="mt-3 text-xs text-slate-500">Enter a URL or some text to back up your QR code.</p>
+                )}
+
+                {outOfTokens && (
+                  <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                    <p className="text-sm text-amber-800">
+                      You have no tokens left. Get more to keep storing QR codes online, or delete a backup below.
+                    </p>
+                    <a href={GET_TOKENS_URL} target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-lg bg-orange-700 px-3.5 py-2 text-sm font-semibold text-white hover:bg-orange-800">
+                      Get tokens →
+                    </a>
+                  </div>
                 )}
 
                 {error && <p className="mt-2 text-sm text-rose-600">{error}</p>}
@@ -258,7 +163,7 @@ export default function HostedStoreDialog() {
                             <span className="block text-[10px] text-slate-400">{new Date(u.created_at).toLocaleDateString()}</span>
                           </span>
                           <button onClick={() => onOpen(u)} disabled={busy} className="shrink-0 rounded-md bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800 disabled:opacity-50">Open</button>
-                          <button onClick={() => onDelete(u)} disabled={busy} className="shrink-0 rounded-md px-2 py-1.5 text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50" title="Delete and refund the token">Delete</button>
+                          <button onClick={() => onDelete(u)} disabled={busy} className="shrink-0 rounded-md px-2 py-1.5 text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50" title="Delete this backup">Delete</button>
                         </li>
                       ))}
                     </ul>
