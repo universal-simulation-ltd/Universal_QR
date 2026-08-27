@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useUniversal, useUser, useHostedUploads, type HostedUpload } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
-import { storeCurrentQr, deleteHostedQr, openHostedQr } from '../../lib/hostedStore'
+import { storeCurrentQr, deleteHostedQr, openHostedQr, HostedObjectMissingError } from '../../lib/hostedStore'
 import SavePanel from './SavePanel'
 
 const SIGNIN_URL = 'https://app.unisim.co.uk/login'
@@ -28,6 +28,8 @@ export default function HostedStoreDialog() {
   // The backend has refused for lack of tokens (past the free saves AND the
   // wallet) — the one moment tokens are worth mentioning.
   const [outOfTokens, setOutOfTokens] = useState(false)
+  // The one listed save that turned out to have no file behind it, if any.
+  const [missingId, setMissingId] = useState<string | null>(null)
   const [justStored, setJustStored] = useState(false)
 
   if (!open) return null
@@ -39,6 +41,7 @@ export default function HostedStoreDialog() {
     setOpen(false)
     setError(null)
     setOutOfTokens(false)
+    setMissingId(null)
     setJustStored(false)
   }
 
@@ -66,10 +69,17 @@ export default function HostedStoreDialog() {
     if (busy) return
     setBusy(true)
     setError(null)
+    setMissingId(null)
     try {
       await openHostedQr(supabase, upload)
     } catch (e) {
-      setError((e as Error).message)
+      // A genuinely absent file is not an error to shrug at the user — it is a
+      // dead entry, and the only useful thing to say is which one and what to
+      // do about it. Anything else (offline, session expired) still surfaces as
+      // an ordinary message, because deleting the save would be the wrong
+      // advice.
+      if (e instanceof HostedObjectMissingError) setMissingId(upload.id)
+      else setError((e as Error).message)
     } finally {
       setBusy(false)
     }
@@ -84,6 +94,7 @@ export default function HostedStoreDialog() {
       if (!res.ok) setError(res.error ?? 'Could not delete this QR code.')
       else {
         setOutOfTokens(false)
+        setMissingId((id) => (id === upload.id ? null : id))
         refreshList()
       }
     } finally {
@@ -157,13 +168,44 @@ export default function HostedStoreDialog() {
                   ) : (
                     <ul className="space-y-2">
                       {uploads.map((u) => (
-                        <li key={u.id} className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2">
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-xs font-medium text-slate-700">{u.file_name || 'qr-code.png'}</span>
-                            <span className="block text-[10px] text-slate-400">{new Date(u.created_at).toLocaleDateString()}</span>
-                          </span>
-                          <button onClick={() => onOpen(u)} disabled={busy} className="shrink-0 rounded-md bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800 disabled:opacity-50">Open</button>
-                          <button onClick={() => onDelete(u)} disabled={busy} className="shrink-0 rounded-md px-2 py-1.5 text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50" title="Delete this backup">Delete</button>
+                        <li key={u.id} className="rounded-lg border border-slate-200 bg-slate-50 p-2">
+                          <div className="flex items-center gap-2">
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-xs font-medium text-slate-700">{u.file_name || 'qr-code.png'}</span>
+                              <span className="block text-[10px] text-slate-400">{new Date(u.created_at).toLocaleDateString()}</span>
+                            </span>
+                            <button onClick={() => onOpen(u)} disabled={busy} className="shrink-0 rounded-md bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800 disabled:opacity-50">Open</button>
+                            <button onClick={() => onDelete(u)} disabled={busy} className="shrink-0 rounded-md px-2 py-1.5 text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50" title="Delete this backup">Delete</button>
+                          </div>
+
+                          {/* A save with nothing behind it. Say which file, say
+                              plainly that the upload never finished, and make
+                              clearing it up one click — the save slot comes
+                              back with it, so there is nothing to lose by
+                              tidying. This replaces storage's bare "Object not
+                              found", which read like the app had mislaid the
+                              user's QR code. */}
+                          {missingId === u.id && (
+                            <div
+                              role="alert"
+                              data-testid="hosted-missing"
+                              className="mt-2 rounded-md border border-amber-200 bg-amber-50 p-2"
+                            >
+                              <p className="text-[11px] leading-snug text-amber-900">
+                                <strong className="font-semibold">{u.file_name || 'qr-code.png'}</strong> is listed here,
+                                but there is no file behind it — this save never finished, so nothing was ever stored.
+                                Your save slot is still being held for it.
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => onDelete(u)}
+                                disabled={busy}
+                                className="mt-2 inline-flex rounded-md bg-amber-700 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-amber-800 disabled:opacity-50"
+                              >
+                                Remove this entry and free the save
+                              </button>
+                            </div>
+                          )}
                         </li>
                       ))}
                     </ul>

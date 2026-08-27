@@ -55,6 +55,56 @@ Two tiers, both in `components/qr/HostedStoreDialog.tsx`:
   neither consume nor block it. The old "Save to desktop" backup-file tier was
   removed 2026-08-26 (account saves cover the cross-device case).
 
+### ⚠️ Account saves and the `pending` path that broke every one of them
+
+`hosted_uploads` (migration 0041) enables RLS and grants members exactly two
+policies: `hosted_uploads_member_read` (`for select`) and a platform-admin
+`for all`. There is **no member UPDATE policy in 0041–0127**, on purpose — the
+consume/refund RPCs are meant to be the only writers.
+
+The store flow ignored that and was written in three steps:
+
+1. `consumeHostedUpload({ storagePath: 'pending' })` — take the save slot,
+2. upload the PNG to `<org_id>/qr/<upload_id>-<stem>.png` (+ the `.json` sidecar),
+3. `UPDATE hosted_uploads SET storage_path = <the real path>`.
+
+**Step 3 matched zero rows on every account that isn't the platform admin**, and
+PostgREST reports that as a perfectly ordinary success — no error, just `0`.
+The call site never looked at the result. So the ledger kept saying `pending`
+for every account save ever made: the dialog listed it, and Open asked storage
+for an object literally named `pending` — "Object not found", while the real PNG
+sat safely in the bucket. Universal PDF's QR dialog reads the same column to
+find the design sidecar, so account saves were unusable there too. `pending`
+also has no org-id first segment, so it fails the bucket's read policy
+(`storage.foldername(name)[1]`) as well as being absent.
+
+The fix lives in `src/lib/hostedPaths.ts`:
+
+* **Name the object before the slot is taken.** `hostedQrPath(orgId,
+  newObjectId(), fileName)` is computed first and passed to
+  `consumeHostedUpload`, so the RPC's own insert records the truth and the
+  update that RLS was blocking no longer exists. ⚠️ **The accounting is
+  untouched** — free static slot vs purchased wallet is decided entirely inside
+  `hosted_consume_and_record` (0127), which only ever receives a path. Naming
+  the object earlier cannot make a free save spend a token.
+* **Recover the rows already filed as `pending`.** The old path was fully
+  determined by data still on the row — `<org_id>/qr/<id>-<stem(file_name)>.png`
+  — so `hostedQrPathCandidates()` rebuilds it and `openHostedQr` tries each in
+  turn. Existing broken saves open; nothing has to be migrated or re-uploaded.
+  ⚠️ **This is why `stemOf` must never drift.** It is pinned by
+  `npm run test:hosted-paths`.
+* **Fail honestly when there really is nothing there.** Only then does
+  `openHostedQr` throw `HostedObjectMissingError`, and `HostedStoreDialog`
+  answers it against the row itself: which file, that the save never finished,
+  and one button to clear the entry and free the slot. A network or session
+  failure is deliberately NOT reported that way.
+* **Delete every candidate, sidecar included.** `hostedQrRemovalPaths()` pairs
+  each candidate with its `<png-path>.json`, so freeing a legacy row cannot
+  orphan its PNG or its design.
+
+The same landmine was fixed in Universal PDF (`ffae15b`), Images, Exports and
+Recorder — all five had copies of the identical three-step flow.
+
 ### How the redirect works (no shared-repo changes)
 
 `public/_redirects` has a rule **above** the SPA fallback that 302s
