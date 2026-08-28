@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useUniversal, useUser, useCredits, useAppFreeToken, useFileDrop, useOrgBranding } from '@unisim/sdk'
 import { CONTAINER } from '../../lib/layout'
-import { DEFAULT_CONFIG, PRESETS, buildQrOptions, type QrConfig } from '../../lib/qr'
+import { DEFAULT_CONFIG, PRESETS, buildQrOptions, type QrConfig } from '@unisim/qr'
 import QRCodeStyling from 'qr-code-styling'
 import { useQrStore } from '../../stores/qrStore'
 import {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useQrStore } from '../../stores/qrStore'
-import { qrDisplayName } from '../../lib/qr'
+import { qrDisplayName } from '@unisim/qr'
 import { renderThumbnailDataUrl } from '../../lib/download'
 import {
   loadLocalDesigns,

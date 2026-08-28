@@ -7,7 +7,7 @@ import HostedStoreDialog from './HostedStoreDialog'
 import { useQrStore, type StudioMode } from '../../stores/qrStore'
 import { CONTAINER } from '../../lib/layout'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
-import { DEFAULT_CONFIG, PRESETS, type ExportFormat, type QrConfig } from '../../lib/qr'
+import { DEFAULT_CONFIG, PRESETS, type ExportFormat, type QrConfig } from '@unisim/qr'
 import { barcodeFileStem, renderBarcodeToSvg, symbologyById } from '../../lib/barcode'
 
 // Which config keys count as "branding has been customised" — used to decide

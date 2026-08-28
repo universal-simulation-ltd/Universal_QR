@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import QRCodeStyling from 'qr-code-styling'
 import { useQrStore } from '../../stores/qrStore'
-import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark } from '../../lib/qr'
-import { composeShapedCanvas, fillsWholeImage } from '../../lib/compose'
-import { UNISIM_MARK } from '../../lib/unisimMark'
+import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark } from '@unisim/qr'
+import { composeShapedCanvas, fillsWholeImage } from '@unisim/qr'
+import { UNISIM_MARK } from '@unisim/qr'
 import EnlargeModal from './EnlargeModal'
 
 export default function QrPreview() {

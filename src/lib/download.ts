@@ -1,7 +1,7 @@
 import QRCodeStyling from 'qr-code-styling'
-import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark, type ExportFormat, type QrConfig } from './qr'
-import { composeShapedCanvas, composeShapedSvg } from './compose'
-import { UNISIM_MARK } from './unisimMark'
+import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark, type ExportFormat, type QrConfig } from '@unisim/qr'
+import { composeShapedCanvas, composeShapedSvg } from '@unisim/qr'
+import { UNISIM_MARK } from '@unisim/qr'
 
 /** Slugify the QR's name into a safe filename stem. */
 export function fileStem(name: string): string {

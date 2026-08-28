@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import QRCodeStyling from 'qr-code-styling'
 import { useUniversal } from '@unisim/sdk'
-import { buildQrOptions, type QrConfig } from '../../lib/qr'
+import { buildQrOptions, type QrConfig } from '@unisim/qr'
 import { downloadQr } from '../../lib/download'
 import EnlargeModal from './EnlargeModal'
 import {

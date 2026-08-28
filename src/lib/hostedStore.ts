@@ -6,7 +6,7 @@ import {
 } from '@unisim/sdk'
 import { renderQrBlob } from './download'
 import { hostedQrPath, hostedQrPathCandidates, hostedQrRemovalPaths, newObjectId, sidecarPath } from './hostedPaths'
-import type { QrConfig } from './qr'
+import type { QrConfig } from '@unisim/qr'
 
 // Online storage for Universal QR. Local saves (the device gallery in
 // SavePanel) stay free and on-device; saving to an account keeps a QR PNG

@@ -12,10 +12,10 @@ import {
   type CornerDotType,
   type CornerSquareType,
   type DotType
-} from '../../lib/qr'
-import { FRAME_SHAPES, STAR_PLACEMENTS, frameSizeNote, type FrameShape, type StarPlacement } from '../../lib/frames'
-import { DECOR_STYLES, type DecorStyle } from '../../lib/decor'
-import { decorScaleOf, starBehind } from '../../lib/compose'
+} from '@unisim/qr'
+import { FRAME_SHAPES, STAR_PLACEMENTS, frameSizeNote, type FrameShape, type StarPlacement } from '@unisim/qr'
+import { DECOR_STYLES, type DecorStyle } from '@unisim/qr'
+import { decorScaleOf, starBehind } from '@unisim/qr'
 import { SYMBOLOGIES, symbologyById, type BarcodeSymbology } from '../../lib/barcode'
 
 export default function Controls() {

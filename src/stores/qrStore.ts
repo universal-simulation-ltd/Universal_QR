@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { DEFAULT_CONFIG, randomPreset, type QrConfig, type DotType, type CornerSquareType, type CornerDotType } from '../lib/qr'
+import { DEFAULT_CONFIG, randomPreset, type QrConfig, type DotType, type CornerSquareType, type CornerDotType } from '@unisim/qr'
 import type { BarcodeSymbology } from '../lib/barcode'
 
 export type StudioMode = 'simple' | 'branding' | 'advanced'

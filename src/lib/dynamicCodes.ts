@@ -1,5 +1,5 @@
 import type { useUniversal } from '@unisim/sdk'
-import { DEFAULT_CONFIG, type QrConfig } from './qr'
+import { DEFAULT_CONFIG, type QrConfig } from '@unisim/qr'
 
 // Client helpers for Universal QR "Dynamic" codes — the hosted/PRO path. A
 // dynamic code encodes a short redirect (opensource.unisim.co.uk/qr/r/<code>)

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import type { QrConfig } from '../../lib/qr'
-import { qrDisplayName } from '../../lib/qr'
+import type { QrConfig } from '@unisim/qr'
+import { qrDisplayName } from '@unisim/qr'
 import { renderPngDataUrl } from '../../lib/download'
-import { fillsWholeImage } from '../../lib/compose'
+import { fillsWholeImage } from '@unisim/qr'
 
 // Renders the QR big and bright, filling the screen, so it's easy to scan from
 // another phone. A few hints help when a scan won't take.

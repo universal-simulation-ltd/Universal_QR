@@ -1,4 +1,4 @@
-import { DEFAULT_CONFIG, type QrConfig } from './qr'
+import { DEFAULT_CONFIG, type QrConfig } from '@unisim/qr'
 
 // ── Saved-on-this-device QR designs ──────────────────────────────────────────
 // A free, no-account way to keep the QR codes you design in this browser and
