@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useFileDrop, useUniversal } from '@unisim/sdk'
+import { PrivacyNote, useFileDrop, useUniversal } from '@unisim/sdk'
 import Controls from './Controls'
 import QrPreview from './QrPreview'
 import BarcodePreview from './BarcodePreview'
@@ -169,10 +169,22 @@ export default function QrStudio() {
             QR Codes that <span className="text-orange-600">just. work. FOREVER.</span>
           </h1>
           <p className="mt-2 text-slate-600">
-            Pick your colours, shape the modules, drop in a logo — it renders live and never leaves
-            your device. Download as PNG, SVG, JPEG or WebP.
+            Pick your colours, shape the modules, drop in a logo — it renders live, right here.
+            Download as PNG, SVG, JPEG or WebP.
           </p>
         </header>
+
+        {/* Above the fold rather than under a card: this studio has no single
+            card to sit beneath, and "does my logo get uploaded?" is a question
+            worth answering before someone drops one in. */}
+        <PrivacyNote
+          className="mt-5"
+          repo="https://github.com/universal-simulation-ltd/Universal_QR"
+          subject="Your logo and the data you type"
+          plural
+          except="backup"
+          badge="on-device · works offline"
+        />
 
         <div className="mt-6 grid lg:grid-cols-[minmax(0,1fr)_360px] gap-6 lg:gap-10 items-start">
           {/* Controls */}
