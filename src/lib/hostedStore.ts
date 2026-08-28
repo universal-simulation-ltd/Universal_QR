@@ -69,13 +69,30 @@ export async function storeCurrentQr(supabase: Supabase, orgId: string, config: 
   // The design sidecar, best-effort: Universal PDF's QR dialog reads it to
   // restore this save as a fully editable design. A failure here still leaves
   // a valid PNG-only backup (which that dialog places as a plain image).
-  await supabase.storage
-    .from(HOSTED_BUCKET)
-    .upload(sidecarPath(path), new Blob([JSON.stringify(config)], { type: 'application/json' }), {
-      contentType: 'application/json',
-      upsert: true,
-    })
-    .catch(() => undefined)
+  //
+  // ⚠️ LOOK AT THE RESULT. `upload()` reports a refusal in `error`, it does not
+  // reject, so the old `.catch(() => undefined)` was blind to the only failure
+  // that ever actually happened: `hosted-uploads` carries a MIME allow-list
+  // (0041/0095) that had no `application/json` on it, so storage refused every
+  // sidecar ever written while the save still reported success — so every
+  // account save was PNG-only and landed in Universal PDF as a flat picture.
+  // Fixed by migration 0128; this warning is what would have said so.
+  try {
+    const { error: sideErr } = await supabase.storage
+      .from(HOSTED_BUCKET)
+      .upload(sidecarPath(path), new Blob([JSON.stringify(config)], { type: 'application/json' }), {
+        contentType: 'application/json',
+        upsert: true,
+      })
+    if (sideErr) {
+      console.warn(
+        `[qr] design sidecar not stored for ${path} — this save will open in Universal PDF ` +
+          `as a flat image rather than an editable code: ${sideErr.message}`,
+      )
+    }
+  } catch (err) {
+    console.warn('[qr] design sidecar not stored:', err)
+  }
 
   return { ok: true, creditsRemaining: consumed.credits }
 }
