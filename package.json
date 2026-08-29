@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test:hosted-paths": "node --experimental-strip-types scripts/hostedPath.test.mjs",
+    "test:dynamic-design": "node --experimental-strip-types scripts/dynamicDesign.test.mjs",
     "electron": "electron .",
     "dist": "npm run build:desktop && electron-builder",
     "dist:win": "npm run build:desktop && electron-builder --win",

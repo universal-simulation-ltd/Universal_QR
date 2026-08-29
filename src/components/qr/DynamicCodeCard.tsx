@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import QRCodeStyling from 'qr-code-styling'
 import { useUniversal } from '@unisim/sdk'
-import { buildQrOptions, type QrConfig } from '@unisim/qr'
+import { buildQrOptions, type QrDesign } from '@unisim/qr'
 import { downloadQr } from '../../lib/download'
 import EnlargeModal from './EnlargeModal'
+import BrandingControls from './BrandingControls'
 import {
   dynamicQrConfig,
   getDailyScans,
+  logoModeOf,
   redirectUrl,
+  setDynamicDesign,
   setDynamicTarget,
   targetLabel,
   type DailyScan,
@@ -15,24 +18,31 @@ import {
 } from '../../lib/dynamicCodes'
 
 // One saved dynamic code: its live QR (encoding the hosted redirect), the
-// current destination (editable in place), and scan analytics. Deleting is
-// handled by the parent so it can refund the token + refresh the list.
+// current destination (editable in place), its own branding (editable in
+// place), and scan analytics. Deleting is handled by the parent so it can
+// refund the token + refresh the list.
 export default function DynamicCodeCard({
   code,
-  brand,
+  studioBrand,
+  orgIcon,
   busy,
   onChanged,
   onDelete,
 }: {
   code: DynamicCode
-  /** Branding (org icon + colour, or user overrides) applied to this code's QR. */
-  brand?: QrConfig
+  /** The Dynamic tab's "branding for new codes". Two jobs, neither of which is
+   *  skinning this card by default: it draws codes created BEFORE designs were
+   *  saved (they have none of their own), and it is what "Match branding for new
+   *  codes" copies in. */
+  studioBrand?: QrDesign
+  /** The organisation's 1:1 mark as a data URI, for the editor's Org icon chip. */
+  orgIcon: string | null
   busy: boolean
   onChanged: () => void
   onDelete: (code: DynamicCode) => void
 }) {
   const { supabase } = useUniversal()
-  const config = useMemo(() => dynamicQrConfig(code, brand), [code, brand])
+  const config = useMemo(() => dynamicQrConfig(code, studioBrand), [code, studioBrand])
 
   const holderRef = useRef<HTMLDivElement>(null)
   const qrRef = useRef<QRCodeStyling | null>(null)
@@ -44,6 +54,12 @@ export default function DynamicCodeCard({
   const [copied, setCopied] = useState(false)
   const [daily, setDaily] = useState<DailyScan[] | null>(null)
   const [enlarged, setEnlarged] = useState(false)
+
+  // Branding editor — a draft of THIS code's design, saved only on Save.
+  const [brandOpen, setBrandOpen] = useState(false)
+  const [draft, setDraft] = useState<QrDesign>(config)
+  const [savingBrand, setSavingBrand] = useState(false)
+  const [brandError, setBrandError] = useState<string | null>(null)
 
   const link = redirectUrl(code.code)
 
@@ -95,6 +111,29 @@ export default function DynamicCodeCard({
     onChanged()
   }
 
+  /** Open the branding editor on THIS code's current look. Seeded fresh each
+   *  time rather than kept in state, so a cancelled edit — or a change made on
+   *  another device between openings — never leaves a stale draft behind. */
+  function openBranding() {
+    setDraft(config)
+    setBrandError(null)
+    setBrandOpen(true)
+  }
+
+  async function onSaveBranding() {
+    if (savingBrand) return
+    setSavingBrand(true)
+    setBrandError(null)
+    const res = await setDynamicDesign(supabase, code.id, draft)
+    setSavingBrand(false)
+    if (!res.ok) {
+      setBrandError(res.error ?? 'Could not save this code’s branding.')
+      return
+    }
+    setBrandOpen(false)
+    onChanged()
+  }
+
   return (
     <li className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-4 sm:flex-row">
@@ -113,6 +152,16 @@ export default function DynamicCodeCard({
             <button type="button" onClick={() => downloadQr({ ...config, size: 1024 }, 'png')} className="text-[11px] font-semibold text-slate-500 hover:text-orange-700">PNG</button>
             <span className="text-slate-300" aria-hidden="true">·</span>
             <button type="button" onClick={() => downloadQr({ ...config, size: 1024 }, 'svg')} className="text-[11px] font-semibold text-slate-500 hover:text-orange-700">SVG</button>
+          </div>
+          <div className="mt-1 text-center">
+            <button
+              type="button"
+              onClick={() => (brandOpen ? setBrandOpen(false) : openBranding())}
+              aria-expanded={brandOpen}
+              className="text-[11px] font-semibold text-orange-700 hover:text-orange-800"
+            >
+              {brandOpen ? 'Close branding' : '✏️ Edit branding'}
+            </button>
           </div>
         </div>
 
@@ -195,6 +244,66 @@ export default function DynamicCodeCard({
           </div>
         </div>
       </div>
+
+      {/* Branding — this code's own, edited in place */}
+      {brandOpen && (
+        <div className="mt-4 border-t border-slate-100 pt-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="text-[11px] text-slate-500">
+              {code.design
+                ? 'This code’s own branding. Changing it re-draws this code and nothing else.'
+                : 'This code was made before codes kept their own branding, so it still follows the panel above. Saving here pins the look to this code.'}
+            </p>
+            {studioBrand && (
+              <button
+                type="button"
+                onClick={() => setDraft({ ...studioBrand, data: config.data, name: config.name })}
+                className="text-[11px] font-semibold text-slate-500 hover:text-orange-700"
+              >
+                Match branding for new codes
+              </button>
+            )}
+          </div>
+
+          <BrandingControls
+            config={draft}
+            onPatch={(patch) => setDraft((d) => ({ ...d, ...patch }))}
+            previewData={config.data}
+            previewCaption={`Preview · ${targetLabel(code.target_url)}`}
+            previewLabel={`Preview of ${code.name?.trim() || targetLabel(code.target_url)} with this branding`}
+            logo={{
+              mode: logoModeOf(draft, orgIcon),
+              orgIconAvailable: !!orgIcon,
+              onMode: (mode) =>
+                setDraft((d) =>
+                  mode === 'org'
+                    // No org mark? "Org icon" means the UNI·SIM mark fills the
+                    // centre — the same fallback the new-code panel applies.
+                    ? { ...d, logoDataUrl: orgIcon, unisimMark: !orgIcon }
+                    : { ...d, logoDataUrl: null, unisimMark: false },
+                ),
+              onUpload: (logo) => setDraft((d) => ({ ...d, logoDataUrl: logo, unisimMark: false })),
+            }}
+          />
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={onSaveBranding}
+              disabled={savingBrand}
+              className="rounded-lg bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800 disabled:opacity-50"
+            >
+              {savingBrand ? 'Saving…' : 'Save branding'}
+            </button>
+            <button type="button" onClick={() => { setBrandOpen(false); setBrandError(null) }} className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800">Cancel</button>
+            <p className="text-[11px] text-slate-400">
+              The link and the scan count are untouched — but anything already printed keeps the old look, so re-download it.
+            </p>
+          </div>
+          {brandError && <p className="mt-2 text-xs text-rose-600">{brandError}</p>}
+        </div>
+      )}
+
       {enlarged && <EnlargeModal config={config} onClose={() => setEnlarged(false)} />}
     </li>
   )

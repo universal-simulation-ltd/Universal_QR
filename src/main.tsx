@@ -25,7 +25,22 @@ if (import.meta.env.DEV) {
 // ship; RLS is the security boundary). A placeholder fallback left the SDK on a
 // dead project when the build lacked VITE_SUPABASE_* env, so the suite session
 // never resolved and the navbar showed no profile/avatar. Env vars override.
+// `?mockauth=1` swaps the SDK's Supabase client for its offline fixture world
+// (james@unisim.co.uk / KyJam91, org "UNI·SIM Demo"), so the signed-in half of
+// this app — the whole Dynamic tab — can be opened and driven with no network
+// and no real account. Without it a local dev session only ever sees the
+// "Sign in to create dynamic codes" curtain, because sign-in happens on the hub
+// and sets its cookie on `.unisim.co.uk`, not on localhost.
+//
+// ⚠️ Opt-in per page load AND fenced behind `import.meta.env.DEV`, which is
+// statically false in every shipped build, so the flag cannot be typed into a
+// URL on the live site or in the packaged app. The SDK adds a second guard of
+// its own (mockAuth is ignored whenever `cookieDomain` is set).
+const mockAuth =
+  import.meta.env.DEV && new URLSearchParams(window.location.search).has('mockauth')
+
 const universalConfig = {
+  mockAuth,
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL || 'https://rygfxgalojojppxmhddo.supabase.co',
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5Z2Z4Z2Fsb2pvanBweG1oZGRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NTY4MjUsImV4cCI6MjA5NDMzMjgyNX0.hLy_vt9vY_rdPKF3nL32yAuMCD604E3CH5VM7D7CaNE',
   // 'qr' isn't in the SDK's ProductCode union yet (it predates this app); the

@@ -1,15 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useUniversal, useUser, useCredits, useAppFreeToken, useFileDrop, useOrgBranding } from '@unisim/sdk'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding } from '@unisim/sdk'
 import { CONTAINER } from '../../lib/layout'
-import { DEFAULT_CONFIG, PRESETS, buildQrOptions, type QrConfig } from '@unisim/qr'
-import QRCodeStyling from 'qr-code-styling'
+import { DEFAULT_CONFIG, type QrDesign } from '@unisim/qr'
 import { useQrStore } from '../../stores/qrStore'
+import { downscaleDataUrl } from '../../lib/imageScale'
 import {
   createDynamicCode,
   deleteDynamicCode,
   listDynamicCodes,
   type DynamicCode,
 } from '../../lib/dynamicCodes'
+import BrandingControls, { type LogoMode } from './BrandingControls'
 import DynamicCodeCard from './DynamicCodeCard'
 
 const SIGNIN_URL = 'https://app.unisim.co.uk/login'
@@ -30,14 +31,6 @@ export default function DynamicStudio() {
   const dynamicBrand = useQrStore((s) => s.dynamicBrand)
   const setDynamicBrand = useQrStore((s) => s.setDynamicBrand)
   const resetDynamicBrand = useQrStore((s) => s.resetDynamicBrand)
-  // A chip in a row of chips, so no drop target here — the SDK just owns the
-  // input, which means re-picking the same logo still fires.
-  const logoPicker = useFileDrop({
-    onFiles: (files) => onUploadLogo(files[0]),
-    accept: 'image/*',
-    multiple: false,
-    clickToBrowse: false,
-  })
   // Branding is a lot of controls — keep it collapsed by default so the create
   // form and code list are front and centre.
   const [brandingOpen, setBrandingOpen] = useState(false)
@@ -56,14 +49,25 @@ export default function DynamicStudio() {
         fr.onerror = rej
         fr.readAsDataURL(blob)
       }))
+      // Downscaled on the way in: this data URI is copied into every code's
+      // saved design now (migration 0129), so a 4 MP org icon would be carried
+      // in full on every row and every list query rather than just on screen.
+      .then((d) => downscaleDataUrl(d))
       .then((d) => { if (alive) setOrgIcon(d) })
       .catch(() => { if (alive) setOrgIcon(orgIconUrl) }) // CORS-blocked: fall back to the URL
     return () => { alive = false }
   }, [orgIconUrl])
 
-  // Effective branding for every dynamic code: org colour + org icon by default,
+  // The branding a NEW code is born wearing: org colour + org icon by default,
   // with per-field overrides. Falls back to the standard UNI·SIM look when there's
   // no org branding (e.g. a personal account).
+  //
+  // ⚠️ It is no longer what existing codes are drawn in. Since migration 0129 a
+  // code keeps the design it was created with, so this panel sets a default and
+  // is a starting point for the per-code editor — it cannot reach back and
+  // re-skin a code that is already on a flyer. Codes made before that have no
+  // saved design and DO still follow it (see `dynamicQrConfig`), which is what
+  // keeps them looking exactly as they did.
   const brandColor = dynamicBrand.color ?? orgColor ?? DEFAULT_CONFIG.fgColor
   const brandLogo =
     dynamicBrand.logoMode === 'custom' ? dynamicBrand.logo
@@ -71,7 +75,7 @@ export default function DynamicStudio() {
         : orgIcon
   // Memoised so its object identity is stable while nothing changes — otherwise
   // the example preview + every code's QR would re-mount on each render.
-  const brandConfig = useMemo<QrConfig>(() => ({
+  const brandConfig = useMemo<QrDesign>(() => ({
     ...DEFAULT_CONFIG,
     fgColor: brandColor,
     bgColor: dynamicBrand.bgColor,
@@ -95,9 +99,12 @@ export default function DynamicStudio() {
   ])
   const hasOrgBranding = !!(orgColor || orgIcon)
 
-  // Apply one of the named style presets (Classic / Rounded / Dots /
-  // Sunset). It sets the module colour explicitly, so it stops following the org.
-  function applyPreset(patch: Partial<QrConfig>) {
+  // Fold a QrDesign patch from the shared controls back into the DynamicBrand
+  // store. The store is not a QrDesign — it carries the extra "follow the
+  // organisation" state a design has no way to express — so style and colour
+  // changes are translated field by field. Setting the module colour explicitly
+  // is what stops it following the org, which is why a preset does.
+  function applyConfigPatch(patch: Partial<QrDesign>) {
     const b: Partial<typeof dynamicBrand> = {}
     if (patch.fgColor !== undefined) b.color = patch.fgColor
     if (patch.bgColor !== undefined) b.bgColor = patch.bgColor
@@ -113,11 +120,8 @@ export default function DynamicStudio() {
     setDynamicBrand(b)
   }
 
-  function onUploadLogo(file: File | undefined) {
-    if (!file) return
-    const fr = new FileReader()
-    fr.onload = () => setDynamicBrand({ logoMode: 'custom', logo: String(fr.result) })
-    fr.readAsDataURL(file)
+  function onLogoMode(mode: LogoMode) {
+    setDynamicBrand({ logoMode: mode })
   }
 
   const [codes, setCodes] = useState<DynamicCode[] | null>(null)
@@ -173,16 +177,20 @@ export default function DynamicStudio() {
     setBusy(true)
     setError(null)
     try {
-      const res = await createDynamicCode(supabase, target, name)
+      // The branding goes in WITH the code. From here it belongs to that code
+      // and this panel cannot change it again — only the ✏️ on its own card can.
+      const res = await createDynamicCode(supabase, target, name, brandConfig)
       if (!res.ok) {
         setError(
-          res.error === 'no_credits'
-            ? 'You have no tokens left. Get more to create another dynamic code.'
-            : res.error === 'token_in_use'
-              ? `Your free QR token is already in use${res.heldBy ? ` (${res.heldBy})` : ''} — delete that code or add tokens.`
-              : res.error === 'no_org'
-                ? 'Your Universal ID has no organisation yet — open the hub once to finish setup.'
-                : res.error ?? 'Could not create this dynamic code.',
+          res.error === 'design_too_large'
+            ? 'That branding is too big to save — try a smaller centre logo.'
+            : res.error === 'no_credits'
+              ? 'You have no tokens left. Get more to create another dynamic code.'
+              : res.error === 'token_in_use'
+                ? `Your free QR token is already in use${res.heldBy ? ` (${res.heldBy})` : ''} — delete that code or add tokens.`
+                : res.error === 'no_org'
+                  ? 'Your Universal ID has no organisation yet — open the hub once to finish setup.'
+                  : res.error ?? 'Could not create this dynamic code.',
         )
       } else {
         setTarget('')
@@ -244,7 +252,8 @@ export default function DynamicStudio() {
         </div>
       ) : (
         <>
-        {/* Branding — a live example + controls; defaults to the org's, applies to every code */}
+        {/* Branding — a live example + controls; defaults to the org's, and is
+            what a NEW code is created wearing. Existing codes keep their own. */}
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-start justify-between gap-3">
             <button
@@ -257,11 +266,11 @@ export default function DynamicStudio() {
                 <path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <div className="min-w-0">
-                <h2 className="font-semibold text-slate-900 group-hover:text-orange-700">Code branding</h2>
+                <h2 className="font-semibold text-slate-900 group-hover:text-orange-700">Branding for new codes</h2>
                 <p className="mt-0.5 text-xs text-slate-500">
                   {hasOrgBranding
-                    ? 'Defaults to your organisation’s icon and colour — applies to every dynamic code, so a rebrand flows through automatically.'
-                    : 'Applies to every dynamic code. Add a logo and brand colour to your organisation and they’ll fill in here automatically.'}
+                    ? 'Defaults to your organisation’s icon and colour. Each code keeps the look it was created with — change an existing one with Edit branding on its card.'
+                    : 'Each code keeps the look it was created with — change an existing one with Edit branding on its card. Add a logo and brand colour to your organisation and they’ll fill in here automatically.'}
                 </p>
               </div>
             </button>
@@ -271,74 +280,23 @@ export default function DynamicStudio() {
           </div>
 
           {brandingOpen && (
-          <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-start">
-            {/* Live example (points at unisim.co.uk) — a large, contained square */}
-            <div className="flex shrink-0 flex-col items-center gap-1.5 self-center sm:self-start">
-              <BrandPreview config={brandConfig} />
-              <p className="text-center text-[11px] text-slate-400">Example · unisim.co.uk</p>
-            </div>
-
-            {/* Controls */}
-            <div className="min-w-0 flex-1 space-y-4">
-              <div>
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Style</span>
-                <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  {PRESETS.map((p) => (
-                    <BrandChip key={p.name} active={false} onClick={() => applyPreset(p.patch)}>{p.name}</BrandChip>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-                <ColorField label="Modules" value={brandColor} onChange={(v) => setDynamicBrand({ color: v })}>
-                  {dynamicBrand.color != null && orgColor
-                    ? <button type="button" onClick={() => setDynamicBrand({ color: null })} className="text-[11px] font-semibold text-slate-400 hover:text-orange-700">use org</button>
-                    : null}
-                </ColorField>
-                <ColorField label="Background" value={dynamicBrand.bgColor} onChange={(v) => setDynamicBrand({ bgColor: v })} disabled={dynamicBrand.bgTransparent} />
-                <label className="flex items-center gap-1.5 text-xs text-slate-600">
-                  <input type="checkbox" checked={dynamicBrand.bgTransparent} onChange={(e) => setDynamicBrand({ bgTransparent: e.target.checked })} /> Transparent
-                </label>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-                <label className="flex items-center gap-1.5 text-sm text-slate-700">
-                  <input type="checkbox" checked={dynamicBrand.useGradient} onChange={(e) => setDynamicBrand({ useGradient: e.target.checked })} /> <span className="font-medium">Gradient</span>
-                </label>
-                {dynamicBrand.useGradient && (
-                  <>
-                    <ColorField label="End" value={dynamicBrand.gradientColor} onChange={(v) => setDynamicBrand({ gradientColor: v })} />
-                    <label className="flex items-center gap-2 text-xs text-slate-600">Angle
-                      <input type="range" min={0} max={360} step={5} value={dynamicBrand.gradientRotation} onChange={(e) => setDynamicBrand({ gradientRotation: Number(e.target.value) })} className="w-24 accent-orange-600" />
-                      <span className="tabular-nums">{dynamicBrand.gradientRotation}°</span>
-                    </label>
-                  </>
-                )}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-                <label className="flex items-center gap-1.5 text-sm text-slate-700">
-                  <input type="checkbox" checked={dynamicBrand.twoTone} onChange={(e) => setDynamicBrand({ twoTone: e.target.checked })} /> <span className="font-medium">Two-tone corners</span>
-                </label>
-                {dynamicBrand.twoTone && <ColorField label="Corners" value={dynamicBrand.cornerColor} onChange={(v) => setDynamicBrand({ cornerColor: v })} />}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="text-sm font-medium text-slate-700">Centre logo</span>
-                <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded border border-slate-200 bg-slate-50">
-                  {brandLogo
-                    ? <img src={brandLogo} alt="" className="h-full w-full object-contain" />
-                    : <span className="text-[8px] font-semibold text-slate-400">{brandConfig.unisimMark ? 'UNI·SIM' : 'none'}</span>}
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  <BrandChip active={dynamicBrand.logoMode === 'org'} disabled={!orgIcon} onClick={() => setDynamicBrand({ logoMode: 'org' })}>Org icon</BrandChip>
-                  <BrandChip active={dynamicBrand.logoMode === 'custom'} onClick={logoPicker.open}>Upload…</BrandChip>
-                  <BrandChip active={dynamicBrand.logoMode === 'none'} onClick={() => setDynamicBrand({ logoMode: 'none' })}>None</BrandChip>
-                </div>
-                <input {...logoPicker.inputProps} className="hidden" />
-              </div>
-            </div>
-          </div>
+            <BrandingControls
+              config={brandConfig}
+              onPatch={applyConfigPatch}
+              previewData="https://www.unisim.co.uk"
+              previewCaption="Example · unisim.co.uk"
+              previewLabel="Example dynamic QR with your branding"
+              logo={{
+                mode: dynamicBrand.logoMode,
+                orgIconAvailable: !!orgIcon,
+                onMode: onLogoMode,
+                onUpload: (logo) => setDynamicBrand({ logoMode: 'custom', logo }),
+              }}
+              colorFollowsOrg={{
+                canFollow: dynamicBrand.color != null && !!orgColor,
+                onFollow: () => setDynamicBrand({ color: null }),
+              }}
+            />
           )}
         </section>
 
@@ -414,7 +372,15 @@ export default function DynamicStudio() {
             ) : (
               <ul className="space-y-3">
                 {codes.map((c) => (
-                  <DynamicCodeCard key={c.id} code={c} brand={brandConfig} busy={busy} onChanged={refreshList} onDelete={onDelete} />
+                  <DynamicCodeCard
+                    key={c.id}
+                    code={c}
+                    studioBrand={brandConfig}
+                    orgIcon={orgIcon}
+                    busy={busy}
+                    onChanged={refreshList}
+                    onDelete={onDelete}
+                  />
                 ))}
               </ul>
             )}
@@ -423,64 +389,5 @@ export default function DynamicStudio() {
         </>
       )}
     </div>
-  )
-}
-
-// A live example of the current branding, encoding the UNI·SIM site so the
-// preview always has something to render.
-function BrandPreview({ config }: { config: QrConfig }) {
-  const holderRef = useRef<HTMLDivElement>(null)
-  const key = JSON.stringify(config)
-  useEffect(() => {
-    const qr = new QRCodeStyling(buildQrOptions({ ...config, data: 'https://www.unisim.co.uk', size: 360, margin: 8 }))
-    if (holderRef.current) {
-      holderRef.current.innerHTML = ''
-      qr.append(holderRef.current)
-      const canvas = holderRef.current.querySelector('canvas')
-      if (canvas) { canvas.style.width = '100%'; canvas.style.height = '100%'; canvas.style.display = 'block'; canvas.style.objectFit = 'contain' }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key])
-  return (
-    <div className="grid aspect-square w-full max-w-[16rem] place-items-center rounded-xl border border-slate-200 bg-white p-2 sm:w-64">
-      <div ref={holderRef} role="img" aria-label="Example dynamic QR with your branding" className="h-full w-full leading-[0]" />
-    </div>
-  )
-}
-
-// A labelled colour swatch with an optional trailing control.
-function ColorField({ label, value, onChange, disabled, children }: { label: string; value: string; onChange: (v: string) => void; disabled?: boolean; children?: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm font-medium text-slate-700">{label}</span>
-      <input
-        type="color"
-        value={value}
-        disabled={disabled}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-white p-0.5 disabled:opacity-40"
-        aria-label={label}
-      />
-      {children}
-    </div>
-  )
-}
-
-// A small toggle chip for the branding logo-source choice.
-function BrandChip({ active, disabled, onClick, children }: { active: boolean; disabled?: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-pressed={active}
-      className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors disabled:opacity-40 ${
-        active
-          ? 'border-orange-500 bg-orange-50 text-orange-700'
-          : 'border-slate-300 text-slate-600 hover:bg-slate-50'
-      }`}
-    >
-      {children}
-    </button>
   )
 }
