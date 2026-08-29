@@ -19,7 +19,8 @@ your last design is remembered locally.
   (`npm run dist`), and a `capacitor.config.ts` exists for native mobile
   packaging. Desktop apps are shipped unsigned per suite policy.
 - **UNI·SIM mark:** generated codes carry a small UNI·SIM mark by default
-  (baked into `src/lib/unisimMark.ts`); it can be toggled off.
+  (baked into `@unisim/qr`, which this app takes its design model and
+  renderer from); it can be toggled off.
 
 MIT licensed — free and open source, like all Universal Apps.
 
