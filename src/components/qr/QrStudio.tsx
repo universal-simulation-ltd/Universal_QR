@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useFileDrop, useUniversal } from '@unisim/sdk'
 import Controls from './Controls'
 import QrPreview from './QrPreview'
@@ -74,9 +74,9 @@ export default function QrStudio() {
   const reset = useQrStore((s) => s.reset)
   const presetName = useQrStore((s) => s.presetName)
   const setHostedStoreOpen = useQrStore((s) => s.setHostedStoreOpen)
-  const [format, setFormat] = useState<ExportFormat>('png')
   const [busy, setBusy] = useState(false)
   const [copied, setCopied] = useState<'idle' | 'ok' | 'fail'>('idle')
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const codeType = useQrStore((s) => s.codeType)
   const setCodeType = useQrStore((s) => s.setCodeType)
@@ -103,8 +103,9 @@ export default function QrStudio() {
   // treated as already having company branding, so they don't get nudged.
   const brandingNudge = !brandingChanged && !signedIn
 
-  async function onDownload() {
+  async function onDownload(format: ExportFormat) {
     if (!hasData || busy) return
+    setMenuOpen(false)
     setBusy(true)
     try {
       if (isBarcode) {
@@ -133,6 +134,7 @@ export default function QrStudio() {
 
   async function onCopy() {
     if (!hasData) return
+    setMenuOpen(false)
     const ok = isBarcode ? await copyBarcode() : await copyQrToClipboard(config)
     setCopied(ok ? 'ok' : 'fail')
     setTimeout(() => setCopied('idle'), 1800)
@@ -218,69 +220,30 @@ export default function QrStudio() {
               <QrPreview />
             )}
 
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
-              <div>
-                <span className="block text-sm font-medium text-slate-700 mb-1.5">Format</span>
-                <div className={`grid gap-1.5 ${isBarcode ? 'grid-cols-2' : 'grid-cols-4'}`}>
-                  {(isBarcode ? BARCODE_FORMATS : FORMATS).map((f) => (
-                    <button
-                      key={f.value}
-                      type="button"
-                      onClick={() => setFormat(f.value)}
-                      className={`px-2 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                        format === f.value
-                          ? 'border-orange-500 bg-orange-50 text-orange-700'
-                          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                      }`}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+            {/* One button, one arrow. PNG is what nearly everyone wants, so it
+                is the whole of the visible export UI; the other formats, the
+                clipboard and the backup dialog live behind the caret. */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2">
+              <ExportButton
+                busy={busy}
+                hasData={hasData}
+                isBarcode={isBarcode}
+                menuOpen={menuOpen}
+                setMenuOpen={setMenuOpen}
+                onDownload={onDownload}
+                onCopy={onCopy}
+                onBackUp={() => {
+                  setMenuOpen(false)
+                  setHostedStoreOpen(true)
+                }}
+              />
 
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={onDownload}
-                  disabled={!hasData || busy}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-orange-700 text-white text-sm font-semibold shadow-sm hover:bg-orange-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 16h12" />
-                  </svg>
-                  {busy ? 'Preparing…' : `Download ${format.toUpperCase()}`}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setHostedStoreOpen(true)}
-                  title="Back up — save to this device or online"
-                  aria-label="Back up"
-                  className="shrink-0 inline-flex items-center justify-center px-3 rounded-xl border border-slate-300 text-slate-500 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                >
-                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                    <path d="M17 21v-8H7v8" />
-                    <path d="M7 3v5h8" />
-                  </svg>
-                </button>
-              </div>
-
-              <button
-                type="button"
-                onClick={onCopy}
-                disabled={!hasData}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 disabled:opacity-50 transition-colors"
-              >
+              <p className="text-xs text-slate-500 text-center">
                 {copied === 'ok'
                   ? '✓ Copied to clipboard'
                   : copied === 'fail'
                     ? 'Copy not supported — use Download'
-                    : 'Copy PNG to clipboard'}
-              </button>
-
-              <p className="text-xs text-slate-500 text-center">
-                Always scan-test before printing at small sizes.
+                    : 'Always scan-test before printing at small sizes.'}
               </p>
             </div>
           </div>
@@ -289,6 +252,183 @@ export default function QrStudio() {
 
       <HostedStoreDialog />
     </div>
+  )
+}
+
+/** Split button: "Download PNG" plus a caret holding everything else.
+ *
+ *  Replaced a four-button format grid, a second backup button and a full-width
+ *  "Copy PNG" row (2026-08-29, owner ask) — three stacked controls for choices
+ *  almost nobody changes, sitting under the one thing the page is for. The
+ *  other formats download straight from the menu rather than arming a format
+ *  the primary button then has to explain, so the visible label never changes.
+ */
+function ExportButton({
+  busy,
+  hasData,
+  isBarcode,
+  menuOpen,
+  setMenuOpen,
+  onDownload,
+  onCopy,
+  onBackUp,
+}: {
+  busy: boolean
+  hasData: boolean
+  isBarcode: boolean
+  menuOpen: boolean
+  setMenuOpen: (open: boolean) => void
+  onDownload: (format: ExportFormat) => void
+  onCopy: () => void
+  onBackUp: () => void
+}) {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [dropUp, setDropUp] = useState(false)
+
+  // Close on a click anywhere else, or on Escape. Both listeners only exist
+  // while the menu is open.
+  useEffect(() => {
+    if (!menuOpen) return
+    function onPointerDown(e: MouseEvent) {
+      if (!wrapRef.current?.contains(e.target as Node)) setMenuOpen(false)
+    }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [menuOpen, setMenuOpen])
+
+  const otherFormats = (isBarcode ? BARCODE_FORMATS : FORMATS).filter((f) => f.value !== 'png')
+
+  // This card is the last thing in the right-hand column, and the page under it
+  // is usually too short to scroll — so a menu that always dropped DOWN had its
+  // last two items (Copy, Back up) cut off by the bottom of the window with no
+  // way to reach them. Measure on open and flip above the button when the room
+  // isn't there; the header and item heights below are the Tailwind ones.
+  function toggle() {
+    if (!menuOpen) {
+      const rect = wrapRef.current?.getBoundingClientRect()
+      const height = 48 + (otherFormats.length + 2) * 37 + 9
+      setDropUp(!!rect && window.innerHeight - rect.bottom < height + 16)
+    }
+    setMenuOpen(!menuOpen)
+  }
+
+  return (
+    <div ref={wrapRef} className="relative">
+      <div className="flex">
+        <button
+          type="button"
+          onClick={() => onDownload('png')}
+          disabled={!hasData || busy}
+          className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-l-xl bg-orange-700 text-white text-sm font-semibold shadow-sm hover:bg-orange-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 16h12" />
+          </svg>
+          {busy ? 'Preparing…' : 'Download PNG'}
+        </button>
+        <button
+          type="button"
+          onClick={toggle}
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          aria-label="More export options"
+          title="More options"
+          className="shrink-0 inline-flex items-center justify-center w-11 rounded-r-xl border-l border-orange-800/40 bg-orange-700 text-white shadow-sm hover:bg-orange-800 transition-colors"
+        >
+          <svg
+            viewBox="0 0 20 20"
+            className={`w-4 h-4 transition-transform ${menuOpen ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 7.5l5 5 5-5" />
+          </svg>
+        </button>
+      </div>
+
+      {menuOpen && (
+        <div
+          role="menu"
+          className={`absolute right-0 z-20 w-full min-w-[15rem] overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg ${
+            dropUp ? 'bottom-full mb-2' : 'mt-2'
+          }`}
+        >
+          <p className="px-3 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+            Download as
+          </p>
+          {otherFormats.map((f) => (
+            <MenuItem
+              key={f.value}
+              disabled={!hasData || busy}
+              onClick={() => onDownload(f.value)}
+              icon={
+                <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 16h12" />
+              }
+            >
+              {f.label}
+            </MenuItem>
+          ))}
+
+          <div className="my-1 border-t border-slate-100" />
+
+          <MenuItem
+            disabled={!hasData}
+            onClick={onCopy}
+            icon={
+              <path d="M7 7V4h9v9h-3 M4 7h9v9H4V7z" />
+            }
+          >
+            Copy PNG to clipboard
+          </MenuItem>
+          <MenuItem
+            onClick={onBackUp}
+            icon={
+              <path d="M16 17H4a1.5 1.5 0 0 1-1.5-1.5v-11A1.5 1.5 0 0 1 4 3h8l4 4v8.5A1.5 1.5 0 0 1 16 17z M14 17v-6H6v6 M6 3v4h6" />
+            }
+          >
+            Back up online to unisim.co.uk
+          </MenuItem>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function MenuItem({
+  children,
+  icon,
+  onClick,
+  disabled,
+}: {
+  children: ReactNode
+  icon: ReactNode
+  onClick: () => void
+  disabled?: boolean
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      disabled={disabled}
+      className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-orange-50/70 hover:text-orange-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-slate-700 transition-colors"
+    >
+      <svg viewBox="0 0 20 20" className="w-4 h-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        {icon}
+      </svg>
+      {children}
+    </button>
   )
 }
 
