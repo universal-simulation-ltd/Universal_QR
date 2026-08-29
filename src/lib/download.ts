@@ -2,6 +2,7 @@ import QRCodeStyling from 'qr-code-styling'
 import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark, type ExportFormat, type QrConfig } from '@unisim/qr'
 import { composeShapedCanvas, composeShapedSvg } from '@unisim/qr'
 import { UNISIM_MARK } from '@unisim/qr'
+import { saveBlob } from './saveFile'
 
 /** Slugify the QR's name into a safe filename stem. */
 export function fileStem(name: string): string {
@@ -94,17 +95,9 @@ export async function renderPngDataUrl(config: QrConfig, size: number): Promise<
   return blobToDataUrl(blob)
 }
 
-function triggerDownload(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  document.body.appendChild(a)
-  a.click()
-  a.remove()
-  // Give the browser a tick to start the download before revoking.
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
-}
+// A download in a browser, the share sheet on a phone — see `saveFile.ts` for
+// why the two cannot be the same thing.
+const triggerDownload = saveBlob
 
 const MIME: Record<Exclude<ExportFormat, 'svg'>, string> = {
   png: 'image/png',
