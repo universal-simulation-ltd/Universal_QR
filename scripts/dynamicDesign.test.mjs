@@ -98,6 +98,31 @@ eq(dynamicQrConfig(row({ design: SAVED }), STUDIO).dotType, 'dots', 'every field
 eq(dynamicQrConfig(row(), STUDIO).fgColor, '#abcdef', 'a pre-0129 code with no design still follows the studio')
 eq(dynamicQrConfig(row()).fgColor, DEFAULT_CONFIG.fgColor, 'and the suite default when there is no studio branding either')
 
+// The shaped-plate fields, end to end. Not a duplicate of the colour cases
+// above: the Star preset is the only style whose whole point lives in fields a
+// hand-written field list is likely to omit, and it is exactly what got lost —
+// the Dynamic tab's branding store translated a design patch key by key and had
+// no case for any of these, so picking Star set nothing, saved nothing and drew
+// a plain square code with no error anywhere. These pin the path a Star design
+// takes from the editor to the card: saved verbatim, hydrated whole, and still
+// a star once the row's payload and label are stamped over it.
+const STAR = {
+  ...DEFAULT_CONFIG,
+  frameShape: 'star',
+  starPlacement: 'behind',
+  starColor: '#e05504',
+  decorStyle: 'burst',
+  matchDecorColor: true,
+}
+
+console.log('\nthe shape survives the whole round trip:')
+for (const key of ['frameShape', 'starPlacement', 'starColor', 'decorStyle', 'matchDecorColor']) {
+  eq(storableDesign(STAR)[key], STAR[key], `storableDesign keeps ${key}`)
+  eq(hydrateDesign(storableDesign(STAR))[key], STAR[key], `it comes back off the row: ${key}`)
+  eq(dynamicQrConfig(row({ design: hydrateDesign(storableDesign(STAR)) }))[key], STAR[key], `and reaches the card: ${key}`)
+}
+eq(dynamicQrConfig(row({ design: STAR }), STUDIO).frameShape, 'star', 'a star code stays a star when studio branding is square')
+
 console.log('\ndynamicQrConfig (rule 2 — the payload and label are the ROW’s):')
 eq(
   dynamicQrConfig(row({ design: { ...SAVED, data: 'https://stale.example', name: 'Stale name' } }), STUDIO).data,

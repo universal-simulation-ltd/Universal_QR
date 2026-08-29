@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import QRCodeStyling from 'qr-code-styling'
+import { useEffect, useMemo, useState } from 'react'
 import { useUniversal } from '@unisim/sdk'
-import { buildQrOptions, type QrDesign } from '@unisim/qr'
+import { type QrDesign } from '@unisim/qr'
+import QrCanvas from './QrCanvas'
 import { downloadQr } from '../../lib/download'
 import EnlargeModal from './EnlargeModal'
 import BrandingControls from './BrandingControls'
@@ -44,9 +44,6 @@ export default function DynamicCodeCard({
   const { supabase } = useUniversal()
   const config = useMemo(() => dynamicQrConfig(code, studioBrand), [code, studioBrand])
 
-  const holderRef = useRef<HTMLDivElement>(null)
-  const qrRef = useRef<QRCodeStyling | null>(null)
-
   const [editing, setEditing] = useState(false)
   const [draftUrl, setDraftUrl] = useState(code.target_url)
   const [saving, setSaving] = useState(false)
@@ -62,23 +59,6 @@ export default function DynamicCodeCard({
   const [brandError, setBrandError] = useState<string | null>(null)
 
   const link = redirectUrl(code.code)
-
-  // Mount the QR once and keep it in sync with the (rarely-changing) config.
-  useEffect(() => {
-    const qr = new QRCodeStyling(buildQrOptions({ ...config, size: 256, margin: 8 }))
-    qrRef.current = qr
-    if (holderRef.current) {
-      holderRef.current.innerHTML = ''
-      qr.append(holderRef.current)
-      const canvas = holderRef.current.querySelector('canvas')
-      if (canvas) {
-        canvas.style.width = '100%'
-        canvas.style.height = 'auto'
-        canvas.style.display = 'block'
-      }
-    }
-    return () => { qrRef.current = null }
-  }, [config])
 
   // Pull the 30-day scan history for the sparkline.
   useEffect(() => {
@@ -146,7 +126,13 @@ export default function DynamicCodeCard({
             title="Tap to enlarge"
             aria-label={`Enlarge QR code for ${targetLabel(code.target_url)}`}
           >
-            <div ref={holderRef} role="img" aria-label={`Dynamic QR code for ${targetLabel(code.target_url)}`} className="leading-[0]" />
+            <QrCanvas
+              config={config}
+              size={256}
+              margin={8}
+              label={`Dynamic QR code for ${targetLabel(code.target_url)}`}
+              className="leading-[0]"
+            />
           </button>
           <div className="mt-2 flex justify-center gap-2">
             <button type="button" onClick={() => downloadQr({ ...config, size: 1024 }, 'png')} className="text-[11px] font-semibold text-slate-500 hover:text-orange-700">PNG</button>

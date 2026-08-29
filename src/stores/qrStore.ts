@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { DEFAULT_CONFIG, randomPreset, type QrConfig, type DotType, type CornerSquareType, type CornerDotType } from '@unisim/qr'
+import { DEFAULT_CONFIG, randomPreset, type QrConfig } from '@unisim/qr'
 import type { BarcodeSymbology } from '../lib/barcode'
 
 export type StudioMode = 'simple' | 'branding' | 'advanced'
@@ -24,6 +24,21 @@ export type StudioView = 'static' | 'dynamic' | 'scan'
  * organisation's branding (its 1:1 icon in the centre + brand colour); each
  * field can be overridden. `color: null` / `logoMode: 'org'` mean "follow the
  * organisation" — so a rebrand flows through without re-editing every code.
+ *
+ * ⚠️ `design` is ONE opaque bag on purpose. It used to be a hand-written mirror
+ * of the QrDesign fields the branding controls can change — bgColor, dotType,
+ * twoTone and so on — and every field added to the design model after that list
+ * was written simply fell on the floor between the two. That is not theory: it
+ * is why picking **Star** in this panel did nothing at all for months. The chip
+ * patched `frameShape: 'star'`, the translation had no case for it, and the
+ * user got a plain square code with no error anywhere. `starPlacement`,
+ * `starColor`, `decorStyle`, `matchDecorColor` and `logoSize` were lost the
+ * same way.
+ *
+ * So: everything the shared controls patch is kept verbatim, and only the two
+ * things a QrDesign genuinely cannot express — "follow the organisation's
+ * colour" and "follow the organisation's icon" — stay as fields of their own.
+ * A new design field now needs no change here at all.
  */
 export interface DynamicBrand {
   /** Module colour, or null to use the org brand colour (falling back to the default). */
@@ -32,32 +47,15 @@ export interface DynamicBrand {
   logoMode: 'org' | 'custom' | 'none'
   /** Custom logo data URL (used when logoMode === 'custom'). */
   logo: string | null
-  bgColor: string
-  bgTransparent: boolean
-  useGradient: boolean
-  gradientColor: string
-  gradientRotation: number
-  /** Corners a different colour from the modules. */
-  twoTone: boolean
-  cornerColor: string
-  dotType: DotType
-  cornerSquareType: CornerSquareType
-  cornerDotType: CornerDotType
+  /** Every other design field, exactly as the branding controls patch it.
+   *  Merged over DEFAULT_CONFIG to build the design a new code is born in. */
+  design: Partial<QrConfig>
 }
 export const DEFAULT_DYNAMIC_BRAND: DynamicBrand = {
   color: null,
   logoMode: 'org',
   logo: null,
-  bgColor: DEFAULT_CONFIG.bgColor,
-  bgTransparent: DEFAULT_CONFIG.bgTransparent,
-  useGradient: DEFAULT_CONFIG.useGradient,
-  gradientColor: DEFAULT_CONFIG.gradientColor,
-  gradientRotation: DEFAULT_CONFIG.gradientRotation,
-  twoTone: false,
-  cornerColor: DEFAULT_CONFIG.cornerColor,
-  dotType: DEFAULT_CONFIG.dotType,
-  cornerSquareType: DEFAULT_CONFIG.cornerSquareType,
-  cornerDotType: DEFAULT_CONFIG.cornerDotType,
+  design: {},
 }
 
 interface QrState {
@@ -116,6 +114,10 @@ interface QrState {
   /** Branding for the hosted Dynamic codes (defaults to the org's). */
   dynamicBrand: DynamicBrand
   setDynamicBrand: (patch: Partial<DynamicBrand>) => void
+  /** Merge a design patch from the branding controls into `dynamicBrand.design`.
+   *  Separate from `setDynamicBrand` because that shallow-merges, which would
+   *  make a one-field patch REPLACE the whole design. */
+  patchDynamicDesign: (patch: Partial<QrConfig>) => void
   resetDynamicBrand: () => void
   /** "Hosted by UNI·SIM" cloud-store dialog open state (not persisted). */
   hostedStoreOpen: boolean
@@ -155,6 +157,8 @@ export const useQrStore = create<QrState>()(
       reset: () => set((s) => ({ config: DEFAULT_CONFIG, mode: s.mode, presetName: null })),
       dynamicBrand: DEFAULT_DYNAMIC_BRAND,
       setDynamicBrand: (patch) => set((s) => ({ dynamicBrand: { ...s.dynamicBrand, ...patch } })),
+      patchDynamicDesign: (patch) =>
+        set((s) => ({ dynamicBrand: { ...s.dynamicBrand, design: { ...s.dynamicBrand.design, ...patch } } })),
       resetDynamicBrand: () => set({ dynamicBrand: DEFAULT_DYNAMIC_BRAND }),
       hostedStoreOpen: false,
       setHostedStoreOpen: (hostedStoreOpen) => set({ hostedStoreOpen }),
@@ -167,7 +171,7 @@ export const useQrStore = create<QrState>()(
     }),
     {
       name: 'universal-qr:config',
-      version: 8,
+      version: 9,
       // The content persists; the tabs deliberately do NOT (and the style is
       // re-rolled on load — see onRehydrateStorage). Every load opens the
       // Simple panel of the static designer, because that is the clean front
@@ -251,6 +255,23 @@ export const useQrStore = create<QrState>()(
             ...p.config,
             starPlacement: p.config.starPlacement ?? 'inside',
             starColor: p.config.starColor ?? DEFAULT_CONFIG.starColor
+          }
+        }
+        // v9 folded DynamicBrand's hand-mirrored style fields into one `design`
+        // bag — see the interface. The old record's fields are exactly the
+        // QrDesign keys they were named after, with one exception: `twoTone` was
+        // the INVERSE of `matchCornerColor`, and reading a missing one as false
+        // would give every returning user two-tone corners they never chose.
+        if (version < 9 && p.dynamicBrand && !(p.dynamicBrand as { design?: unknown }).design) {
+          const old = p.dynamicBrand as Partial<DynamicBrand> & {
+            twoTone?: boolean
+          } & Partial<QrConfig>
+          const { color, logoMode, logo, twoTone, ...style } = old
+          p.dynamicBrand = {
+            color: color ?? null,
+            logoMode: logoMode ?? 'org',
+            logo: logo ?? null,
+            design: { ...style, matchCornerColor: twoTone !== true },
           }
         }
         return p as unknown as QrState

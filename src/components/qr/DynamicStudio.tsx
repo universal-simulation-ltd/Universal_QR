@@ -30,6 +30,7 @@ export default function DynamicStudio() {
   const setView = useQrStore((s) => s.setView)
   const dynamicBrand = useQrStore((s) => s.dynamicBrand)
   const setDynamicBrand = useQrStore((s) => s.setDynamicBrand)
+  const patchDynamicDesign = useQrStore((s) => s.patchDynamicDesign)
   const resetDynamicBrand = useQrStore((s) => s.resetDynamicBrand)
   // Branding is a lot of controls — keep it collapsed by default so the create
   // form and code list are front and centre.
@@ -75,49 +76,31 @@ export default function DynamicStudio() {
         : orgIcon
   // Memoised so its object identity is stable while nothing changes — otherwise
   // the example preview + every code's QR would re-mount on each render.
+  //
+  // The design bag goes on FIRST and the org-aware fields over the top: a
+  // module colour the user picked lives in `dynamicBrand.color`, and pressing
+  // "use org" clears it, which has to beat whatever `design.fgColor` a preset
+  // left behind. `cornerColor` needs no such treatment — the renderer resolves
+  // `matchCornerColor ? fgColor : cornerColor`, so a matched corner already
+  // follows the module colour wherever it came from.
   const brandConfig = useMemo<QrDesign>(() => ({
     ...DEFAULT_CONFIG,
+    ...dynamicBrand.design,
     fgColor: brandColor,
-    bgColor: dynamicBrand.bgColor,
-    bgTransparent: dynamicBrand.bgTransparent,
-    useGradient: dynamicBrand.useGradient,
-    gradientColor: dynamicBrand.gradientColor,
-    gradientRotation: dynamicBrand.gradientRotation,
-    matchCornerColor: !dynamicBrand.twoTone,
-    cornerColor: dynamicBrand.twoTone ? dynamicBrand.cornerColor : brandColor,
-    dotType: dynamicBrand.dotType,
-    cornerSquareType: dynamicBrand.cornerSquareType,
-    cornerDotType: dynamicBrand.cornerDotType,
     logoDataUrl: brandLogo,
     unisimMark: dynamicBrand.logoMode === 'org' && !orgIcon, // UNI·SIM mark only when nothing else fills the centre
-  }), [
-    brandColor, brandLogo, orgIcon,
-    dynamicBrand.bgColor, dynamicBrand.bgTransparent, dynamicBrand.useGradient,
-    dynamicBrand.gradientColor, dynamicBrand.gradientRotation, dynamicBrand.twoTone,
-    dynamicBrand.cornerColor, dynamicBrand.dotType, dynamicBrand.cornerSquareType,
-    dynamicBrand.cornerDotType, dynamicBrand.logoMode,
-  ])
+  }), [brandColor, brandLogo, orgIcon, dynamicBrand.design, dynamicBrand.logoMode])
   const hasOrgBranding = !!(orgColor || orgIcon)
 
-  // Fold a QrDesign patch from the shared controls back into the DynamicBrand
-  // store. The store is not a QrDesign — it carries the extra "follow the
-  // organisation" state a design has no way to express — so style and colour
-  // changes are translated field by field. Setting the module colour explicitly
-  // is what stops it following the org, which is why a preset does.
+  // Fold a QrDesign patch from the shared controls into the DynamicBrand store.
+  //
+  // The patch is kept WHOLE (see the store's `design` bag): translating it
+  // field by field is what silently swallowed the Star preset's `frameShape`.
+  // The one thing still read out of it is the module colour — setting that
+  // explicitly is what stops the code following the organisation's.
   function applyConfigPatch(patch: Partial<QrDesign>) {
-    const b: Partial<typeof dynamicBrand> = {}
-    if (patch.fgColor !== undefined) b.color = patch.fgColor
-    if (patch.bgColor !== undefined) b.bgColor = patch.bgColor
-    if (patch.bgTransparent !== undefined) b.bgTransparent = patch.bgTransparent
-    if (patch.useGradient !== undefined) b.useGradient = patch.useGradient
-    if (patch.gradientColor !== undefined) b.gradientColor = patch.gradientColor
-    if (patch.gradientRotation !== undefined) b.gradientRotation = patch.gradientRotation
-    if (patch.matchCornerColor !== undefined) b.twoTone = patch.matchCornerColor === false
-    if (patch.cornerColor !== undefined) b.cornerColor = patch.cornerColor
-    if (patch.dotType !== undefined) b.dotType = patch.dotType
-    if (patch.cornerSquareType !== undefined) b.cornerSquareType = patch.cornerSquareType
-    if (patch.cornerDotType !== undefined) b.cornerDotType = patch.cornerDotType
-    setDynamicBrand(b)
+    patchDynamicDesign(patch)
+    if (patch.fgColor !== undefined) setDynamicBrand({ color: patch.fgColor })
   }
 
   function onLogoMode(mode: LogoMode) {

@@ -1,7 +1,6 @@
-import { useEffect, useRef } from 'react'
-import QRCodeStyling from 'qr-code-styling'
 import { useFileDrop } from '@unisim/sdk'
-import { PRESETS, buildQrOptions, type QrDesign } from '@unisim/qr'
+import { PRESETS, type QrDesign } from '@unisim/qr'
+import QrCanvas from './QrCanvas'
 import { downscaleDataUrl } from '../../lib/imageScale'
 
 // The branding control set for a hosted dynamic code — a live preview plus the
@@ -158,21 +157,15 @@ export default function BrandingControls({
 // encoded — the UNI·SIM site for the studio's example, the code's own redirect
 // when a single card is being re-skinned.
 function BrandPreview({ config, data, label }: { config: QrDesign; data: string; label: string }) {
-  const holderRef = useRef<HTMLDivElement>(null)
-  const key = JSON.stringify({ ...config, data })
-  useEffect(() => {
-    const qr = new QRCodeStyling(buildQrOptions({ ...config, data, size: 360, margin: 8 }))
-    if (holderRef.current) {
-      holderRef.current.innerHTML = ''
-      qr.append(holderRef.current)
-      const canvas = holderRef.current.querySelector('canvas')
-      if (canvas) { canvas.style.width = '100%'; canvas.style.height = '100%'; canvas.style.display = 'block'; canvas.style.objectFit = 'contain' }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key])
   return (
     <div className="grid aspect-square w-full max-w-[16rem] place-items-center rounded-xl border border-slate-200 bg-white p-2 sm:w-64">
-      <div ref={holderRef} role="img" aria-label={label} className="h-full w-full leading-[0]" />
+      <QrCanvas
+        config={{ ...config, data }}
+        size={360}
+        margin={8}
+        label={label}
+        className="h-full w-full leading-[0]"
+      />
     </div>
   )
 }
