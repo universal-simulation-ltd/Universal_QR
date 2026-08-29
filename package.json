@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@unisim/qr": "^0.1.0",
-    "@unisim/sdk": "^0.116.0",
+    "@unisim/sdk": "^0.122.2",
     "@zxing/browser": "^0.2.1",
     "bwip-js": "^4.11.2",
     "qr-code-styling": "^1.9.2",

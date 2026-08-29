@@ -1,3 +1,4 @@
+import { AdvancedMenu } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 
 // The per-app actions that slot into <UniversalAppsNavBar />'s `actions` prop —
@@ -32,6 +33,19 @@ export default function AppMenu() {
         tint={TINTS.danger}
         onClick={() => { if (confirm('Reset all settings to the defaults?')) reset() }}
         label="Reset to defaults"
+      />
+
+      {/* Advanced — the SDK's own category, so every app in the suite has one in
+          the same place, and whatever goes in it next is one change rather than
+          nineteen. "About this app" is always its last row. */}
+      <AdvancedMenu
+        about={{
+          repo:    'https://github.com/universal-simulation-ltd/Universal_QR',
+          subject: 'What you type',
+          except:  'a code you save to your account',
+          headline: 'Other QR sites build your code on their servers — and a dynamic one can be changed or tracked later.',
+          version: __APP_VERSION__,
+        }}
       />
     </>
   )
