@@ -8,7 +8,18 @@ const REPO_URL = 'https://github.com/universal-simulation-ltd/Universal_QR'
 
 export default function App() {
   return (
-    <div className="flex flex-col min-h-screen bg-slate-100">
+    // ⚠️ pt-[env(safe-area-inset-top)] is for the native (Capacitor) build, not
+    // the web one. Capacitor runs the app in a FULL-SCREEN WKWebView, and
+    // index.html asks for `viewport-fit=cover`, so without this the navbar
+    // renders UNDERNEATH the status bar and Dynamic Island — the product name
+    // sitting on the clock and the menu button unreachable behind the notch.
+    // In a browser the inset is 0, so it is a no-op on web and on desktop.
+    //
+    // It lives here rather than in @unisim/sdk's UniversalAppsNavBar because
+    // that bar is shared by every Universal App and the padding belongs to
+    // whichever of them is wrapped for a phone. Universal PDF carries the same
+    // line for the same reason.
+    <div className="flex flex-col min-h-screen bg-slate-100 pt-[env(safe-area-inset-top)]">
       <UniversalAppsNavBar
         product="qr"
         productLogo={<ProductLogo />}
