@@ -4,6 +4,7 @@ import Controls from './Controls'
 import QrPreview from './QrPreview'
 import BarcodePreview from './BarcodePreview'
 import HostedStoreDialog from './HostedStoreDialog'
+import LinkCheck from './LinkCheck'
 import { useQrStore, type StudioMode } from '../../stores/qrStore'
 import { CONTAINER } from '../../lib/layout'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
@@ -522,6 +523,7 @@ function SimplePanel() {
         placeholder="https://example.com"
         className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500"
       />
+      <LinkCheck value={data} onFix={(href) => update({ data: href })} />
     </section>
   )
 }

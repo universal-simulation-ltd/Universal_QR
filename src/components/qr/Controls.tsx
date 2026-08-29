@@ -17,6 +17,7 @@ import { FRAME_SHAPES, STAR_PLACEMENTS, frameSizeNote, type FrameShape, type Sta
 import { DECOR_STYLES, type DecorStyle } from '@unisim/qr'
 import { decorScaleOf, starBehind } from '@unisim/qr'
 import { SYMBOLOGIES, symbologyById, type BarcodeSymbology } from '../../lib/barcode'
+import LinkCheck from './LinkCheck'
 
 export default function Controls() {
   const config = useQrStore((s) => s.config)
@@ -861,7 +862,10 @@ function ContentBuilder({ data, update }: { data: string; update: (patch: { data
       />
 
       {kind === 'text' && (
-        <TextField label="URL or text" value={data} onChange={(v) => update({ data: v })} placeholder="https://example.com" type="url" />
+        <div>
+          <TextField label="URL or text" value={data} onChange={(v) => update({ data: v })} placeholder="https://example.com" type="url" />
+          <LinkCheck value={data} onFix={(href) => update({ data: href })} />
+        </div>
       )}
 
       {kind === 'wifi' && (
