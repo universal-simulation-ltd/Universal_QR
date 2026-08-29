@@ -40,6 +40,57 @@ top-level `view` in `stores/qrStore.ts`).
   UI: `components/qr/DynamicStudio.tsx` + `DynamicCodeCard.tsx`; data helpers in
   `lib/dynamicCodes.ts`.
 
+### Each dynamic code owns its branding (migration 0129)
+
+A code's look is **snapshotted onto its row** at creation — `design jsonb` on
+`qr_dynamic_codes`, holding the full `QrDesign` from `@unisim/qr`.
+
+Before 2026-08-29 the branding lived only in the client, in one `dynamicBrand`
+store applied to every code at *render* time. That made the branding panel a
+live filter rather than a default: editing it re-drew codes already printed on
+flyers, and the same account on a second laptop drew them all differently again,
+because that store is per-browser localStorage.
+
+- The panel (**"Branding for new codes"**) sets what the NEXT code is born
+  wearing. It cannot reach a code that already exists.
+- Every card carries **✏️ Edit branding** — the same control set seeded from that
+  code's own design, plus a **"Match branding for new codes"** shortcut. Saving
+  calls `qr_dynamic_set_design` and re-draws that code and nothing else.
+- `design = null` means "made before 0129": those still follow the panel, exactly
+  as they did, and the card says so.
+
+⚠️ **`design.data` and `design.name` are stored EMPTY** (`storableDesign`). The
+payload is the redirect and the label is the row's `name`; `dynamicQrConfig`
+writes both back on the way out. Copies on the design would give a renamed or
+re-pointed code a second, staler answer to both — and **Universal PDF reads this
+same column**, so the rule spans two repos. `scripts/dynamicDesign.test.mjs`
+(`npm run test:dynamic-design`) pins it, with measured negative controls.
+
+The control wall is **one component** (`components/qr/BrandingControls.tsx`) used
+by the panel and by each card. An uploaded centre logo is downscaled to 512 px
+(`lib/imageScale.ts`) before it becomes part of a design — it rides on the row
+now, so a 4 MP photo would be carried on every list query in two apps. The
+backend refuses a design over 1 MB with `design_too_large`.
+
+### Universal PDF lists these codes too
+
+Universal PDF's "Add a QR code" dialog reads `qr_dynamic_codes` through the
+table's member RLS and shows each with an orange **↻** (its
+`src/lib/qr/library.ts`). That is the second reason the design belongs on the
+row rather than in a browser: PDF has no access to another app's localStorage on
+a different origin.
+
+### Opening the Dynamic tab locally
+
+`?mockauth=1` (DEV builds only) swaps in the SDK's offline fixture world, which
+is the only way to see any of this on localhost — sign-in happens on the hub and
+sets its cookie on `.unisim.co.uk`. ⚠️ That world starts signed **out**
+(`localStorage['universal:mock_session'] = 'james'` signs it in) and returns an
+empty set for `qr_dynamic_codes`, so it gets you the panel and the create form
+but never a card. For cards, stub instead: a session under
+`localStorage['universal-suite-auth']` plus a Playwright route over
+`**/rest/v1/**`.
+
 ### Backing up a static design ("Back up this QR code" dialog)
 
 Two tiers, both in `components/qr/HostedStoreDialog.tsx`:
@@ -116,14 +167,20 @@ plus Supabase; the `opensource-portal` Worker is untouched:
 /qr/r/*  https://rygfxgalojojppxmhddo.functions.supabase.co/qr-redirect/:splat  302
 ```
 
-### Backend (universal-platform, migration 0061)
+### Backend (universal-platform, migrations 0061 + 0129)
 
-- Tables `qr_dynamic_codes` (member-readable via RLS) + `qr_scans` (minimal,
-  privacy-preserving: day / coarse country / referer-host — **no IP, no UA**).
+- Tables `qr_dynamic_codes` (member-readable via RLS; `design jsonb` since 0129)
+  + `qr_scans` (minimal, privacy-preserving: day / coarse country / referer-host
+  — **no IP, no UA**).
 - View `qr_dynamic_scan_daily` (security_invoker) for the sparkline.
-- RPCs: `qr_dynamic_create` / `qr_dynamic_set_target` / `qr_dynamic_delete`
-  (authenticated; token accounting reuses `acquire_token_hold`/`release_token_hold`
-  from migration 0045), and `qr_resolve_and_log` (**service_role only**).
+- RPCs: `qr_dynamic_create` / `qr_dynamic_set_target` / `qr_dynamic_set_design` /
+  `qr_dynamic_delete` (authenticated; token accounting reuses
+  `acquire_token_hold`/`release_token_hold` from migration 0045), and
+  `qr_resolve_and_log` (**service_role only**).
+  ⚠️ 0129 **dropped and recreated** `qr_dynamic_create` to add `p_design`. A
+  defaulted third parameter added with CREATE OR REPLACE leaves the 2-arg
+  version standing as an overload, and PostgREST resolves by argument name — so
+  every existing caller would start failing as ambiguous.
 - Edge Function **`qr-redirect`** (deployed `--no-verify-jwt`): logs a scan via
   the service-role RPC and 302s to the current target; unknown codes get a small
   404 page. Source lives in `backoffice/universal-platform/supabase/functions/`.
