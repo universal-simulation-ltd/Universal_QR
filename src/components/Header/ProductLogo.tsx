@@ -40,13 +40,19 @@ export default function ProductLogo() {
     >
       <style>{CSS}</style>
       <svg viewBox="0 0 64 64" className="h-6 w-6" aria-hidden="true">
-        <rect x="0" y="0" width="64" height="64" rx="14" fill="#0f172a" />
+        <defs>
+          <linearGradient id="uam-nav-qr-tile" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#fe8c01" />
+            <stop offset="1" stopColor="#e05504" />
+          </linearGradient>
+        </defs>
+        <rect width="64" height="64" rx="14" fill="url(#uam-nav-qr-tile)" />
         <path d="M10 10h16v16H10zM14 14v8h8v-8z" fillRule="evenodd" fill="#ffffff" />
         <path d="M38 10h16v16H38zM42 14v8h8v-8z" fillRule="evenodd" fill="#ffffff" />
         <path d="M10 38h16v16H10zM14 42v8h8v-8z" fillRule="evenodd" fill="#ffffff" />
-        <rect x={16} y={16} width={4} height={4} fill="#fe8c01" className="uam-qr-eye1" />
-        <rect x={44} y={16} width={4} height={4} fill="#fe8c01" className="uam-qr-eye2" />
-        <rect x={16} y={44} width={4} height={4} fill="#fe8c01" className="uam-qr-eye3" />
+        <rect x={16} y={16} width={4} height={4} fill="#ffffff" className="uam-qr-eye1" />
+        <rect x={44} y={16} width={4} height={4} fill="#ffffff" className="uam-qr-eye2" />
+        <rect x={16} y={44} width={4} height={4} fill="#ffffff" className="uam-qr-eye3" />
         <rect x={32} y={14} width={4} height={4} fill="#ffffff" />
         <rect x={32} y={22} width={4} height={4} fill="#ffffff" />
         <rect x={32} y={32} width={4} height={4} fill="#ffffff" />
@@ -56,7 +62,7 @@ export default function ProductLogo() {
         <rect x={40} y={40} width={4} height={4} fill="#ffffff" />
         <rect x={40} y={48} width={4} height={4} fill="#ffffff" />
         <rect x={48} y={48} width={4} height={4} fill="#ffffff" />
-        <rect x={48} y={40} width={4} height={4} fill="#fe8c01" className="uam-qr-eye4" />
+        <rect x={48} y={40} width={4} height={4} fill="#ffffff" className="uam-qr-eye4" />
       </svg>
     </span>
   )
