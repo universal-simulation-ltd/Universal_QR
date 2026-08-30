@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { QrConfig } from '@unisim/qr'
 import { qrDisplayName } from '@unisim/qr'
 import { renderPngDataUrl } from '../../lib/download'
@@ -36,7 +37,16 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
   // design's own background instead of the white a see-through shape needs.
   const shaped = config.frameShape !== 'square' && !fillsWholeImage(config)
 
-  return (
+  // ⚠️ Rendered into <body>, not where it is written.
+  //
+  // `z-[1100]` only beats the navbar's inline `z-index: 1000` while the two are
+  // in the SAME stacking context. Universal QR's pinned mobile preview is a
+  // `sticky z-40` wrapper, which IS a stacking context — so a modal rendered
+  // inside it was capped at z-40 whatever its own class said, and the navbar
+  // painted over the top of it, including over the Close button in the corner.
+  // A portal takes the modal out of every ancestor's stacking context, so the
+  // z-index means what it says wherever the trigger happens to live.
+  return createPortal(
     <div
       // ⚠️ z-[1100], not z-50. <UniversalAppsNavBar /> sets an INLINE
       // `zIndex: 1000` — Tailwind's scale stops at z-50 and an inline style
@@ -98,6 +108,7 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
           On a phone, press and hold the code to save or share it as an image.
         </p>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

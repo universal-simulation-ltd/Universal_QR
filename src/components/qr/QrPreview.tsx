@@ -6,7 +6,13 @@ import { composeShapedCanvas, fillsWholeImage } from '@unisim/qr'
 import { UNISIM_MARK } from '@unisim/qr'
 import EnlargeModal from './EnlargeModal'
 
-export default function QrPreview() {
+/** `compact` lays the same preview out as a short row instead of a column — the
+ *  code small on the left, its name and address beside it. Nothing about how the
+ *  code is RENDERED changes: it is the same instance, the same config and the
+ *  same two render paths, only smaller on screen. That matters, because the
+ *  compact form is what a phone user judges the code by (see PinnedPreview), and
+ *  a preview that came from a different code path is a preview that can lie. */
+export default function QrPreview({ compact = false }: { compact?: boolean } = {}) {
   const config = useQrStore((s) => s.config)
   const holderRef = useRef<HTMLDivElement>(null)
   const qrRef = useRef<QRCodeStyling | null>(null)
@@ -98,15 +104,17 @@ export default function QrPreview() {
   const insetPct = (inset / config.size) * 100
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className={compact ? 'flex items-center gap-3' : 'flex flex-col items-center gap-4'}>
       <div
         // A shaped code needs the checker behind it too, even with an opaque
         // plate colour: painting that same colour on the square card behind the
         // circle would fill the corners back in and hide the silhouette. See
         // `checker` above for the one shape that opts back out.
-        className={`relative w-full max-w-[360px] rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-200 group ${
-          checker ? 'checker-bg' : ''
-        } ${hasData ? 'cursor-pointer' : ''}`}
+        className={`relative shadow-sm border border-slate-200 group ${
+          compact
+            ? 'w-[7.5rem] shrink-0 rounded-xl p-2'
+            : 'w-full max-w-[360px] rounded-2xl p-3 sm:p-4'
+        } ${checker ? 'checker-bg' : ''} ${hasData ? 'cursor-pointer' : ''}`}
         style={checker ? undefined : { background: config.bgColor }}
         onClick={handlePreviewClick}
         role={hasData ? 'button' : undefined}
@@ -146,14 +154,21 @@ export default function QrPreview() {
           )}
 
           {!hasData && (
-            <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/85 backdrop-blur-sm text-center px-6">
-              <p className="text-sm text-slate-500">
-                Enter a URL or some text to generate your QR code.
+            <div
+              className={`absolute inset-0 flex items-center justify-center rounded-xl bg-white/85 backdrop-blur-sm text-center ${
+                compact ? 'px-2' : 'px-6'
+              }`}
+            >
+              <p className={compact ? 'text-[11px] leading-tight text-slate-500' : 'text-sm text-slate-500'}>
+                {compact ? 'Nothing to show yet.' : 'Enter a URL or some text to generate your QR code.'}
               </p>
             </div>
           )}
 
-          {hasData && (
+          {/* Hover-to-enlarge is a mouse affordance, and the pill does not fit a
+              120px code anyway — the compact form says "Tap to enlarge" in its
+              caption instead. */}
+          {hasData && !compact && (
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-slate-900/70 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"
@@ -170,12 +185,17 @@ export default function QrPreview() {
         </div>
       </div>
 
-      <div className="text-center min-w-0 max-w-[360px]">
-        <div className="font-semibold text-slate-900 truncate">{qrDisplayName(config)}</div>
+      <div className={compact ? 'min-w-0 flex-1 text-left' : 'text-center min-w-0 max-w-[360px]'}>
+        <div className={`font-semibold text-slate-900 truncate ${compact ? 'text-sm' : ''}`}>
+          {qrDisplayName(config)}
+        </div>
         {hasData && (
           <div className="text-xs text-slate-500 truncate" title={config.data}>
             {config.data}
           </div>
+        )}
+        {compact && hasData && (
+          <div className="mt-1 text-[11px] font-medium text-orange-700">Tap the code to enlarge</div>
         )}
       </div>
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useFileDrop, useUniversal } from '@unisim/sdk'
 import Controls from './Controls'
 import QrPreview from './QrPreview'
+import PinnedPreview from './PinnedPreview'
 import BarcodePreview from './BarcodePreview'
 import HostedStoreDialog from './HostedStoreDialog'
 import LinkCheck from './LinkCheck'
@@ -26,6 +27,30 @@ const ADVANCED_KEYS: (keyof QrConfig)[] = [
 
 function hasChangedFrom(config: QrConfig, keys: (keyof QrConfig)[], baseline: QrConfig): boolean {
   return keys.some((k) => JSON.stringify(config[k]) !== JSON.stringify(baseline[k]))
+}
+
+// Tailwind's `lg`: the width at which the studio splits into two columns and the
+// preview already has a sticky column of its own. Below it there is one column,
+// and the preview moves to the pinned bar instead.
+const TWO_COLUMN = '(min-width: 1024px)'
+
+/** True while the studio is in its single-column layout.
+ *
+ *  A media QUERY rather than `lg:hidden` / `hidden lg:block` on purpose. Both
+ *  previews would then be mounted at every width, which means two live
+ *  QRCodeStyling instances re-rendering on every keystroke — double the work on
+ *  the phone, which is the device that can least afford it — and two elements
+ *  carrying the same `role="img"` and label. Only one preview should exist. */
+function useSingleColumn(): boolean {
+  const [single, setSingle] = useState(() => !window.matchMedia(TWO_COLUMN).matches)
+  useEffect(() => {
+    const mq = window.matchMedia(TWO_COLUMN)
+    const onChange = () => setSingle(!mq.matches)
+    onChange()
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  return single
 }
 
 /** What "untouched" means for this session.
@@ -79,6 +104,10 @@ export default function QrStudio() {
   const barcodeValue = useQrStore((s) => s.barcodeValue)
   const [barcodeError, setBarcodeError] = useState<string | null>(null)
   const isBarcode = codeType === 'barcode'
+
+  // Where the QR preview lives. One column ⇒ pinned under the nav bar; two
+  // columns ⇒ the right-hand column, exactly as it always has been.
+  const pinPreview = useSingleColumn() && !isBarcode
 
   const { session } = useUniversal()
   const signedIn = !!session?.user && session.user.is_anonymous !== true
@@ -171,6 +200,11 @@ export default function QrStudio() {
           </p>
         </header>
 
+        {/* Narrow screens only, and only for QR: a 1D barcode is a wide strip
+            rather than a square, and it lives behind Advanced ▸ Type, so it
+            keeps the in-column preview. */}
+        {pinPreview && <PinnedPreview />}
+
         <div className="mt-6 grid lg:grid-cols-[minmax(0,1fr)_360px] gap-6 lg:gap-10 items-start">
           {/* Controls */}
           <div className="order-1 lg:order-1 space-y-4">
@@ -212,7 +246,7 @@ export default function QrStudio() {
                 <BarcodePreview onError={setBarcodeError} />
               </div>
             ) : (
-              <QrPreview />
+              !pinPreview && <QrPreview />
             )}
 
             {/* One button, one arrow. PNG is what nearly everyone wants, so it

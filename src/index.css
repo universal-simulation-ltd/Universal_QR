@@ -87,3 +87,24 @@ input[type="color"]::-moz-color-swatch { border: none; border-radius: 8px; }
     font-size: max(16px, 1em) !important;
   }
 }
+
+/* ── Keep a focused field out from under the pinned preview ──────────────────
+   Below `lg` the QR preview is pinned under the nav bar (see PinnedPreview),
+   and both are `position: sticky` — so anything the browser scrolls to the top
+   of the viewport lands behind them. That matters most exactly when it hurts
+   most: on iOS the keyboard shrinks the visual viewport to roughly half the
+   screen, and the browser scrolls the focused field up to clear it.
+
+   `scroll-margin-top` is the standard answer to a sticky header: it pads the
+   box the browser scrolls into view, without moving anything on screen. The
+   height comes from the bar itself (`--qr-pinned-h`, written by PinnedPreview
+   and removed when it unmounts), so a collapsed bar does not over-scroll and a
+   page with no pinned bar still clears the nav.
+
+   ⚠️ It touches no font-size, so the 16px floor above — the iOS zoom fix —
+   is untouched. */
+@media (max-width: 1023px) {
+  input, textarea, select {
+    scroll-margin-top: calc(4rem + env(safe-area-inset-top) + var(--qr-pinned-h, 0px) + 0.5rem);
+  }
+}
