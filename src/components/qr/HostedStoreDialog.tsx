@@ -104,18 +104,39 @@ export default function HostedStoreDialog() {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/50 p-4"
+      // ⚠️ z-[1100], not z-50/z-[80]. <UniversalAppsNavBar /> sets an INLINE
+      // `zIndex: 1000`, which no Tailwind class can reach (the scale stops at
+      // z-50) and which an inline style would win anyway. Below it the bar
+      // stays brightly lit on top of the backdrop and — since it is only
+      // `position: relative`, so it is in view whenever the page is at scroll
+      // top — paints over the top of this dialog, which is what put the header
+      // "behind the nav bar".
+      //
+      // The padding carries the safe-area insets for the Capacitor build: the
+      // WKWebView is full-screen and index.html asks for `viewport-fit=cover`,
+      // so without them the dialog runs under the Dynamic Island at the top and
+      // the home indicator at the bottom. In a browser the insets are 0.
+      className="fixed inset-0 z-[1100] flex items-center justify-center bg-slate-900/50 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]"
       onMouseDown={(e) => { if (e.target === e.currentTarget) close() }}
     >
-      <div className="w-full max-w-lg max-h-[88vh] overflow-y-auto rounded-2xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+      {/* A column that never outgrows the padded overlay: the header is pinned
+          and only the body scrolls. `100%` is the overlay minus its safe-area
+          padding; `100svh` is the SMALL viewport, which is what is actually on
+          screen in mobile Safari while the toolbars are showing. The shorter of
+          the two is the one that fits. Previously this whole box was the
+          scroller (`max-h-[88vh] overflow-y-auto`), so the title scrolled away
+          with the content the moment there was more of it than would fit. */}
+      <div className="flex max-h-[min(100%,100svh)] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-5 py-4">
           <h2 className="text-base font-bold text-slate-900">Back up this QR code</h2>
           <button onClick={close} aria-label="Close" className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
             <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M5 5l10 10M15 5L5 15" strokeLinecap="round" /></svg>
           </button>
         </div>
 
-        <div className="space-y-4 p-5">
+        {/* min-h-0 so this can actually shrink inside the flex column — without
+            it a flex item's min-height is its content and nothing scrolls. */}
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-5">
           {/* Save to browser (local, this device only): the device gallery. */}
           <SavePanel />
 

@@ -38,16 +38,24 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-slate-900/80 p-4 backdrop-blur-sm sm:p-6"
+      // ⚠️ z-[1100], not z-50. <UniversalAppsNavBar /> sets an INLINE
+      // `zIndex: 1000` — Tailwind's scale stops at z-50 and an inline style
+      // beats a class anyway — and the bar is only `position: relative`, so it
+      // is on screen whenever the page is at scroll top. At z-50 it stayed
+      // brightly lit on top of this backdrop AND covered the Close button in
+      // the corner, leaving no visible way out of the overlay.
+      className="fixed inset-0 z-[1100] flex flex-col items-center justify-center gap-5 bg-slate-900/80 p-4 backdrop-blur-sm sm:p-6"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label={`Enlarged QR code for ${qrDisplayName(config)}`}
     >
+      {/* Offset by the safe-area inset so the Close button clears the Dynamic
+          Island in the full-screen Capacitor WKWebView. 0 in a browser. */}
       <button
         onClick={onClose}
         aria-label="Close"
-        className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-xl leading-none text-white hover:bg-white/25"
+        className="absolute right-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-xl leading-none text-white hover:bg-white/25"
       >
         ×
       </button>
