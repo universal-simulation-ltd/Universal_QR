@@ -31,7 +31,7 @@
     "@capacitor/ios": "^7.6.8",
     "@capacitor/share": "^7.0.4",
     "@unisim/qr": "^0.1.0",
-    "@unisim/sdk": "^0.123.4",
+    "@unisim/sdk": "^0.124.0",
     "@zxing/browser": "^0.2.1",
     "bwip-js": "^4.11.2",
     "qr-code-styling": "^1.9.2",
