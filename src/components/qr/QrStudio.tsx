@@ -205,7 +205,12 @@ export default function QrStudio() {
             keeps the in-column preview. */}
         {pinPreview && <PinnedPreview />}
 
-        <div className="mt-6 grid lg:grid-cols-[minmax(0,1fr)_360px] gap-6 lg:gap-10 items-start">
+        {/* `grid-cols-1` for the same reason as the Dynamic tab's grid: an
+            implicit `auto` column is floored at its items' min-content width,
+            so anything unbreakable inside (a `truncate`d line, a long URL)
+            would widen the column past the viewport and scroll the page
+            sideways. See the note in DynamicStudio. */}
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-6 lg:gap-10 items-start">
           {/* Controls */}
           <div className="order-1 lg:order-1 space-y-4">
             <div className="flex items-center gap-3 flex-wrap">

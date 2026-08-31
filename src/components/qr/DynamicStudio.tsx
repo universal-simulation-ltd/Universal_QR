@@ -214,9 +214,13 @@ export default function DynamicStudio() {
           </h1>
           <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">Hosted</span>
         </div>
+        {/* `break-words` on the example link: it is one unbreakable token, so at
+            ~320px it is wider than its column and used to poke a couple of
+            pixels past the viewport on its own — separately from, and as well
+            as, the grid track fixed below. */}
         <p className="mt-2 text-slate-600">
           One printed code, a destination you can change any time — plus a live scan count.
-          The link stays fixed (<code className="text-slate-500">opensource.unisim.co.uk/qr/r/…</code>); you
+          The link stays fixed (<code className="break-words text-slate-500">opensource.unisim.co.uk/qr/r/…</code>); you
           repoint where it sends people whenever you like.
         </p>
       </header>
@@ -283,7 +287,20 @@ export default function DynamicStudio() {
           )}
         </section>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-start">
+        {/* ⚠️ `grid-cols-1` is load-bearing below `lg`, not decoration. Without an
+            explicit track the single mobile column is `auto`, and an `auto`
+            track is floored at its items' MIN-CONTENT width — which no amount
+            of `truncate` or `min-w-0` inside the card can lower, because
+            `truncate` sets `white-space: nowrap` and so makes an element's
+            min-content equal its max-content. One dynamic code with a long
+            redirect line was enough to push that floor past the viewport, and
+            because a grid stretches every item to the track, the create panel
+            and the whole page went with it: the document scrolled sideways and
+            the header, labels and card text were all clipped off the left edge.
+            Tailwind's `grid-cols-1` is `repeat(1, minmax(0, 1fr))` — the `0`
+            minimum is the fix, and it is the same guard the `lg:` tracks below
+            already spell out by hand. */}
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-start">
           {/* Create panel */}
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6">
             <div className="flex items-center justify-between">
