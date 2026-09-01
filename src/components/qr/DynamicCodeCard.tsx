@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useUniversal } from '@unisim/sdk'
 import { type QrDesign } from '@unisim/qr'
 import QrCanvas from './QrCanvas'
 import { downloadQr } from '../../lib/download'
-import EnlargeModal from './EnlargeModal'
+import EnlargeModal, { placeholderFromPreview, prewarmEnlarged } from './EnlargeModal'
 import BrandingControls from './BrandingControls'
 import {
   dynamicQrConfig,
@@ -51,6 +51,10 @@ export default function DynamicCodeCard({
   const [copied, setCopied] = useState(false)
   const [daily, setDaily] = useState<DailyScan[] | null>(null)
   const [enlarged, setEnlarged] = useState(false)
+  const [placeholder, setPlaceholder] = useState<string | null>(null)
+  // The button wraps the <QrCanvas>, so it is the handle on the canvas that
+  // is already painted — see `placeholderFromPreview`.
+  const previewRef = useRef<HTMLButtonElement>(null)
 
   // Branding editor — a draft of THIS code's design, saved only on Save.
   const [brandOpen, setBrandOpen] = useState(false)
@@ -121,7 +125,14 @@ export default function DynamicCodeCard({
         <div className="shrink-0 self-center sm:self-start">
           <button
             type="button"
-            onClick={() => setEnlarged(true)}
+            ref={previewRef}
+            // Same two-step as the studio preview: start the enlarged render on
+            // the press, and open showing a snapshot of what is already drawn.
+            onPointerDown={() => prewarmEnlarged(config)}
+            onClick={() => {
+              setPlaceholder(placeholderFromPreview(previewRef.current))
+              setEnlarged(true)
+            }}
             className="w-28 cursor-zoom-in rounded-xl border border-slate-200 bg-white p-2 transition-colors hover:border-orange-300"
             title="Tap to enlarge"
             aria-label={`Enlarge QR code for ${targetLabel(code.target_url)}`}
@@ -290,7 +301,9 @@ export default function DynamicCodeCard({
         </div>
       )}
 
-      {enlarged && <EnlargeModal config={config} onClose={() => setEnlarged(false)} />}
+      {enlarged && (
+        <EnlargeModal config={config} placeholder={placeholder} onClose={() => setEnlarged(false)} />
+      )}
     </li>
   )
 }

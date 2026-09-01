@@ -4,7 +4,7 @@ import { useQrStore } from '../../stores/qrStore'
 import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark } from '@unisim/qr'
 import { composeShapedCanvas, fillsWholeImage } from '@unisim/qr'
 import { UNISIM_MARK } from '@unisim/qr'
-import EnlargeModal from './EnlargeModal'
+import EnlargeModal, { placeholderFromPreview, prewarmEnlarged } from './EnlargeModal'
 
 /** `compact` lays the same preview out as a short row instead of a column — the
  *  code small on the left, its name and address beside it. Nothing about how the
@@ -17,11 +17,27 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
   const holderRef = useRef<HTMLDivElement>(null)
   const qrRef = useRef<QRCodeStyling | null>(null)
   const [enlarged, setEnlarged] = useState(false)
+  const [placeholder, setPlaceholder] = useState<string | null>(null)
 
   const hasData = config.data.trim().length > 0
 
+  // The enlarged render is the slow part, and it used to start only once the
+  // click had flipped state and React had committed the portal. Pointerdown is
+  // typically 100-300ms ahead of that on a phone (the whole tap-and-release),
+  // and the result is memoised, so by the time the modal asks for it the render
+  // is often already done. Costs nothing when the press turns out to be a drag:
+  // the same code would have been rendered on the next real tap anyway.
+  function handlePointerDown() {
+    if (!hasData) return
+    prewarmEnlarged(config)
+  }
+
   function handlePreviewClick() {
     if (!hasData) return
+    // Snapshot the canvas that is ALREADY on screen so the modal opens showing
+    // the code, soft, instead of an empty square. Read before the state flip,
+    // while the preview is still mounted and painted.
+    setPlaceholder(placeholderFromPreview(holderRef.current))
     setEnlarged(true)
   }
 
@@ -117,6 +133,7 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
         } ${checker ? 'checker-bg' : ''} ${hasData ? 'cursor-pointer' : ''}`}
         style={checker ? undefined : { background: config.bgColor }}
         onClick={handlePreviewClick}
+        onPointerDown={handlePointerDown}
         role={hasData ? 'button' : undefined}
         tabIndex={hasData ? 0 : undefined}
         aria-label={hasData ? 'Enlarge QR code for scanning' : undefined}
@@ -199,7 +216,9 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
         )}
       </div>
 
-      {enlarged && <EnlargeModal config={config} onClose={() => setEnlarged(false)} />}
+      {enlarged && (
+        <EnlargeModal config={config} placeholder={placeholder} onClose={() => setEnlarged(false)} />
+      )}
     </div>
   )
 }

@@ -2,30 +2,105 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { QrConfig } from '@unisim/qr'
 import { qrDisplayName } from '@unisim/qr'
-import { renderPngDataUrl } from '../../lib/download'
+import { enlargedPngDataUrl } from '../../lib/download'
 import { fillsWholeImage } from '@unisim/qr'
 
 // Renders the QR big and bright, filling the screen, so it's easy to scan from
 // another phone. A few hints help when a scan won't take.
-const ENLARGE_SIZE = 900
 
-export default function EnlargeModal({ config, onClose }: { config: QrConfig; onClose: () => void }) {
+/** The pixel size to render the enlarged code at.
+ *
+ *  ⚠️ Was a flat 900. The card below is `max-w-[min(88vw,70vh)]` inside `p-4`,
+ *  so on a phone 900 px is roughly twice what the screen can resolve — and the
+ *  cost of an export is quadratic in this number, so the half nobody could see
+ *  was most of the wait. Sizing to the box the code actually lands in is the
+ *  same picture for a fraction of the encode.
+ *
+ *  Still capped at 900 so a desktop retina display is no worse off than before,
+ *  and floored at 512 so a small or oddly-shaped viewport can't produce a code
+ *  too coarse for another phone's camera to take.
+ *
+ *  Pure function of the viewport, deliberately: `prewarmEnlarged` and the modal
+ *  both call it and must agree, or the head start renders at one size and the
+ *  modal asks for another and the cache misses. */
+export function enlargeSize(): number {
+  if (typeof window === 'undefined') return 900
+  const box = Math.min(window.innerWidth * 0.88, window.innerHeight * 0.7) - 32
+  return Math.max(512, Math.min(900, Math.round(box * (window.devicePixelRatio || 1))))
+}
+
+/** Start rendering the enlarged PNG before the modal exists.
+ *
+ *  Call it on `pointerdown`. The render is the long pole and it used to begin
+ *  only after the click had flipped state, React had committed the portal and
+ *  the effect had run — several frames of the delay spent doing nothing. The
+ *  result is memoised on the config, so the modal's own request lands on the
+ *  same promise. Failures are swallowed here and re-surfaced by the modal. */
+export function prewarmEnlarged(config: QrConfig): void {
+  enlargedPngDataUrl(config, enlargeSize()).catch(() => {})
+}
+
+/** A stand-in for the enlarged code, taken from the preview canvas that is
+ *  already on screen, so the modal has something to show on its first frame
+ *  instead of an empty square.
+ *
+ *  Downscaled to 192 px before encoding on purpose: this runs synchronously
+ *  inside the click handler, and a `toDataURL` of the full 512 px preview would
+ *  put exactly the kind of encode we are trying to get rid of on the main
+ *  thread at the worst possible moment. 192 px is ~14x less pixel work and,
+ *  blown back up, reads as the right code arriving soft rather than as nothing.
+ *
+ *  Returns null rather than throwing for anything unexpected — a missing
+ *  placeholder is the old behaviour, which is fine. */
+export function placeholderFromPreview(holder: HTMLElement | null): string | null {
+  const source = holder?.querySelector('canvas')
+  if (!source || !source.width) return null
+  try {
+    const small = document.createElement('canvas')
+    small.width = 192
+    small.height = 192
+    const ctx = small.getContext('2d')
+    if (!ctx) return null
+    ctx.drawImage(source, 0, 0, 192, 192)
+    return small.toDataURL('image/png')
+  } catch {
+    // A tainted canvas (a logo loaded cross-origin) can't be read back.
+    return null
+  }
+}
+
+export default function EnlargeModal({
+  config,
+  onClose,
+  placeholder = null,
+}: {
+  config: QrConfig
+  onClose: () => void
+  /** Low-res stand-in from `placeholderFromPreview`, shown until the real
+   *  render lands. */
+  placeholder?: string | null
+}) {
   const [png, setPng] = useState<string | null>(null)
+  // Fixed for the life of the modal: recomputing on a rotate would throw away a
+  // finished render to produce a barely different one.
+  const [size] = useState(enlargeSize)
 
   // A real PNG in an <img>, not a live <canvas>. On a phone that is the whole
   // point of this modal: long-pressing an image offers Save to Photos / Share /
   // the preview sheet, and it can be dragged out on desktop. A canvas offers
   // none of that — the code was on screen but the user could do nothing with it.
-  // `renderPngDataUrl` is the export path, so the pixels here (shaped plate,
-  // corner stamp and all) are exactly what Download would have given them.
+  // `enlargedPngDataUrl` wraps the export path, so the pixels here (shaped
+  // plate, corner stamp and all) are exactly what Download would have given
+  // them.
   useEffect(() => {
     let cancelled = false
     setPng(null)
-    renderPngDataUrl(config, ENLARGE_SIZE)
+    enlargedPngDataUrl(config, size)
       .then((url) => { if (!cancelled) setPng(url) })
-      .catch(() => { /* nothing to show; the modal stays blank rather than lying */ })
+      .catch(() => { /* nothing to show; the modal falls back to the placeholder
+                        or stays blank rather than lying */ })
     return () => { cancelled = true }
-  }, [config])
+  }, [config, size])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose() }
@@ -54,7 +129,15 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
       // is on screen whenever the page is at scroll top. At z-50 it stayed
       // brightly lit on top of this backdrop AND covered the Close button in
       // the corner, leaving no visible way out of the overlay.
-      className="fixed inset-0 z-[1100] flex flex-col items-center justify-center gap-5 bg-slate-900/80 p-4 backdrop-blur-sm sm:p-6"
+      // ⚠️ No `backdrop-blur-sm`, and the scrim is /85 rather than /80 to make
+      // up the difference. A backdrop-filter on a `fixed inset-0` element makes
+      // the compositor snapshot and blur the ENTIRE viewport behind it — which
+      // here includes the page's live QR canvas — before it can paint the modal
+      // at all, and repeat it per frame. Cheap on desktop and on WKWebView,
+      // genuinely slow on Android's WebView, where it was a visible part of the
+      // "nothing happens when I tap" delay. At 85% opacity there is nothing
+      // legible left to blur anyway.
+      className="fixed inset-0 z-[1100] flex flex-col items-center justify-center gap-5 bg-slate-900/85 p-4 sm:p-6"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -86,12 +169,20 @@ export default function EnlargeModal({ config, onClose }: { config: QrConfig; on
         onClick={(e) => e.stopPropagation()}
       >
         {/* Square by CSS: the PNG resolves asynchronously, and an auto-height
-            box would collapse and then pop the card open under it. */}
+            box would collapse and then pop the card open under it.
+
+            The placeholder is drawn into the same <img> the real render will
+            take over, so the swap is a src change rather than a mount — no
+            reflow, no flash of the card's background between the two. Only the
+            finished render is offered for long-press save: `png` gates the alt
+            text and the aria-busy, so a screen reader is not told a soft
+            stand-in is "the QR code for X" while it is still being made. */}
         <div className="aspect-square w-full leading-[0]">
-          {png && (
+          {(png ?? placeholder) && (
             <img
-              src={png}
-              alt={`QR code for ${qrDisplayName(config)}`}
+              src={png ?? placeholder ?? undefined}
+              alt={png ? `QR code for ${qrDisplayName(config)}` : ''}
+              aria-busy={png ? undefined : true}
               className="block h-full w-full"
             />
           )}

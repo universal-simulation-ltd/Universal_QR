@@ -24,6 +24,35 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   })
 }
 
+/** Decode a raster Blob into something `drawImage` accepts.
+ *
+ *  `createImageBitmap` decodes off the main thread and hands back a bitmap with
+ *  no object URL to mint, hand to the loader and revoke. On Android's WebView
+ *  the `<img>` round trip is a main-thread decode of a 900 px PNG in the middle
+ *  of an interaction, which is exactly where it was being felt. Falls back to
+ *  the old path wherever the bitmap decoder is missing or refuses the blob.
+ *
+ *  Callers must `release()` when done: an ImageBitmap holds its pixels until
+ *  closed, and these are ~800 kB apiece. */
+async function decodeBlob(blob: Blob): Promise<{ img: CanvasImageSource; release: () => void }> {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const bitmap = await createImageBitmap(blob)
+      return { img: bitmap, release: () => bitmap.close() }
+    } catch {
+      /* Older WebView, or a blob it won't take — fall through to the <img>. */
+    }
+  }
+  const url = URL.createObjectURL(blob)
+  try {
+    const img = await loadImage(url)
+    return { img, release: () => URL.revokeObjectURL(url) }
+  } catch (e) {
+    URL.revokeObjectURL(url)
+    throw e
+  }
+}
+
 /** Draw the white-tiled UNI·SIM corner stamp onto a canvas — a rounded white
  *  tile (so it reads over dark modules) with the icon padded inside. */
 function drawCornerStamp(
@@ -95,6 +124,40 @@ export async function renderPngDataUrl(config: QrConfig, size: number): Promise<
   return blobToDataUrl(blob)
 }
 
+/** `renderPngDataUrl`, memoised per design and size.
+ *
+ *  Two callers hit this with the same arguments on purpose: the preview's
+ *  pointerdown starts the render, and the modal that opens on the click that
+ *  follows asks for the same thing a frame or two later. Without the cache that
+ *  is the work done twice; with it, the modal usually finds the render already
+ *  finished or already in flight, and the pointerdown head start is real.
+ *
+ *  Keyed on the config OBJECT, not on a serialisation of it — a design carries
+ *  a logo data URL that can run to tens of kB, and stringifying that on every
+ *  tap would cost more than it saves. Both call sites hold a stable reference
+ *  (zustand's `s.config`, and a `useMemo` in the dynamic card), so identity is
+ *  the right key. A WeakMap means a design that goes away takes its cached PNG
+ *  with it rather than pinning ~800 kB of base64 for the session.
+ *
+ *  A rejection is evicted, so a transient failure doesn't poison every reopen. */
+const enlargedPngs = new WeakMap<QrConfig, Map<number, Promise<string>>>()
+
+export function enlargedPngDataUrl(config: QrConfig, size: number): Promise<string> {
+  let bySize = enlargedPngs.get(config)
+  if (!bySize) {
+    bySize = new Map()
+    enlargedPngs.set(config, bySize)
+  }
+  const cached = bySize.get(size)
+  if (cached) return cached
+  const pending = renderPngDataUrl(config, size).catch((err) => {
+    bySize?.delete(size)
+    throw err
+  })
+  bySize.set(size, pending)
+  return pending
+}
+
 // A download in a browser, the share sheet on a phone — see `saveFile.ts` for
 // why the two cannot be the same thing.
 const triggerDownload = saveBlob
@@ -164,7 +227,25 @@ export async function renderQrBlob(
   const qr = new QRCodeStyling(buildQrOptions(config, 'canvas'))
   const raw = (await qr.getRawData('png')) as Blob | null
   if (!raw) throw new Error('Could not render QR code')
-  const qrImg = await loadImage(URL.createObjectURL(raw))
+
+  // ⚠️ The composite below is only ever needed for one of those two reasons,
+  // and a PNG without a corner stamp has neither. It was still being run: the
+  // library's PNG was decoded, redrawn 1:1 onto a fresh canvas and re-encoded
+  // to produce the blob the library had already handed over. That is a second
+  // full-size PNG encode and a second decode per export, and at the 900 px the
+  // enlarge modal asks for it is the bulk of the wait before the code appears.
+  //
+  // `showsCornerMark` is `unisimMark && logoDataUrl`, so the DEFAULT design —
+  // UNI·SIM mark in the centre, no uploaded logo — takes this path.
+  //
+  // The short circuit is not just faster, it is marginally more faithful: a
+  // canvas round trip premultiplies alpha, which can shift the antialiased edge
+  // of a rounded dot by a level on a transparent background.
+  if (format === 'png' && !showsCornerMark(config)) {
+    return { blob: raw, fileName: `${stem}.png`, contentType: MIME.png }
+  }
+
+  const { img: qrImg, release } = await decodeBlob(raw)
 
   const size = config.size
   const canvas = document.createElement('canvas')
@@ -179,7 +260,7 @@ export async function renderQrBlob(
     ctx.fillRect(0, 0, size, size)
   }
   ctx.drawImage(qrImg, 0, 0, size, size)
-  URL.revokeObjectURL(qrImg.src)
+  release()
 
   if (showsCornerMark(config)) {
     const { badge, x, y } = cornerStampGeometry(size, config.margin)
