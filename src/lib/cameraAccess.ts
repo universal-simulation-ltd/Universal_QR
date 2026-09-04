@@ -26,19 +26,26 @@
 //    Safari and any private window re-ask per session; that is the browser's
 //    call and not something the page can override.
 //
-// What is genuinely ours is the preference below: whether opening the tab
-// reaches for the camera at all. Someone who doesn't want that gets a checkbox
-// remembered on this device, rather than a prompt to dismiss every visit.
+// ⚠️ **Permission decides first, and a GRANTED camera is never gated.** The
+// preference below is not "should the camera start" — it is only "should we ASK
+// when nobody has answered yet". Once access is granted, opening Scan shows the
+// viewfinder, full stop: there is nothing left to protect anyone from, and a tap
+// or a stale checkbox standing between them and a camera they already said yes
+// to is the exact friction this change exists to remove. The first cut had the
+// preference wrapping the permission read, so an opt-out gated a granted camera
+// too — the one shape this must not have.
 
-const KEY = 'unisim.qr.scan.auto-start.v1'
+const KEY = 'unisim.qr.scan.ask-on-open.v1'
 
 /**
- * Should opening the Scan tab start the camera? Defaults to ON — that is the
- * behaviour being asked for; the stored value only ever records an opt-OUT, so
- * a missing/unreadable key (private browsing, wiped storage) lands on the
- * default rather than on "off".
+ * When permission has NOT been decided yet, should opening the tab ask?
+ * Defaults to ON. The stored value only ever records an opt-OUT, so a missing
+ * or unreadable key (private browsing, wiped storage) lands on the default
+ * rather than on "off".
+ *
+ * Irrelevant once permission is `granted` — nothing reads it in that state.
  */
-export function loadAutoStart(): boolean {
+export function loadAskOnOpen(): boolean {
   try {
     return localStorage.getItem(KEY) !== 'off'
   } catch {
@@ -46,7 +53,7 @@ export function loadAutoStart(): boolean {
   }
 }
 
-export function saveAutoStart(on: boolean): void {
+export function saveAskOnOpen(on: boolean): void {
   try {
     localStorage.setItem(KEY, on ? 'on' : 'off')
   } catch {
@@ -59,12 +66,17 @@ export type CameraPermission = 'granted' | 'denied' | 'prompt' | 'unknown'
 /**
  * What the platform already knows about camera access, WITHOUT asking for it.
  *
- * Only `'denied'` is load-bearing: it is the one state where auto-starting is
- * pointless (the request fails silently and instantly) and we should show the
- * how-to-unblock help instead. Everything else — including `'unknown'` from the
- * browsers that don't implement the `camera` permission name at all (Safari,
- * Firefox: `query` *throws* there rather than returning anything) — is treated
- * as "worth trying", which is what makes the prompt appear.
+ * Two states are load-bearing. `'granted'` starts the camera unconditionally —
+ * no preference consulted, no tap. `'denied'` never starts it: that request
+ * fails instantly and silently, so the tab shows the unblock help instead.
+ *
+ * `'prompt'` and `'unknown'` mean the same thing in practice — nobody has
+ * answered — and only there does the ask-on-open preference get a say.
+ * `'unknown'` covers the browsers that don't implement the `camera` permission
+ * name at all (Safari, Firefox: `query` *throws* rather than returning
+ * anything) and the Capacitor WebViews. On those, the first visit asks and
+ * every later one is answered from the platform's own memory of the grant, so
+ * the outcome is the same even though we cannot read it up front.
  */
 export async function readCameraPermission(): Promise<CameraPermission> {
   const perms = navigator.permissions as Permissions | undefined
@@ -75,6 +87,35 @@ export async function readCameraPermission(): Promise<CameraPermission> {
   } catch {
     return 'unknown'
   }
+}
+
+/**
+ * Fires when the platform's camera permission changes under us — granted or
+ * revoked from browser/OS settings while the tab is open. Returns an
+ * unsubscribe.
+ *
+ * Chromium-only in practice (it hangs off the same `PermissionStatus` that
+ * Safari and Firefox refuse to hand out for `camera`), so it is a live-update
+ * nicety and never what correctness rests on: the state is read fresh on every
+ * mount, and a `getUserMedia` that resolves or rejects settles it either way.
+ */
+export function onCameraPermissionChange(
+  listener: (state: CameraPermission) => void,
+): () => void {
+  const perms = navigator.permissions as Permissions | undefined
+  if (!perms?.query) return () => {}
+  let status: PermissionStatus | null = null
+  const handler = () => listener((status?.state ?? 'unknown') as CameraPermission)
+  void perms
+    .query({ name: 'camera' as PermissionName })
+    .then((s) => {
+      status = s
+      s.addEventListener('change', handler)
+    })
+    .catch(() => {
+      /* permission name unsupported — no live updates on this browser */
+    })
+  return () => status?.removeEventListener('change', handler)
 }
 
 /** `'ios'` / `'android'` inside the Capacitor shell, `null` in a browser. */
@@ -107,9 +148,16 @@ export function blockedCameraHelp(): string {
   }
 }
 
-/** One line under the auto-start checkbox saying who does the remembering. */
+/** One line under the ask-on-open checkbox saying who does the remembering. */
 export function rememberedByHint(): string {
   return nativePlatform()
     ? 'Your device remembers the answer, so you are only asked once.'
     : 'Your browser remembers this site’s camera permission.'
+}
+
+/** Shown in place of the checkbox once there is nothing left to ask about. */
+export function grantedHint(): string {
+  return nativePlatform()
+    ? 'Camera access is allowed on this device — Scan opens straight to the viewfinder.'
+    : 'Camera access is allowed for this site — Scan opens straight to the viewfinder.'
 }

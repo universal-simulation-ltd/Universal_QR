@@ -192,19 +192,34 @@ camera via `@zxing/browser` (lazy-loaded on first use, so the ~100 KB reader
 never lands on anyone who only designs codes). Frames are decoded on-device and
 never uploaded.
 
-**Opening the tab asks for the camera immediately** (2026-09-04). It used to be
-start-on-tap; the tab has one purpose, so the extra tap only meant every scan
-cost two taps and a prompt instead of one prompt. Two things soften that:
+**Opening the tab shows the camera** (2026-09-04). It used to be start-on-tap;
+the tab has one purpose, so the extra tap only meant every scan cost two taps
+and a prompt instead of one prompt.
 
-- **A remembered opt-out.** `lib/cameraAccess.ts` keeps
-  `unisim.qr.scan.auto-start.v1` in localStorage; the checkbox under the
-  viewfinder turns auto-start off for this device. Only an opt-*out* is ever
-  stored, so a wiped or blocked localStorage lands on the default (on), never
-  on off.
-- **`denied` is never auto-started from.** The tab reads
-  `navigator.permissions.query({name:'camera'})` first. A denied camera rejects
-  instantly and silently, so the tab shows how to unblock — and the wording is
-  per-platform, because "allow it in the address bar" is useless on a phone.
+**The permission is the only gate**, and that ordering is the whole design:
+
+| State | What happens |
+|---|---|
+| `granted` | Start, always. No preference read, no tap, no overlay — somebody who has already said yes does not get asked to say it again. |
+| `denied` | Never start. The request fails instantly and silently, so the tab shows how to unblock instead, worded per platform (`blockedCameraHelp()`), because "allow it from the address bar" is useless on a phone. |
+| `prompt` / `unknown` | Nobody has answered, so this is the one state where asking is a *choice*: `unisim.qr.scan.ask-on-open.v1` decides, and its checkbox is rendered **only here**. |
+
+⚠️ **The preference is "should we ASK", never "should the camera start".** The
+first cut had it wrapping the permission read, so an opt-out gated a *granted*
+camera too — precisely the friction this change exists to remove. Only an
+opt-*out* is ever written to storage, so a wiped or blocked localStorage lands
+on the default (ask) rather than on silence. The checkbox is hidden once the
+answer exists in either direction: over a granted camera it is a control for a
+decision that no longer exists, and over a denied one "ask on open" is a promise
+the platform will not keep.
+
+`permission` starts as `null` (not yet read) so the controls render nothing
+rather than flashing the wrong affordance for a frame. A `getUserMedia` that
+resolves sets it to `granted` and one that rejects with `NotAllowedError` sets
+it to `denied` — that is how Safari and the Capacitor WebViews, which don't
+answer `permissions.query({name:'camera'})` at all, ever leave `unknown`.
+`onCameraPermissionChange` picks up a grant made from browser/OS settings while
+the tab is open (Chromium only; a nicety, never what correctness rests on).
 
 ### Who remembers the permission (they are not the same)
 
