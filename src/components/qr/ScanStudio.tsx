@@ -1,11 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
 import type { IScannerControls } from '@zxing/browser'
 import { CONTAINER } from '../../lib/layout'
+import {
+  blockedCameraHelp,
+  loadAutoStart,
+  readCameraPermission,
+  rememberedByHint,
+  saveAutoStart,
+} from '../../lib/cameraAccess'
 
 // The camera "Scan" tab — decodes both QR codes and 1D barcodes from a live
 // camera stream via @zxing/browser (lazy-loaded on first use). The stream is
-// on-device only; frames are never uploaded. Scanning is start-on-tap so simply
-// opening the tab never triggers a camera-permission prompt.
+// on-device only; frames are never uploaded.
+//
+// ⚠️ Opening the tab now asks for the camera immediately (it used to be
+// start-on-tap). The permission answer is remembered by the platform, not by
+// us — see `lib/cameraAccess.ts` for what each platform actually does and for
+// the opt-out, which is the only part of "remember it" that is ours to keep.
+// The one state we never auto-start from is `denied`: that request fails
+// instantly and silently, so the tab shows how to unblock instead.
 
 interface ScanResult {
   text: string
@@ -20,22 +33,28 @@ function looksLikeUrl(text: string): boolean {
 export default function ScanStudio() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const controlsRef = useRef<IScannerControls | null>(null)
+  // Bumped by every start and every stop. A start that finishes after its own
+  // token has moved on has been superseded — under StrictMode the mount effect
+  // runs, unmounts and runs again, and without this the first (already
+  // cancelled) start hands back live controls nothing is holding, i.e. a camera
+  // left on with no way to turn it off.
+  const startToken = useRef(0)
   const [scanning, setScanning] = useState(false)
   const [starting, setStarting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<ScanResult | null>(null)
   const [copied, setCopied] = useState(false)
+  const [autoStart, setAutoStart] = useState(loadAutoStart)
 
   function stop() {
+    startToken.current += 1
     controlsRef.current?.stop()
     controlsRef.current = null
     setScanning(false)
   }
 
-  // Always release the camera when the component unmounts (tab switch away).
-  useEffect(() => () => stop(), [])
-
   async function start() {
+    const token = (startToken.current += 1)
     setError(null)
     setResult(null)
     setStarting(true)
@@ -55,20 +74,57 @@ export default function ScanStudio() {
           stop()
         },
       )
+      if (token !== startToken.current) {
+        controls.stop()
+        return
+      }
       controlsRef.current = controls
       setScanning(true)
     } catch (err) {
+      if (token !== startToken.current) return
       const name = (err as { name?: string })?.name
       if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-        setError('Camera access was blocked. Allow camera access in your browser, then try again.')
+        setError(blockedCameraHelp())
       } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
         setError('No camera was found on this device.')
       } else {
         setError(err instanceof Error ? err.message : 'Could not start the camera.')
       }
     } finally {
-      setStarting(false)
+      if (token === startToken.current) setStarting(false)
     }
+  }
+
+  // Opening the tab reaches for the camera, and leaving it always releases it.
+  // The permission read is deliberately not awaited before mount finishes: on
+  // the browsers that don't implement it, it settles as 'unknown' and we ask
+  // anyway.
+  useEffect(() => {
+    let cancelled = false
+    if (autoStart) {
+      void (async () => {
+        const state = await readCameraPermission()
+        if (cancelled) return
+        if (state === 'denied') setError(blockedCameraHelp())
+        else void start()
+      })()
+    }
+    return () => {
+      cancelled = true
+      stop()
+    }
+    // Mount only: toggling the checkbox later starts the camera itself (below),
+    // and re-running this on every change would restart a live scan.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  function onToggleAutoStart(on: boolean) {
+    setAutoStart(on)
+    saveAutoStart(on)
+    // Ticking the box IS a user gesture, so honour it now rather than only on
+    // the next visit. Unticking leaves a running scan alone — it only decides
+    // what happens when the tab is opened.
+    if (on && !scanning && !starting) void start()
   }
 
   async function onCopy() {
@@ -105,9 +161,13 @@ export default function ScanStudio() {
           {!scanning && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-900/70 text-center px-6">
               <p className="text-sm text-slate-200">
-                {result
-                  ? 'Scan another code when you’re ready.'
-                  : 'The camera is off until you start scanning.'}
+                {starting
+                  ? 'Waiting for camera access…'
+                  : result
+                    ? 'Scan another code when you’re ready.'
+                    : error
+                      ? 'The camera could not start.'
+                      : 'The camera is off.'}
               </p>
               <button
                 type="button"
@@ -129,6 +189,21 @@ export default function ScanStudio() {
             </button>
           )}
         </div>
+
+        <label className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+          <input
+            type="checkbox"
+            checked={autoStart}
+            onChange={(e) => onToggleAutoStart(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 accent-orange-600"
+          />
+          <span className="text-sm">
+            <span className="font-medium text-slate-800">
+              Start the camera when I open Scan
+            </span>
+            <span className="mt-0.5 block text-xs text-slate-500">{rememberedByHint()}</span>
+          </span>
+        </label>
 
         {error && (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

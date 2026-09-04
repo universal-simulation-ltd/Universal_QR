@@ -185,6 +185,42 @@ plus Supabase; the `opensource-portal` Worker is untouched:
   the service-role RPC and 302s to the current target; unknown codes get a small
   404 page. Source lives in `backoffice/universal-platform/supabase/functions/`.
 
+## The Scan tab and camera permission
+
+`components/qr/ScanStudio.tsx` decodes QR codes and 1D barcodes from a live
+camera via `@zxing/browser` (lazy-loaded on first use, so the ~100 KB reader
+never lands on anyone who only designs codes). Frames are decoded on-device and
+never uploaded.
+
+**Opening the tab asks for the camera immediately** (2026-09-04). It used to be
+start-on-tap; the tab has one purpose, so the extra tap only meant every scan
+cost two taps and a prompt instead of one prompt. Two things soften that:
+
+- **A remembered opt-out.** `lib/cameraAccess.ts` keeps
+  `unisim.qr.scan.auto-start.v1` in localStorage; the checkbox under the
+  viewfinder turns auto-start off for this device. Only an opt-*out* is ever
+  stored, so a wiped or blocked localStorage lands on the default (on), never
+  on off.
+- **`denied` is never auto-started from.** The tab reads
+  `navigator.permissions.query({name:'camera'})` first. A denied camera rejects
+  instantly and silently, so the tab shows how to unblock — and the wording is
+  per-platform, because "allow it in the address bar" is useless on a phone.
+
+### Who remembers the permission (they are not the same)
+
+| Platform | Behaviour |
+|---|---|
+| iOS (Capacitor/WKWebView) | The OS prompt is once per install. Capacitor's `WebViewDelegationHandler` already answers the *second*, WebKit-level prompt (`requestMediaCapturePermissionFor` → `.grant`), so nothing extra is needed here. `NSCameraUsageDescription` is in `Info.plist`. |
+| Android (Capacitor/WebView) | `BridgeWebChromeClient.onPermissionRequest` turns the WebView request into a real runtime CAMERA request, which the OS remembers. |
+| Browsers | An https origin's granted camera is remembered per site. Safari and private windows re-ask per session — the browser's call, not the page's. |
+
+⚠️ **`android.permission.CAMERA` must stay in `AndroidManifest.xml`.** Android
+denies a runtime request for an undeclared permission *instantly and shows no
+dialog at all*, so Capacitor's request came back denied and scanning could not
+work on Android — with nothing on screen to explain why. It was undeclared
+until 2026-09-04. `npm run cap:sync` is needed for the manifest change to reach
+a built APK.
+
 ## Suite context
 
 This repo is one part of the **Universal Simulation suite** (the open-source

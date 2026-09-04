@@ -38,4 +38,17 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- The Scan tab's camera. Capacitor's BridgeWebChromeClient turns the
+         WebView's getUserMedia request into a runtime CAMERA request, and the
+         OS remembers the answer - but ONLY if the permission is declared here.
+         Android denies a runtime request for an undeclared permission
+         instantly and shows no dialog, which is why scanning failed on Android
+         with no visible prompt until 2026-09-04. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Declared not-required so the Play listing does not filter out devices
+         without a camera: every other tab works fine on one. -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 </manifest>
