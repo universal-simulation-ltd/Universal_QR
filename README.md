@@ -209,4 +209,4 @@ uploaded as a workflow artifact in that case.
 
 ## License
 
-[MIT](LICENSE) © 2026 James Markey / Universal Simulation Ltd
+[AGPL-3.0-or-later](LICENSE), with an added permission for app-store distribution — © 2026 James Markey / Universal Simulation Ltd
