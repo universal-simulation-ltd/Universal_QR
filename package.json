@@ -12,6 +12,7 @@
     "build:desktop": "tsc -b && vite build --mode desktop",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
+    "credits": "node ../scripts/gen-credits.mjs . --repo https://github.com/universal-simulation-ltd/Universal_QR",
     "test:hosted-paths": "node --experimental-strip-types scripts/hostedPath.test.mjs",
     "test:dynamic-design": "node --experimental-strip-types scripts/dynamicDesign.test.mjs",
     "test:link-check": "node --experimental-strip-types scripts/linkCheck.test.mjs",
