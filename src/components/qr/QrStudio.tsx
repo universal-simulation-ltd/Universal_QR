@@ -9,7 +9,7 @@ import LinkCheck from './LinkCheck'
 import { useQrStore, type StudioMode } from '../../stores/qrStore'
 import { CONTAINER } from '../../lib/layout'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
-import { saveBlob } from '../../lib/saveFile'
+import { saveBlob } from '@unisim/media/save'
 import { DEFAULT_CONFIG, PRESETS, type ExportFormat, type QrConfig } from '@unisim/qr'
 import { barcodeFileStem, renderBarcodeToSvg, symbologyById } from '../../lib/barcode'
 
@@ -79,7 +79,7 @@ const FORMATS: { value: ExportFormat; label: string }[] = [
 const BARCODE_FORMATS: { value: ExportFormat; label: string }[] = FORMATS.slice(0, 2)
 
 // The barcode exports share the QR exports' save path — a download in a
-// browser, the share sheet on a phone. See `saveFile.ts`.
+// browser, the share sheet on a phone. See `@unisim/media/save`.
 const triggerDownload = saveBlob
 
 /** The live barcode canvas, found by the same aria-label the preview sets. */

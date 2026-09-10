@@ -2,7 +2,7 @@ import QRCodeStyling from 'qr-code-styling'
 import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark, type ExportFormat, type QrConfig } from '@unisim/qr'
 import { composeShapedCanvas, composeShapedSvg } from '@unisim/qr'
 import { UNISIM_MARK } from '@unisim/qr'
-import { saveBlob } from './saveFile'
+import { saveBlob } from '@unisim/media/save'
 
 /** Slugify the QR's name into a safe filename stem. */
 export function fileStem(name: string): string {
@@ -158,7 +158,7 @@ export function enlargedPngDataUrl(config: QrConfig, size: number): Promise<stri
   return pending
 }
 
-// A download in a browser, the share sheet on a phone — see `saveFile.ts` for
+// A download in a browser, the share sheet on a phone — see `@unisim/media/save` for
 // why the two cannot be the same thing.
 const triggerDownload = saveBlob
 
