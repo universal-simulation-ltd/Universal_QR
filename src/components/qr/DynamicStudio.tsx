@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useState } from 'react'
 import { useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding } from '@unisim/sdk'
 import { CONTAINER } from '../../lib/layout'
 import { DEFAULT_CONFIG, type QrDesign } from '@unisim/qr'
@@ -27,6 +27,7 @@ const GET_TOKENS_URL = 'https://www.unisim.co.uk/everyday'
 // credit), returned when the code is deleted. The free static designer is a
 // sibling tab and is never touched by any of this.
 export default function DynamicStudio() {
+  const brandingPanelId = useId()
   const { supabase, session, activeOrgId } = useUniversal()
   const { user } = useUser()
   const { credits, refresh: refreshCredits } = useCredits()
@@ -252,6 +253,7 @@ export default function DynamicStudio() {
               type="button"
               onClick={() => setBrandingOpen((v) => !v)}
               aria-expanded={brandingOpen}
+              aria-controls={brandingPanelId}
               className="group flex min-w-0 flex-1 items-start gap-2 text-left"
             >
               <svg viewBox="0 0 12 12" className={`mt-1 h-3 w-3 shrink-0 text-slate-400 transition-transform ${brandingOpen ? 'rotate-90' : ''}`} aria-hidden="true">
@@ -272,6 +274,7 @@ export default function DynamicStudio() {
           </div>
 
           {brandingOpen && (
+            <div id={brandingPanelId}>
             <BrandingControls
               config={brandConfig}
               onPatch={applyConfigPatch}
@@ -289,6 +292,7 @@ export default function DynamicStudio() {
                 onFollow: () => setDynamicBrand({ color: null }),
               }}
             />
+            </div>
           )}
         </section>
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useUniversal } from '@unisim/sdk'
 import { type QrDesign } from '@unisim/qr'
 import QrCanvas from './QrCanvas'
@@ -58,6 +58,7 @@ export default function DynamicCodeCard({
 
   // Branding editor — a draft of THIS code's design, saved only on Save.
   const [brandOpen, setBrandOpen] = useState(false)
+  const brandPanelId = useId()
   const [draft, setDraft] = useState<QrDesign>(config)
   const [savingBrand, setSavingBrand] = useState(false)
   const [brandError, setBrandError] = useState<string | null>(null)
@@ -155,6 +156,7 @@ export default function DynamicCodeCard({
               type="button"
               onClick={() => (brandOpen ? setBrandOpen(false) : openBranding())}
               aria-expanded={brandOpen}
+              aria-controls={brandPanelId}
               className="text-[11px] font-semibold text-orange-700 hover:text-orange-800"
             >
               {brandOpen ? 'Close branding' : '✏️ Edit branding'}
@@ -244,7 +246,7 @@ export default function DynamicCodeCard({
 
       {/* Branding — this code's own, edited in place */}
       {brandOpen && (
-        <div className="mt-4 border-t border-slate-100 pt-4">
+        <div id={brandPanelId} className="mt-4 border-t border-slate-100 pt-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <p className="text-[11px] text-slate-500">
               {code.design
