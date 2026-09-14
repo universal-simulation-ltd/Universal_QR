@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { useFileDrop, useUniversal } from '@unisim/sdk'
+import { ChipToggle, useFileDrop, useUniversal } from '@unisim/sdk'
 import Controls from './Controls'
 import QrPreview from './QrPreview'
 import PinnedPreview from './PinnedPreview'
@@ -616,20 +616,15 @@ function BrandingPanel() {
           {PRESETS.map((p) => {
             const active = p.name === activePreset
             return (
-              <button
+              <ChipToggle
                 key={p.name}
-                type="button"
+                selected={active}
                 role="radio"
                 aria-checked={active}
                 onClick={() => applyPreset(p.name, p.patch)}
-                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
-                  active
-                    ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'
-                    : 'border-slate-200 bg-white text-slate-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-orange-500/10 dark:hover:text-orange-300'
-                }`}
               >
                 {p.name}
-              </button>
+              </ChipToggle>
             )
           })}
         </div>

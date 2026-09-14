@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Chip } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { qrDisplayName } from '@unisim/qr'
 import { renderThumbnailDataUrl } from '../../lib/download'
@@ -59,9 +60,7 @@ export default function SavePanel() {
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3 dark:bg-slate-900 dark:border-slate-800">
       <div className="flex items-center gap-2">
         <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Save your design</span>
-        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-          No account
-        </span>
+        <Chip size="sm">No account</Chip>
       </div>
       <p className="text-xs text-slate-500 -mt-1.5 dark:text-slate-400">
         Keep this QR code on this device and reopen it later — free, no sign-in. It stays in your

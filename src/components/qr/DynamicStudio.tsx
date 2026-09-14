@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useState } from 'react'
-import { useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding, isNativeShell } from '@unisim/sdk'
+import { Chip, useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding, isNativeShell } from '@unisim/sdk'
 import { CONTAINER } from '../../lib/layout'
 import { DEFAULT_CONFIG, type QrDesign } from '@unisim/qr'
 import { useQrStore } from '../../stores/qrStore'
@@ -223,7 +223,7 @@ export default function DynamicStudio() {
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
             Dynamic QR codes
           </h1>
-          <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700 dark:bg-orange-500/15 dark:text-orange-300">Hosted</span>
+          <Chip size="sm">Hosted</Chip>
         </div>
         {/* `break-words` on the example link: it is one unbreakable token, so at
             ~320px it is wider than its column and used to poke a couple of

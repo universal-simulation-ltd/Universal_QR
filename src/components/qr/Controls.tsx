@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { useFileDrop } from '@unisim/sdk'
+import { ChipToggle, useFileDrop } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import {
   CORNER_DOT_TYPES,
@@ -479,38 +479,18 @@ export default function Controls() {
  *  to tell later which preset a design started from. */
 function PresetPill({ name, active, onClick }: { name: string; active: boolean; onClick: () => void }) {
   return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={active}
-      onClick={onClick}
-      className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
-        active
-          ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'
-          : 'border-slate-200 bg-white text-slate-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-orange-500/10 dark:hover:text-orange-300'
-      }`}
-    >
+    <ChipToggle selected={active} role="radio" aria-checked={active} onClick={onClick}>
       {name}
-    </button>
+    </ChipToggle>
   )
 }
 
 /** One chip in the Type row. */
 function TypeChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={active}
-      onClick={onClick}
-      className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
-        active
-          ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'
-          : 'border-slate-200 bg-white text-slate-600 hover:border-orange-300 hover:text-orange-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-orange-300'
-      }`}
-    >
+    <ChipToggle selected={active} role="radio" aria-checked={active} onClick={onClick}>
       {label}
-    </button>
+    </ChipToggle>
   )
 }
 
