@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useUniversal, useUser, useHostedUploads, type HostedUpload } from '@unisim/sdk'
+import { useUniversal, useUser, useHostedUploads, isNativeShell, type HostedUpload } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { storeCurrentQr, deleteHostedQr, openHostedQr, HostedObjectMissingError } from '../../lib/hostedStore'
 import SavePanel from './SavePanel'
@@ -12,6 +12,11 @@ const SIGNIN_URL = 'https://app.unisim.co.uk/login'
 // link left pointing there sends someone who wants one upload to a £5,000/year
 // enterprise plan. Not a 404: it renders fine, which is why it needed finding.
 const GET_TOKENS_URL = 'https://www.unisim.co.uk/everyday'
+// App Review 3.1.1 / 3.1.3: inside the iOS/Android app nothing may send people
+// to buy tokens outside the store — no link, no "get more" nudge. The phone
+// app still spends tokens bought elsewhere; it just never points at the shop.
+// The web and desktop builds keep the link.
+const SHOW_TOKEN_PURCHASE = !isNativeShell()
 
 // "Back up this QR code" — the free device gallery (SavePanel) plus online
 // save against a Universal ID. Every account gets five free static QR saves
@@ -174,11 +179,15 @@ export default function HostedStoreDialog() {
                 {outOfTokens && (
                   <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/60 dark:bg-amber-950/40">
                     <p className="text-sm text-amber-800 dark:text-amber-200">
-                      You have no tokens left. Get more to keep storing QR codes online, or delete a backup below.
+                      {SHOW_TOKEN_PURCHASE
+                        ? 'You have no tokens left. Get more to keep storing QR codes online, or delete a backup below.'
+                        : 'You have no tokens left. Delete a backup below to free one.'}
                     </p>
+                    {SHOW_TOKEN_PURCHASE && (
                     <a href={GET_TOKENS_URL} target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-lg bg-orange-700 px-3.5 py-2 text-sm font-semibold text-white hover:bg-orange-800">
                       Get tokens →
                     </a>
+                    )}
                   </div>
                 )}
 

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!--
+  Apple's privacy manifest, required for App Store submission.
+
+  Making, styling, scanning and saving a QR code or barcode happens on the
+  phone and sends nothing. What CAN leave, and only when the user asks for it:
+
+  - Signing in with a Universal ID: the email and the account id.
+  - "Back up this QR online": the code's image and its settings (the text or
+    link it encodes), stored against the account.
+  - Dynamic codes: the destination link, the optional label and the code's
+    branding (colour, and a centre logo if one is chosen), stored against the
+    account so the short link can redirect. Scans of a printed code are counted
+    by our redirect server; that is data about whoever scans, never read from
+    this phone, so it is not declared here.
+  - While signed in, one "the app was opened" event per launch, tied to the
+    account (the SDK's <UsageTracker />). Nothing about the code. Declared as
+    product interaction, for analytics, because that is what it is.
+
+  The link check asks the linked site itself whether anything answers (a
+  direct request from the phone, like opening it); nothing goes to our servers.
+
+  All of it goes to our own servers. Nothing is used for tracking, and there
+  are no third-party analytics or advertising SDKs.
+
+  Required-reason APIs: @capacitor/filesystem reads file creation and
+  modification dates (its `stat`), only on files in the app's own container,
+  and neither it nor its IONFilesystemLib pod ships a manifest. Capacitor's
+  core frameworks carry their own manifests, and @capacitor/share and the
+  SDK's UnisimSdk pod use none of the listed APIs.
+
+  Keep this in step with the App Store Connect privacy answers.
+-->
+<dict>
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<!-- @capacitor/filesystem's stat: files in the app container. C617.1. -->
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>C617.1</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array>
+		<dict>
+			<!-- The sign-in email. -->
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeEmailAddress</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeUserID</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+		<dict>
+			<!-- A QR code backed up online; a dynamic code's link, label and branding. -->
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeOtherUserContent</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+		<dict>
+			<!-- One "session.opened" event per launch while signed in. -->
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeProductInteraction</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
