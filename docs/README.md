@@ -236,6 +236,42 @@ work on Android — with nothing on screen to explain why. It was undeclared
 until 2026-09-04. `npm run cap:sync` is needed for the manifest change to reach
 a built APK.
 
+## Phone builds and the App Store / Google Play requirements
+
+Added 2026-09-14, when the iPhone and Android apps were prepared for the stores.
+
+- **Delete my account** comes from `@unisim/sdk` 0.141.7 and later, not from
+  this repo. It's a row under Sign out in the account panel, shown only inside
+  the native shell. App Review 5.1.1(v) and Google Play both require it,
+  because the suite's sign-in creates an account for any new email. It calls the
+  platform's `delete-account` function, which deletes the Universal ID in
+  every UNI·SIM product.
+- **The iOS privacy manifest** is `ios/App/App/PrivacyInfo.xcprivacy`. It
+  declares the sign-in email and account ID; other user content (a code backed
+  up online, and a dynamic code's link, label and design); and the one
+  "app opened" event (product interaction, analytics). All are linked to the
+  user, and none is used for tracking. It also declares `@capacitor/filesystem`'s
+  file-date reads (C617.1), since that plugin ships no manifest of its own.
+  Camera frames are decoded on the phone and never sent, so there is nothing to
+  declare for scanning. Keep it in step with the app's section of the
+  [privacy policy](https://www.unisim.co.uk/privacy#universal-qr).
+- **`ITSAppUsesNonExemptEncryption` is `false`** in `Info.plist`: the app uses
+  nothing beyond HTTPS.
+- **Versions come from `package.json`.** `npm run sync:ios-version` stamps it
+  into the iOS project. Android's `versionName`/`versionCode` are derived from
+  it in `android/app/build.gradle`, the same way as Universal PDF (0.1.0 →
+  build 100). Bump the version before every store upload, because the stores
+  refuse a build number twice.
+- **Android release builds** come from `.github/workflows/android-release.yml`,
+  on a `v*` tag or a manual dispatch. It signs with the upload key when the
+  repo secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
+  `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD` are set, and builds unsigned
+  otherwise, so a fork still builds. Don't sign release builds on a laptop.
+- **Buying tokens is never offered inside the phone app** (App Review 3.1.1).
+  `HostedStoreDialog` and `DynamicStudio` hide the "Get tokens" link and the
+  "add tokens" wording when `isNativeShell()` is true. The web and desktop
+  apps are unchanged.
+
 ## Suite context
 
 This repo is one part of the **Universal Simulation suite** (the open-source
