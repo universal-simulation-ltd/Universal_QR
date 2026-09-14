@@ -68,7 +68,7 @@ export default function LinkCheck({
           href={openHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-800 transition-colors"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-800 transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-orange-500/60 dark:hover:bg-orange-500/10 dark:hover:text-orange-300"
         >
           <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M11 4h5v5" />
@@ -81,14 +81,14 @@ export default function LinkCheck({
       </div>
 
       {shape.kind === 'no-scheme' && (
-        <p className="text-xs text-amber-800">
+        <p className="text-xs text-amber-800 dark:text-amber-300">
           No <code className="font-mono">https://</code> in front — some scanners will open this,
           others will read it as plain text.{' '}
           {onFix && (
             <button
               type="button"
               onClick={() => onFix(shape.suggestion)}
-              className="font-semibold underline underline-offset-2 hover:text-amber-900"
+              className="font-semibold underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-200"
             >
               Add https://
             </button>
@@ -97,7 +97,7 @@ export default function LinkCheck({
       )}
 
       {shape.kind === 'insecure' && (
-        <p className="text-xs text-amber-800">
+        <p className="text-xs text-amber-800 dark:text-amber-300">
           An <code className="font-mono">http://</code> address. It will open, but phones show it as
           “Not secure” — and it can’t be checked from this page.
         </p>
@@ -111,8 +111,8 @@ function Status({ status, shape }: { status: 'idle' | 'checking' | ProbeResult; 
 
   if (status === 'checking') {
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
-        <span className="h-2 w-2 animate-pulse rounded-full bg-slate-300" aria-hidden="true" />
+      <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+        <span className="h-2 w-2 animate-pulse rounded-full bg-slate-300 dark:bg-slate-600" aria-hidden="true" />
         Checking the address…
       </span>
     )
@@ -121,7 +121,7 @@ function Status({ status, shape }: { status: 'idle' | 'checking' | ProbeResult; 
   if (status === 'ok') {
     return (
       <span
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400"
         title="Something answered at that address. It can't tell a real page from a 404 — open it to be sure."
       >
         <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -142,7 +142,7 @@ function Status({ status, shape }: { status: 'idle' | 'checking' | ProbeResult; 
 
   return (
     <span
-      className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-700"
+      className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-400"
       title="Not proof the link is broken — some sites refuse this kind of check. Open it in a tab to be sure."
     >
       <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

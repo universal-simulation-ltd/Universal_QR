@@ -52,7 +52,11 @@ export default function BarcodePreview({ onError }: { onError: (message: string 
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="w-full max-w-[360px] rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+      <div className="w-full max-w-[360px] rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 dark:bg-slate-900 dark:border-slate-800">
+        {/* The plate the bars are drawn on is content, not chrome: it stays
+            slate-50 in both themes, and so does the dark placeholder text on it
+            (an element that opts out of theming for its ground opts out for its
+            text too). Only the card around it follows the theme. */}
         <div className="flex min-h-[140px] items-center justify-center rounded-xl bg-slate-50 p-4">
           <canvas ref={canvasRef} className={drawable ? 'max-w-full' : 'hidden'} />
           {!drawable && (
@@ -66,9 +70,9 @@ export default function BarcodePreview({ onError }: { onError: (message: string 
       </div>
 
       <div className="min-w-0 max-w-[360px] text-center">
-        <div className="truncate font-semibold text-slate-900">{def.label}</div>
+        <div className="truncate font-semibold text-slate-900 dark:text-slate-100">{def.label}</div>
         {drawable && (
-          <div className="truncate font-mono text-xs text-slate-500" title={trimmed}>
+          <div className="truncate font-mono text-xs text-slate-500 dark:text-slate-400" title={trimmed}>
             {trimmed}
           </div>
         )}

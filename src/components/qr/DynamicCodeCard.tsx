@@ -120,7 +120,7 @@ export default function DynamicCodeCard({
   }
 
   return (
-    <li className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <li className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:bg-slate-900 dark:border-slate-800">
       <div className="flex flex-col gap-4 sm:flex-row">
         {/* Live QR of the redirect — click to enlarge for scanning */}
         <div className="shrink-0 self-center sm:self-start">
@@ -134,7 +134,7 @@ export default function DynamicCodeCard({
               setPlaceholder(placeholderFromPreview(previewRef.current))
               setEnlarged(true)
             }}
-            className="w-28 cursor-zoom-in rounded-xl border border-slate-200 bg-white p-2 transition-colors hover:border-orange-300"
+            className="w-28 cursor-zoom-in rounded-xl border border-slate-200 bg-white p-2 transition-colors hover:border-orange-300 dark:border-slate-700"
             title="Tap to enlarge"
             aria-label={`Enlarge QR code for ${targetLabel(code.target_url)}`}
           >
@@ -147,9 +147,9 @@ export default function DynamicCodeCard({
             />
           </button>
           <div className="mt-2 flex justify-center gap-2">
-            <button type="button" onClick={() => downloadQr({ ...config, size: 1024 }, 'png')} className="text-[11px] font-semibold text-slate-500 hover:text-orange-700">PNG</button>
-            <span className="text-slate-300" aria-hidden="true">·</span>
-            <button type="button" onClick={() => downloadQr({ ...config, size: 1024 }, 'svg')} className="text-[11px] font-semibold text-slate-500 hover:text-orange-700">SVG</button>
+            <button type="button" onClick={() => downloadQr({ ...config, size: 1024 }, 'png')} className="text-[11px] font-semibold text-slate-500 hover:text-orange-700 dark:text-slate-400 dark:hover:text-orange-400">PNG</button>
+            <span className="text-slate-300 dark:text-slate-600" aria-hidden="true">·</span>
+            <button type="button" onClick={() => downloadQr({ ...config, size: 1024 }, 'svg')} className="text-[11px] font-semibold text-slate-500 hover:text-orange-700 dark:text-slate-400 dark:hover:text-orange-400">SVG</button>
           </div>
           <div className="mt-1 text-center">
             <button
@@ -157,7 +157,7 @@ export default function DynamicCodeCard({
               onClick={() => (brandOpen ? setBrandOpen(false) : openBranding())}
               aria-expanded={brandOpen}
               aria-controls={brandPanelId}
-              className="text-[11px] font-semibold text-orange-700 hover:text-orange-800"
+              className="text-[11px] font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300"
             >
               {brandOpen ? 'Close branding' : '✏️ Edit branding'}
             </button>
@@ -168,13 +168,13 @@ export default function DynamicCodeCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h3 className="truncate font-semibold text-slate-900">{code.name?.trim() || targetLabel(code.target_url)}</h3>
+              <h3 className="truncate font-semibold text-slate-900 dark:text-slate-100">{code.name?.trim() || targetLabel(code.target_url)}</h3>
               <div className="mt-0.5 flex items-center gap-1.5">
-                <code className="truncate text-xs text-slate-500" title={link}>{link.replace(/^https:\/\//, '')}</code>
+                <code className="truncate text-xs text-slate-500 dark:text-slate-400" title={link}>{link.replace(/^https:\/\//, '')}</code>
                 <button
                   type="button"
                   onClick={onCopy}
-                  className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                  className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
                   aria-label="Copy dynamic link"
                 >
                   {copied ? '✓' : 'Copy'}
@@ -185,7 +185,7 @@ export default function DynamicCodeCard({
               type="button"
               onClick={() => onDelete(code)}
               disabled={busy}
-              className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50"
+              className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50 dark:hover:text-rose-400"
               title="Delete this code and get its token back"
             >
               Delete
@@ -193,11 +193,11 @@ export default function DynamicCodeCard({
           </div>
 
           {/* Destination — editable in place */}
-          <div className="mt-3 rounded-lg bg-slate-50 p-3">
+          <div className="mt-3 rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-wide text-slate-500">Redirects to</span>
+              <span className="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Redirects to</span>
               {!editing && (
-                <button type="button" onClick={() => { setDraftUrl(code.target_url); setEditing(true) }} className="text-xs font-semibold text-orange-700 hover:text-orange-800">
+                <button type="button" onClick={() => { setDraftUrl(code.target_url); setEditing(true) }} className="text-xs font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300">
                   Change destination
                 </button>
               )}
@@ -210,34 +210,34 @@ export default function DynamicCodeCard({
                   value={draftUrl}
                   onChange={(e) => setDraftUrl(e.target.value)}
                   placeholder="https://example.com/new-page"
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/40"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/40 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-100"
                 />
                 <div className="flex gap-2">
                   <button type="button" onClick={onSave} disabled={saving || !draftUrl.trim()} className="rounded-lg bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800 disabled:opacity-50">
                     {saving ? 'Saving…' : 'Save destination'}
                   </button>
-                  <button type="button" onClick={() => { setEditing(false); setError(null) }} className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800">Cancel</button>
+                  <button type="button" onClick={() => { setEditing(false); setError(null) }} className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">Cancel</button>
                 </div>
                 <p className="text-[11px] text-slate-400">The printed code stays the same — only where it sends people changes.</p>
               </div>
             ) : (
-              <a href={code.target_url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-sm text-slate-700 underline-offset-2 hover:text-orange-700 hover:underline" title={code.target_url}>
+              <a href={code.target_url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-sm text-slate-700 underline-offset-2 hover:text-orange-700 hover:underline dark:text-slate-300 dark:hover:text-orange-400" title={code.target_url}>
                 {code.target_url}
               </a>
             )}
-            {error && <p className="mt-2 text-xs text-rose-600">{error}</p>}
+            {error && <p className="mt-2 text-xs text-rose-600 dark:text-rose-400">{error}</p>}
           </div>
 
           {/* Analytics */}
           <div className="mt-3 flex items-center gap-4">
             <div>
-              <div className="text-xl font-bold tabular-nums text-slate-900">{code.scan_count.toLocaleString()}</div>
+              <div className="text-xl font-bold tabular-nums text-slate-900 dark:text-slate-100">{code.scan_count.toLocaleString()}</div>
               <div className="text-[11px] uppercase tracking-wide text-slate-400">Total scans</div>
             </div>
             <Sparkline daily={daily} />
             <div className="ml-auto text-right text-[11px] text-slate-400">
               {code.last_scan_at
-                ? <>Last scan<br /><span className="text-slate-600">{new Date(code.last_scan_at).toLocaleString()}</span></>
+                ? <>Last scan<br /><span className="text-slate-600 dark:text-slate-300">{new Date(code.last_scan_at).toLocaleString()}</span></>
                 : 'No scans yet'}
             </div>
           </div>
@@ -246,9 +246,9 @@ export default function DynamicCodeCard({
 
       {/* Branding — this code's own, edited in place */}
       {brandOpen && (
-        <div id={brandPanelId} className="mt-4 border-t border-slate-100 pt-4">
+        <div id={brandPanelId} className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-800">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
               {code.design
                 ? 'This code’s own branding. Changing it re-draws this code and nothing else.'
                 : 'This code was made before codes kept their own branding, so it still follows the panel above. Saving here pins the look to this code.'}
@@ -257,7 +257,7 @@ export default function DynamicCodeCard({
               <button
                 type="button"
                 onClick={() => setDraft({ ...studioBrand, data: config.data, name: config.name })}
-                className="text-[11px] font-semibold text-slate-500 hover:text-orange-700"
+                className="text-[11px] font-semibold text-slate-500 hover:text-orange-700 dark:text-slate-400 dark:hover:text-orange-400"
               >
                 Match branding for new codes
               </button>
@@ -294,12 +294,12 @@ export default function DynamicCodeCard({
             >
               {savingBrand ? 'Saving…' : 'Save branding'}
             </button>
-            <button type="button" onClick={() => { setBrandOpen(false); setBrandError(null) }} className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800">Cancel</button>
+            <button type="button" onClick={() => { setBrandOpen(false); setBrandError(null) }} className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">Cancel</button>
             <p className="text-[11px] text-slate-400">
               The link and the scan count are untouched — but anything already printed keeps the old look, so re-download it.
             </p>
           </div>
-          {brandError && <p className="mt-2 text-xs text-rose-600">{brandError}</p>}
+          {brandError && <p className="mt-2 text-xs text-rose-600 dark:text-rose-400">{brandError}</p>}
         </div>
       )}
 
@@ -330,7 +330,7 @@ function Sparkline({ daily }: { daily: DailyScan[] | null }) {
       {bars.map((v, i) => (
         <div
           key={i}
-          className={`flex-1 rounded-sm ${v > 0 ? 'bg-orange-400' : 'bg-slate-100'}`}
+          className={`flex-1 rounded-sm ${v > 0 ? 'bg-orange-400' : 'bg-slate-100 dark:bg-slate-800'}`}
           style={{ height: `${Math.max(v > 0 ? 12 : 6, (v / max) * 100)}%` }}
           title={`${v} scan${v === 1 ? '' : 's'}`}
         />

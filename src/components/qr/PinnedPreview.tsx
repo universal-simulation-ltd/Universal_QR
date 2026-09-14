@@ -78,10 +78,10 @@ export default function PinnedPreview() {
       // would slide through the rounded card's corners and the gap below it.
       // z-40 is far under the navbar's inline z-1000 and the dialogs' z-[1100],
       // so this never covers the bar, HostedStoreDialog or EnlargeModal.
-      className="sticky z-40 mt-4 bg-slate-100 pb-3 pt-2"
+      className="sticky z-40 mt-4 bg-slate-100 pb-3 pt-2 dark:bg-slate-950"
       style={{ top: PINNED_TOP }}
     >
-      <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-md shadow-slate-900/5">
+      <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-md shadow-slate-900/5 dark:border-slate-800 dark:bg-slate-900">
         {open ? (
           <div className="flex items-start gap-3">
             {/* `min-w-0` is load-bearing: a flex item's default `min-width:auto`
@@ -96,7 +96,7 @@ export default function PinnedPreview() {
               aria-label="Hide the pinned preview"
               aria-expanded
               title="Hide the pinned preview"
-              className="-m-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              className="-m-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
             >
               <Chevron open />
             </button>
@@ -111,7 +111,7 @@ export default function PinnedPreview() {
             type="button"
             onClick={() => setOpen(true)}
             aria-expanded={false}
-            className="-m-1 flex w-[calc(100%+0.5rem)] items-center gap-3 rounded-xl p-1 text-left text-sm font-medium text-slate-600 hover:text-orange-700"
+            className="-m-1 flex w-[calc(100%+0.5rem)] items-center gap-3 rounded-xl p-1 text-left text-sm font-medium text-slate-600 hover:text-orange-700 dark:text-slate-300 dark:hover:text-orange-400"
           >
             <span className="min-w-0 flex-1">Show QR preview</span>
             <Chevron open={false} />

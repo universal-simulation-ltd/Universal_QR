@@ -83,7 +83,7 @@ export default function BrandingControls({
       {/* Controls */}
       <div className="min-w-0 flex-1 space-y-4">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Style</span>
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Style</span>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {PRESETS.map((p) => (
               <BrandChip key={p.name} active={false} onClick={() => onPatch(p.patch)}>{p.name}</BrandChip>
@@ -94,23 +94,23 @@ export default function BrandingControls({
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
           <ColorField label="Modules" value={config.fgColor} onChange={(v) => onPatch({ fgColor: v })}>
             {colorFollowsOrg?.canFollow
-              ? <button type="button" onClick={colorFollowsOrg.onFollow} className="text-[11px] font-semibold text-slate-400 hover:text-orange-700">use org</button>
+              ? <button type="button" onClick={colorFollowsOrg.onFollow} className="text-[11px] font-semibold text-slate-400 hover:text-orange-700 dark:hover:text-orange-400">use org</button>
               : null}
           </ColorField>
           <ColorField label="Background" value={config.bgColor} onChange={(v) => onPatch({ bgColor: v })} disabled={config.bgTransparent} />
-          <label className="flex items-center gap-1.5 text-xs text-slate-600">
+          <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
             <input type="checkbox" checked={config.bgTransparent} onChange={(e) => onPatch({ bgTransparent: e.target.checked })} /> Transparent
           </label>
         </div>
 
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-          <label className="flex items-center gap-1.5 text-sm text-slate-700">
+          <label className="flex items-center gap-1.5 text-sm text-slate-700 dark:text-slate-300">
             <input type="checkbox" checked={config.useGradient} onChange={(e) => onPatch({ useGradient: e.target.checked })} /> <span className="font-medium">Gradient</span>
           </label>
           {config.useGradient && (
             <>
               <ColorField label="End" value={config.gradientColor} onChange={(v) => onPatch({ gradientColor: v })} />
-              <label className="flex items-center gap-2 text-xs text-slate-600">Angle
+              <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">Angle
                 <input type="range" min={0} max={360} step={5} value={config.gradientRotation} onChange={(e) => onPatch({ gradientRotation: Number(e.target.value) })} className="w-24 accent-orange-600" />
                 <span className="tabular-nums">{config.gradientRotation}°</span>
               </label>
@@ -119,7 +119,7 @@ export default function BrandingControls({
         </div>
 
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-          <label className="flex items-center gap-1.5 text-sm text-slate-700">
+          <label className="flex items-center gap-1.5 text-sm text-slate-700 dark:text-slate-300">
             <input
               type="checkbox"
               checked={!config.matchCornerColor}
@@ -135,7 +135,7 @@ export default function BrandingControls({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm font-medium text-slate-700">Centre logo</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Centre logo</span>
           <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded border border-slate-200 bg-slate-50">
             {config.logoDataUrl
               ? <img src={config.logoDataUrl} alt="" className="h-full w-full object-contain" />
@@ -158,7 +158,7 @@ export default function BrandingControls({
 // when a single card is being re-skinned.
 function BrandPreview({ config, data, label }: { config: QrDesign; data: string; label: string }) {
   return (
-    <div className="grid aspect-square w-full max-w-[16rem] place-items-center rounded-xl border border-slate-200 bg-white p-2 sm:w-64">
+    <div className="grid aspect-square w-full max-w-[16rem] place-items-center rounded-xl border border-slate-200 bg-white p-2 sm:w-64 dark:border-slate-700">
       <QrCanvas
         config={{ ...config, data }}
         size={360}
@@ -174,7 +174,7 @@ function BrandPreview({ config, data, label }: { config: QrDesign; data: string;
 export function ColorField({ label, value, onChange, disabled, children }: { label: string; value: string; onChange: (v: string) => void; disabled?: boolean; children?: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm font-medium text-slate-700">{label}</span>
+      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
       <input
         type="color"
         value={value}
@@ -198,8 +198,8 @@ export function BrandChip({ active, disabled, onClick, children }: { active: boo
       aria-pressed={active}
       className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors disabled:opacity-40 ${
         active
-          ? 'border-orange-500 bg-orange-50 text-orange-700'
-          : 'border-slate-300 text-slate-600 hover:bg-slate-50'
+          ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'
+          : 'border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800'
       }`}
     >
       {children}

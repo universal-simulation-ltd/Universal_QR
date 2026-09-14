@@ -139,7 +139,7 @@ export default function Controls() {
           onChange={(v) => update({ useGradient: v })}
         />
         {config.useGradient && (
-          <div className="pl-1 space-y-3 border-l-2 border-orange-100 ml-1">
+          <div className="pl-1 space-y-3 border-l-2 border-orange-100 ml-1 dark:border-orange-500/30">
             <div className="pl-3 space-y-3">
               <Swatch
                 label="Gradient end"
@@ -176,7 +176,7 @@ export default function Controls() {
         )}
 
         {contrast?.kind === 'inverted' && (
-          <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
+          <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-200">
             <strong className="font-semibold">
               Light modules on a dark {contrast.where === 'star' ? 'star' : 'background'}.
             </strong>{' '}
@@ -190,7 +190,7 @@ export default function Controls() {
         )}
 
         {contrast?.kind === 'low' && contrast.where === 'star' && (
-          <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
+          <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-200">
             <strong className="font-semibold">
               Not much contrast between the modules and the star behind them.
             </strong>{' '}
@@ -202,7 +202,7 @@ export default function Controls() {
         )}
 
         {contrast?.kind === 'low' && contrast.where !== 'star' && (
-          <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
+          <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-200">
             <strong className="font-semibold">
               Not much contrast between the {contrast.where === 'corners' ? 'corners' : 'modules'} and the
               background.
@@ -272,7 +272,7 @@ export default function Controls() {
                 onChange={(v) => update({ starColor: v })}
               />
             )}
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               {behind
                 ? 'The star sits behind the code as a backdrop, with its points showing around it — the look of the QR star mark in Universal PDF. The code is drawn over the star rather than squeezed inside its points, so it is around half again as big as the same design set to Inside, and correspondingly easier to scan. Decoration has no ring to fill in this arrangement, so it is not offered.'
                 : 'The code sits inside the star, never crossing its edges. That keeps the star whole, at the cost of a much smaller code — the five notches cut into every side of the square that fits.'}
@@ -318,7 +318,7 @@ export default function Controls() {
               hint="Turn off to give the decoration its own colour."
             />
             {!config.matchDecorColor && (
-              <div className="pl-3 border-l-2 border-orange-100">
+              <div className="pl-3 border-l-2 border-orange-100 dark:border-orange-500/30">
                 <Swatch
                   label="Decoration colour"
                   value={config.decorColor}
@@ -330,20 +330,20 @@ export default function Controls() {
         )}
 
         {behind ? null : config.decorStyle !== 'none' ? (
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Decoration fills the space the shape leaves around the code — and needs that
             space, so the code is drawn smaller to make it. Export larger than usual, and
             scan-test before printing. It sits outside the code, so its colour is free —
             there is no contrast rule to satisfy.
           </p>
         ) : (
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Fills the space a shaped plate leaves around the code. Choosing one switches a
             square code to a circle, since a square plate has no space to fill.
           </p>
         )}
         {frameNote && (
-          <p className="-mt-1 text-xs text-slate-500">
+          <p className="-mt-1 text-xs text-slate-500 dark:text-slate-400">
             {frameNote} The code is never trimmed to fit the shape — that would stop it scanning.
           </p>
         )}
@@ -393,24 +393,24 @@ export default function Controls() {
       <Section title="Logo & branding" desc="Drop your brand mark into the centre.">
         <input {...logo.inputProps} hidden />
         {config.logoDataUrl ? (
-          <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-slate-50">
+          <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
             <img
               src={config.logoDataUrl}
               alt="Logo preview"
-              className="w-12 h-12 rounded-lg object-contain bg-white ring-1 ring-slate-200 p-1"
+              className="w-12 h-12 rounded-lg object-contain bg-white ring-1 ring-slate-200 p-1 dark:ring-slate-600"
             />
-            <div className="flex-1 text-sm text-slate-600">Custom logo added</div>
+            <div className="flex-1 text-sm text-slate-600 dark:text-slate-300">Custom logo added</div>
             <button
               type="button"
               onClick={logo.open}
-              className="text-xs font-medium text-slate-600 hover:text-orange-700 px-2 py-1"
+              className="text-xs font-medium text-slate-600 hover:text-orange-700 px-2 py-1 dark:text-slate-300 dark:hover:text-orange-400"
             >
               Replace
             </button>
             <button
               type="button"
               onClick={clearLogo}
-              className="text-xs font-medium text-red-600 hover:text-red-700 px-2 py-1"
+              className="text-xs font-medium text-red-600 hover:text-red-700 px-2 py-1 dark:text-red-400 dark:hover:text-red-300"
             >
               Remove
             </button>
@@ -420,8 +420,8 @@ export default function Controls() {
             {...logo.dropzoneProps}
             className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed cursor-pointer text-sm font-medium transition-colors focus:outline-none focus-visible:outline-2 focus-visible:outline-orange-600 ${
               logo.over
-                ? 'border-orange-500 bg-orange-50 text-orange-700'
-                : 'border-slate-300 text-slate-600 hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-700'
+                ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'
+                : 'border-slate-300 text-slate-600 hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-orange-500/10 dark:hover:text-orange-300'
             }`}
           >
             <span aria-hidden="true">🖼</span> Drop a logo here, or click to choose (PNG, JPG, SVG)
@@ -486,8 +486,8 @@ function PresetPill({ name, active, onClick }: { name: string; active: boolean; 
       onClick={onClick}
       className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
         active
-          ? 'border-orange-500 bg-orange-50 text-orange-700'
-          : 'border-slate-200 bg-white text-slate-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-700'
+          ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'
+          : 'border-slate-200 bg-white text-slate-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-orange-500/10 dark:hover:text-orange-300'
       }`}
     >
       {name}
@@ -505,8 +505,8 @@ function TypeChip({ label, active, onClick }: { label: string; active: boolean; 
       onClick={onClick}
       className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
         active
-          ? 'border-orange-500 bg-orange-50 text-orange-700'
-          : 'border-slate-200 bg-white text-slate-600 hover:border-orange-300 hover:text-orange-700'
+          ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'
+          : 'border-slate-200 bg-white text-slate-600 hover:border-orange-300 hover:text-orange-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-orange-300'
       }`}
     >
       {label}
@@ -552,14 +552,14 @@ function BarcodeFields({
         placeholder={def.placeholder}
         aria-label={`${def.label} value`}
         aria-invalid={!!error}
-        className={`w-full rounded-xl border px-4 py-3 font-mono text-base text-slate-900 focus:outline-none focus:ring-2 ${
+        className={`w-full rounded-xl border px-4 py-3 font-mono text-base text-slate-900 focus:outline-none focus:ring-2 dark:bg-slate-950 dark:text-slate-100 ${
           error
             ? 'border-red-400 focus:border-red-500 focus:ring-red-500/30'
-            : 'border-slate-300 focus:border-orange-500 focus:ring-orange-500/40'
+            : 'border-slate-300 focus:border-orange-500 focus:ring-orange-500/40 dark:border-slate-700'
         }`}
       />
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-      <p className="mt-2 text-xs text-slate-500">
+      {error && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>}
+      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
         {def.hint} Barcodes are static and unstyled — no colours, logo or shape.
       </p>
     </Section>
@@ -574,16 +574,16 @@ function BarcodeFields({
 // strings with a real "&".
 function Section({ title, desc, children }: { title: string; desc?: string; children: ReactNode }) {
   return (
-    <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
-      <h2 className="font-semibold text-slate-900">{title}</h2>
-      {desc && <p className="mt-0.5 mb-3 text-xs text-slate-500">{desc}</p>}
+    <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+      <h2 className="font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
+      {desc && <p className="mt-0.5 mb-3 text-xs text-slate-500 dark:text-slate-400">{desc}</p>}
       <div className={desc ? 'space-y-3' : 'mt-3 space-y-3'}>{children}</div>
     </section>
   )
 }
 
 function FieldLabel({ children }: { children: ReactNode }) {
-  return <label className="block text-sm font-medium text-slate-700 mb-1.5">{children}</label>
+  return <label className="block text-sm font-medium text-slate-700 mb-1.5 dark:text-slate-300">{children}</label>
 }
 
 function TextField({
@@ -607,7 +607,7 @@ function TextField({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500"
+        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-100"
       />
     </div>
   )
@@ -627,7 +627,7 @@ function Swatch({
   return (
     <div className={disabled ? 'opacity-40 pointer-events-none' : ''}>
       <FieldLabel>{label}</FieldLabel>
-      <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-slate-300">
+      <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700">
         <input
           type="color"
           value={value}
@@ -640,7 +640,7 @@ function Swatch({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           aria-label={`${label} hex value`}
-          className="w-full min-w-0 text-sm font-mono uppercase text-slate-700 focus:outline-none"
+          className="w-full min-w-0 text-sm font-mono uppercase text-slate-700 focus:outline-none dark:text-slate-200"
         />
       </div>
     </div>
@@ -661,14 +661,14 @@ function Toggle({
   return (
     <div>
       <label className="flex items-center justify-between gap-3 cursor-pointer">
-        <span className="text-sm font-medium text-slate-700">{label}</span>
+        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
         <button
           type="button"
           role="switch"
           aria-checked={checked}
           onClick={() => onChange(!checked)}
           className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-            checked ? 'bg-orange-600' : 'bg-slate-300'
+            checked ? 'bg-orange-600' : 'bg-slate-300 dark:bg-slate-600'
           }`}
         >
           <span
@@ -678,7 +678,7 @@ function Toggle({
           />
         </button>
       </label>
-      {hint && <p className="mt-1 text-xs text-slate-500 pr-14">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-slate-500 pr-14 dark:text-slate-400">{hint}</p>}
     </div>
   )
 }
@@ -704,7 +704,7 @@ function RangeField({
     <div>
       <div className="flex items-center justify-between mb-1">
         <FieldLabel>{label}</FieldLabel>
-        <span className="text-xs font-medium text-slate-500 tabular-nums">
+        <span className="text-xs font-medium text-slate-500 tabular-nums dark:text-slate-400">
           {value}
           {suffix}
         </span>
@@ -753,8 +753,8 @@ function OptionRow({
             onClick={() => onChange(opt.value)}
             className={`min-w-0 px-2 py-1.5 rounded-lg text-xs font-medium leading-tight break-words border transition-colors ${
               value === opt.value
-                ? 'border-orange-500 bg-orange-50 text-orange-700'
-                : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'
+                : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-500'
             }`}
           >
             {opt.label}
@@ -872,7 +872,7 @@ function ContentBuilder({ data, update }: { data: string; update: (patch: { data
         <>
           <TextField label="Network name (SSID)" value={f.ssid || ''} onChange={(v) => setField('ssid', v)} placeholder="MyWiFi" />
           <TextField label="Password" value={f.password || ''} onChange={(v) => setField('password', v)} placeholder="leave blank if open" />
-          <label className="flex items-center gap-2 text-sm text-slate-600">
+          <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
             <input type="checkbox" checked={f.hidden === 'true'} onChange={(e) => setField('hidden', e.target.checked ? 'true' : '')} />
             Hidden network
           </label>

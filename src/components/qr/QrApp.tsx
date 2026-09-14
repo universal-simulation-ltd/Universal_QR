@@ -17,7 +17,7 @@ export default function QrApp() {
 
   return (
     <div>
-      <div className="border-b border-slate-200 bg-white">
+      <div className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
         {/* No horizontal scroll: below `md` the tabs drop their hint lines and
             shrink their padding so they all fit the narrowest viewport. The
             hints only fit from ~600px, so they wait for `md` rather than `sm`
@@ -61,12 +61,12 @@ function TopTab({
       aria-selected={active}
       onClick={() => onClick(id)}
       className={`group relative -mb-px flex shrink-0 flex-col items-start whitespace-nowrap rounded-t-lg px-2 py-2.5 text-left transition-colors sm:px-4 ${
-        active ? 'border-b-2 border-orange-600' : 'border-b-2 border-transparent hover:bg-slate-50'
+        active ? 'border-b-2 border-orange-600' : 'border-b-2 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800'
       }`}
     >
       <span className="flex items-center gap-1 sm:gap-1.5">
-        <span className={`text-sm font-semibold ${active ? 'text-slate-900' : 'text-slate-600 group-hover:text-slate-900'}`}>{label}</span>
-        {pro && <span className="rounded bg-orange-100 px-1 py-0.5 text-[9px] font-bold uppercase tracking-wide text-orange-700 sm:px-1.5">Pro</span>}
+        <span className={`text-sm font-semibold ${active ? 'text-slate-900 dark:text-white' : 'text-slate-600 group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-white'}`}>{label}</span>
+        {pro && <span className="rounded bg-orange-100 px-1 py-0.5 text-[9px] font-bold uppercase tracking-wide text-orange-700 sm:px-1.5 dark:bg-orange-500/15 dark:text-orange-300">Pro</span>}
       </span>
       <span className="hidden text-[11px] text-slate-400 md:block">{hint}</span>
     </button>

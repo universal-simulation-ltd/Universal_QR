@@ -126,11 +126,19 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
         // plate colour: painting that same colour on the square card behind the
         // circle would fill the corners back in and hide the silhouette. See
         // `checker` above for the one shape that opts back out.
-        className={`relative shadow-sm border border-slate-200 group ${
+        //
+        // ⚠️ The checker is the code's preview GROUND, i.e. content, so dark
+        // mode must not recolour it. Its squares are drawn over whatever is
+        // behind the card — the page (slate-100) in the studio column, the
+        // pinned card (white) on a phone — so in dark mode that same colour is
+        // pinned onto the card itself, and a see-through code is judged against
+        // exactly what it always was. The plate colour and the "nothing to show
+        // yet" veil sit on content too, so they carry no dark: variants at all.
+        className={`relative shadow-sm border border-slate-200 dark:border-slate-700 group ${
           compact
             ? 'w-[7.5rem] shrink-0 rounded-xl p-2'
             : 'w-full max-w-[360px] rounded-2xl p-3 sm:p-4'
-        } ${checker ? 'checker-bg' : ''} ${hasData ? 'cursor-pointer' : ''}`}
+        } ${checker ? `checker-bg ${compact ? 'dark:bg-white' : 'dark:bg-slate-100'}` : ''} ${hasData ? 'cursor-pointer' : ''}`}
         style={checker ? undefined : { background: config.bgColor }}
         onClick={handlePreviewClick}
         onPointerDown={handlePointerDown}
@@ -203,16 +211,16 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
       </div>
 
       <div className={compact ? 'min-w-0 flex-1 text-left' : 'text-center min-w-0 max-w-[360px]'}>
-        <div className={`font-semibold text-slate-900 truncate ${compact ? 'text-sm' : ''}`}>
+        <div className={`font-semibold text-slate-900 dark:text-slate-100 truncate ${compact ? 'text-sm' : ''}`}>
           {qrDisplayName(config)}
         </div>
         {hasData && (
-          <div className="text-xs text-slate-500 truncate" title={config.data}>
+          <div className="text-xs text-slate-500 truncate dark:text-slate-400" title={config.data}>
             {config.data}
           </div>
         )}
         {compact && hasData && (
-          <div className="mt-1 text-[11px] font-medium text-orange-700">Tap the code to enlarge</div>
+          <div className="mt-1 text-[11px] font-medium text-orange-700 dark:text-orange-400">Tap the code to enlarge</div>
         )}
       </div>
 

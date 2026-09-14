@@ -166,17 +166,17 @@ export default function ScanStudio() {
   return (
     <div className={`${CONTAINER} py-6 lg:py-10`}>
       <header className="max-w-2xl">
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
-          Scan a <span className="text-orange-600">QR code or barcode</span>
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+          Scan a <span className="text-orange-600 dark:text-orange-400">QR code or barcode</span>
         </h1>
-        <p className="mt-2 text-slate-600">
+        <p className="mt-2 text-slate-600 dark:text-slate-300">
           Point your camera at any QR code or 1D barcode (EAN, UPC, Code 128, Code 39…). Decoding
           happens on your device — the camera feed never leaves your browser.
         </p>
       </header>
 
       <div className="mt-6 max-w-xl space-y-4">
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-sm">
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-sm dark:border-slate-800">
           <video
             ref={videoRef}
             className="aspect-[4/3] w-full object-cover"
@@ -221,7 +221,7 @@ export default function ScanStudio() {
             once it is denied, "ask on open" is a promise the platform will not
             keep. Both states get a plain line of text instead. */}
         {permission !== null && permission !== 'granted' && permission !== 'denied' && (
-          <label className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+          <label className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <input
               type="checkbox"
               checked={askOnOpen}
@@ -229,39 +229,39 @@ export default function ScanStudio() {
               className="mt-0.5 h-4 w-4 shrink-0 accent-orange-600"
             />
             <span className="text-sm">
-              <span className="font-medium text-slate-800">
+              <span className="font-medium text-slate-800 dark:text-slate-100">
                 Ask for camera access when I open Scan
               </span>
-              <span className="mt-0.5 block text-xs text-slate-500">{rememberedByHint()}</span>
+              <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{rememberedByHint()}</span>
             </span>
           </label>
         )}
 
         {permission === 'granted' && (
-          <p className="px-1 text-xs text-slate-500">{grantedHint()}</p>
+          <p className="px-1 text-xs text-slate-500 dark:text-slate-400">{grantedHint()}</p>
         )}
 
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
             {error}
           </div>
         )}
 
         {result && (
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3 dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wide text-orange-700">
+              <span className="text-xs font-semibold uppercase tracking-wide text-orange-700 dark:text-orange-400">
                 {result.format}
               </span>
             </div>
-            <p className="break-all rounded-lg bg-slate-50 px-3 py-2 font-mono text-sm text-slate-800">
+            <p className="break-all rounded-lg bg-slate-50 px-3 py-2 font-mono text-sm text-slate-800 dark:bg-slate-800 dark:text-slate-100">
               {result.text}
             </p>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={onCopy}
-                className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 transition-colors"
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 transition-colors dark:border-slate-700 dark:text-slate-200 dark:hover:bg-orange-500/10"
               >
                 {copied ? '✓ Copied' : 'Copy'}
               </button>

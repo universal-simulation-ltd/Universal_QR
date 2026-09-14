@@ -16,6 +16,7 @@
     "test:hosted-paths": "node --experimental-strip-types scripts/hostedPath.test.mjs",
     "test:dynamic-design": "node --experimental-strip-types scripts/dynamicDesign.test.mjs",
     "test:link-check": "node --experimental-strip-types scripts/linkCheck.test.mjs",
+    "test:theme": "node --experimental-strip-types scripts/theme.test.mjs",
     "electron": "electron .",
     "dist": "npm run build:desktop && electron-builder",
     "dist:win": "npm run build:desktop && electron-builder --win",

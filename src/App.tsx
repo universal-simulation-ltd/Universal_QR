@@ -3,10 +3,14 @@ import AppMenu from './components/Header/AppMenu'
 import ProductLogo from './components/Header/ProductLogo'
 import QrApp from './components/qr/QrApp'
 import { CONTAINER } from './lib/layout'
+import { useThemeStore } from './stores/themeStore'
 
 const REPO_URL = 'https://github.com/universal-simulation-ltd/Universal_QR'
 
 export default function App() {
+  // The RESOLVED theme ('light' | 'dark'), never the raw preference: the SDK's
+  // bar and its dropdowns come in two colourways, and 'system' is not one.
+  const theme = useThemeStore((s) => s.effective)
   return (
     // ⚠️ pt-[env(safe-area-inset-top)] is for the native (Capacitor) build, not
     // the web one. Capacitor runs the app in a FULL-SCREEN WKWebView, and
@@ -19,11 +23,12 @@ export default function App() {
     // that bar is shared by every Universal App and the padding belongs to
     // whichever of them is wrapped for a phone. Universal PDF carries the same
     // line for the same reason.
-    <div className="flex flex-col min-h-screen bg-slate-100 pt-[env(safe-area-inset-top)]">
+    <div className="flex flex-col min-h-screen bg-slate-100 dark:bg-slate-950 pt-[env(safe-area-inset-top)]">
       <UniversalAppsNavBar
         product="qr"
         productLogo={<ProductLogo />}
         actions={<AppMenu />}
+        theme={theme}
         suiteSwitcherIconSrc={`${import.meta.env.BASE_URL}unisim-icon.png`}
         contentClassName={CONTAINER}
       />
@@ -39,14 +44,14 @@ export default function App() {
         <QrApp />
       </main>
 
-      <footer className="border-t border-slate-200 bg-white">
-        <div className={`${CONTAINER} py-4 flex flex-row items-center gap-3 sm:gap-4 text-xs text-slate-500`}>
+      <footer className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <div className={`${CONTAINER} py-4 flex flex-row items-center gap-3 sm:gap-4 text-xs text-slate-500 dark:text-slate-400`}>
           <span>
             With{' '}
             <span aria-hidden="true" className="text-orange-600">&hearts;</span>
             <span className="sr-only">love</span>{' '}
             from{' '}
-            <a href="https://www.unisim.co.uk" target="_blank" rel="noreferrer" className="text-slate-700 hover:text-orange-700 underline-offset-2 hover:underline">
+            <a href="https://www.unisim.co.uk" target="_blank" rel="noreferrer" className="text-slate-700 hover:text-orange-700 underline-offset-2 hover:underline dark:text-slate-300 dark:hover:text-orange-400">
               UNISIM.co.uk
             </a>
           </span>
@@ -56,7 +61,7 @@ export default function App() {
             rel="noreferrer"
             aria-label="Universal QR on GitHub"
             title="View source on GitHub"
-            className="ml-auto shrink-0 inline-flex items-center gap-1.5 text-slate-600 hover:text-slate-900 transition-colors"
+            className="ml-auto shrink-0 inline-flex items-center gap-1.5 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden="true">
               <path d="M12 .5C5.65.5.5 5.65.5 12.02c0 5.09 3.29 9.4 7.86 10.92.57.1.78-.25.78-.55 0-.27-.01-1-.02-1.96-3.2.69-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.36.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.18 1.18.92-.26 1.91-.39 2.89-.39.98 0 1.97.13 2.89.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.18 1.82 1.18 3.08 0 4.42-2.69 5.39-5.26 5.68.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .3.21.66.79.55 4.57-1.52 7.86-5.83 7.86-10.92C23.5 5.65 18.35.5 12 .5z" />

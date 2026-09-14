@@ -191,10 +191,10 @@ export default function QrStudio() {
     <div>
       <div className={`${CONTAINER} py-6 lg:py-10`}>
         <header className="max-w-2xl">
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
-            QR Codes that <span className="text-orange-600">just. work. FOREVER.</span>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+            QR Codes that <span className="text-orange-600 dark:text-orange-400">just. work. FOREVER.</span>
           </h1>
-          <p className="mt-2 text-slate-600">
+          <p className="mt-2 text-slate-600 dark:text-slate-300">
             Pick your colours, shape the modules, drop in a logo — it renders live, on your
             device. Download as PNG, SVG, JPEG or WebP.
           </p>
@@ -223,7 +223,7 @@ export default function QrStudio() {
                 <button
                   type="button"
                   onClick={reset}
-                  className="text-xs font-medium text-slate-500 hover:text-orange-700 border border-slate-200 px-3 py-1.5 rounded-lg hover:border-orange-300 transition-colors"
+                  className="text-xs font-medium text-slate-500 hover:text-orange-700 border border-slate-200 px-3 py-1.5 rounded-lg hover:border-orange-300 transition-colors dark:text-slate-400 dark:hover:text-orange-400 dark:border-slate-700 dark:hover:border-orange-500/60"
                 >
                   Reset all
                 </button>
@@ -257,7 +257,7 @@ export default function QrStudio() {
             {/* One button, one arrow. PNG is what nearly everyone wants, so it
                 is the whole of the visible export UI; the other formats, the
                 clipboard and the backup dialog live behind the caret. */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 dark:bg-slate-900 dark:border-slate-800">
               <ExportButton
                 busy={busy}
                 hasData={hasData}
@@ -272,7 +272,7 @@ export default function QrStudio() {
                 }}
               />
 
-              <p className="text-xs text-slate-500 text-center">
+              <p className="text-xs text-slate-500 text-center dark:text-slate-400">
                 {copied === 'ok'
                   ? '✓ Copied to clipboard'
                   : copied === 'fail'
@@ -394,7 +394,7 @@ function ExportButton({
       {menuOpen && (
         <div
           role="menu"
-          className={`absolute right-0 z-20 w-full min-w-[15rem] overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg ${
+          className={`absolute right-0 z-20 w-full min-w-[15rem] overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800 ${
             dropUp ? 'bottom-full mb-2' : 'mt-2'
           }`}
         >
@@ -414,7 +414,7 @@ function ExportButton({
             </MenuItem>
           ))}
 
-          <div className="my-1 border-t border-slate-100" />
+          <div className="my-1 border-t border-slate-100 dark:border-slate-700" />
 
           <MenuItem
             disabled={!hasData}
@@ -456,7 +456,7 @@ function MenuItem({
       role="menuitem"
       onClick={onClick}
       disabled={disabled}
-      className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-orange-50/70 hover:text-orange-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-slate-700 transition-colors"
+      className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-orange-50/70 hover:text-orange-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-slate-700 transition-colors dark:text-slate-200 dark:hover:bg-orange-500/15 dark:hover:text-orange-300 dark:disabled:hover:text-slate-200"
     >
       <svg viewBox="0 0 20 20" className="w-4 h-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         {icon}
@@ -478,7 +478,7 @@ function RegenerateStyle() {
       <button
         type="button"
         onClick={shufflePreset}
-        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 transition-colors"
+        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-orange-500/60 dark:hover:bg-orange-500/10"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M21 12a9 9 0 1 1-2.64-6.36" />
@@ -486,7 +486,7 @@ function RegenerateStyle() {
         </svg>
         Regenerate style
       </button>
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-slate-500 dark:text-slate-400">
         {presetName ? `${presetName} — pick` : 'Pick'} another at random. Your link and logo stay put.
       </p>
     </div>
@@ -511,7 +511,7 @@ function ModeToggle({
     { id: 'advanced', label: 'Advanced' },
   ]
   return (
-    <div className="inline-flex p-1 bg-slate-200/70 rounded-xl" role="tablist" aria-label="Editor mode">
+    <div className="inline-flex p-1 bg-slate-200/70 rounded-xl dark:bg-slate-800" role="tablist" aria-label="Editor mode">
       {tabs.map((t) => (
         <button
           key={t.id}
@@ -521,8 +521,8 @@ function ModeToggle({
           onClick={() => setMode(t.id)}
           className={`relative px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
             mode === t.id
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
+              ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white'
+              : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
           }`}
         >
           {t.label}
@@ -540,11 +540,11 @@ function SimplePanel() {
   const data = useQrStore((s) => s.config.data)
   const update = useQrStore((s) => s.update)
   return (
-    <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
-      <label htmlFor="simple-url" className="block font-semibold text-slate-900">
+    <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+      <label htmlFor="simple-url" className="block font-semibold text-slate-900 dark:text-slate-100">
         Website address
       </label>
-      <p className="mt-0.5 mb-3 text-sm text-slate-500">
+      <p className="mt-0.5 mb-3 text-sm text-slate-500 dark:text-slate-400">
         Paste the link your QR code should open.
       </p>
       <input
@@ -554,7 +554,7 @@ function SimplePanel() {
         value={data}
         onChange={(e) => update({ data: e.target.value })}
         placeholder="https://example.com"
-        className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500"
+        className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-100"
       />
       <LinkCheck value={data} onFix={(href) => update({ data: href })} />
     </section>
@@ -594,9 +594,9 @@ function BrandingPanel() {
   return (
     <div className="space-y-5">
       {/* URL input so users don't have to switch back to Simple */}
-      <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
-        <label htmlFor="branding-url" className="block font-semibold text-slate-900">Website address</label>
-        <p className="mt-0.5 mb-3 text-sm text-slate-500">The link your QR code opens.</p>
+      <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+        <label htmlFor="branding-url" className="block font-semibold text-slate-900 dark:text-slate-100">Website address</label>
+        <p className="mt-0.5 mb-3 text-sm text-slate-500 dark:text-slate-400">The link your QR code opens.</p>
         <input
           id="branding-url"
           type="url"
@@ -604,14 +604,14 @@ function BrandingPanel() {
           value={config.data}
           onChange={(e) => update({ data: e.target.value })}
           placeholder="https://example.com"
-          className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500"
+          className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-100"
         />
       </section>
 
       {/* Style presets */}
-      <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
-        <h2 className="font-semibold text-slate-900">Style presets</h2>
-        <p className="mt-0.5 mb-3 text-xs text-slate-500">A starting point — tweak the colours and logo below.</p>
+      <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+        <h2 className="font-semibold text-slate-900 dark:text-slate-100">Style presets</h2>
+        <p className="mt-0.5 mb-3 text-xs text-slate-500 dark:text-slate-400">A starting point — tweak the colours and logo below.</p>
         <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Style presets">
           {PRESETS.map((p) => {
             const active = p.name === activePreset
@@ -624,8 +624,8 @@ function BrandingPanel() {
                 onClick={() => applyPreset(p.name, p.patch)}
                 className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
                   active
-                    ? 'border-orange-500 bg-orange-50 text-orange-700'
-                    : 'border-slate-200 bg-white text-slate-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-700'
+                    ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-orange-400 hover:bg-orange-50 hover:text-orange-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-orange-500/10 dark:hover:text-orange-300'
                 }`}
               >
                 {p.name}
@@ -636,8 +636,8 @@ function BrandingPanel() {
       </section>
 
       {/* Colours */}
-      <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
-        <h2 className="font-semibold text-slate-900">Colours</h2>
+      <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+        <h2 className="font-semibold text-slate-900 dark:text-slate-100">Colours</h2>
         <div className="mt-3 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <BrandSwatch label="Modules" value={config.fgColor} onChange={(v) => update({ fgColor: v })} />
@@ -646,7 +646,7 @@ function BrandingPanel() {
           <BrandToggle label="Transparent background" checked={config.bgTransparent} onChange={(v) => update({ bgTransparent: v })} hint="Export a PNG/SVG with no background fill." />
           <BrandToggle label="Gradient modules" checked={config.useGradient} onChange={(v) => update({ useGradient: v })} />
           {config.useGradient && (
-            <div className="pl-4 space-y-3 border-l-2 border-orange-100">
+            <div className="pl-4 space-y-3 border-l-2 border-orange-100 dark:border-orange-500/30">
               <BrandSwatch label="Gradient end" value={config.gradientColor} onChange={(v) => update({ gradientColor: v })} />
               <BrandRange label="Gradient angle" value={config.gradientRotation} min={0} max={360} step={5} suffix="°" onChange={(v) => update({ gradientRotation: v })} />
             </div>
@@ -661,24 +661,24 @@ function BrandingPanel() {
       </section>
 
       {/* Logo & branding */}
-      <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
-        <h2 className="font-semibold text-slate-900">Logo & branding</h2>
+      <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+        <h2 className="font-semibold text-slate-900 dark:text-slate-100">Logo & branding</h2>
         <div className="mt-3 space-y-3">
           <input {...logo.inputProps} hidden />
           {config.logoDataUrl ? (
-            <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-slate-50">
-              <img src={config.logoDataUrl} alt="Logo preview" className="w-12 h-12 rounded-lg object-contain bg-white ring-1 ring-slate-200 p-1" />
-              <div className="flex-1 text-sm text-slate-600">Custom logo added</div>
-              <button type="button" onClick={logo.open} className="text-xs font-medium text-slate-600 hover:text-orange-700 px-2 py-1">Replace</button>
-              <button type="button" onClick={clearLogo} className="text-xs font-medium text-red-600 hover:text-red-700 px-2 py-1">Remove</button>
+            <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
+              <img src={config.logoDataUrl} alt="Logo preview" className="w-12 h-12 rounded-lg object-contain bg-white ring-1 ring-slate-200 p-1 dark:ring-slate-600" />
+              <div className="flex-1 text-sm text-slate-600 dark:text-slate-300">Custom logo added</div>
+              <button type="button" onClick={logo.open} className="text-xs font-medium text-slate-600 hover:text-orange-700 px-2 py-1 dark:text-slate-300 dark:hover:text-orange-400">Replace</button>
+              <button type="button" onClick={clearLogo} className="text-xs font-medium text-red-600 hover:text-red-700 px-2 py-1 dark:text-red-400 dark:hover:text-red-300">Remove</button>
             </div>
           ) : (
             <div
               {...logo.dropzoneProps}
               className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed cursor-pointer text-sm font-medium transition-colors focus:outline-none focus-visible:outline-2 focus-visible:outline-orange-600 ${
                 logo.over
-                  ? 'border-orange-500 bg-orange-50 text-orange-700'
-                  : 'border-slate-300 text-slate-600 hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-700'
+                  ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'
+                  : 'border-slate-300 text-slate-600 hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-orange-500/10 dark:hover:text-orange-300'
               }`}
             >
               <span aria-hidden="true">🖼</span> Drop a logo here, or click to choose (PNG, JPG, SVG)
@@ -706,10 +706,10 @@ function BrandingPanel() {
 function BrandSwatch({ label, value, onChange, disabled }: { label: string; value: string; onChange: (v: string) => void; disabled?: boolean }) {
   return (
     <div className={disabled ? 'opacity-40 pointer-events-none' : ''}>
-      <label className="block text-sm font-medium text-slate-700 mb-1.5">{label}</label>
-      <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-slate-300">
+      <label className="block text-sm font-medium text-slate-700 mb-1.5 dark:text-slate-300">{label}</label>
+      <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700">
         <input type="color" value={value} onChange={(e) => onChange(e.target.value)} className="w-8 h-8 shrink-0" aria-label={label} />
-        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} aria-label={`${label} hex value`} className="w-full min-w-0 text-sm font-mono uppercase text-slate-700 focus:outline-none" />
+        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} aria-label={`${label} hex value`} className="w-full min-w-0 text-sm font-mono uppercase text-slate-700 focus:outline-none dark:text-slate-200" />
       </div>
     </div>
   )
@@ -719,13 +719,13 @@ function BrandToggle({ label, checked, onChange, hint }: { label: string; checke
   return (
     <div>
       <label className="flex items-center justify-between gap-3 cursor-pointer">
-        <span className="text-sm font-medium text-slate-700">{label}</span>
+        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
         <button type="button" role="switch" aria-checked={checked ? 'true' : 'false'} onClick={() => onChange(!checked)}
-          className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${checked ? 'bg-orange-600' : 'bg-slate-300'}`}>
+          className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${checked ? 'bg-orange-600' : 'bg-slate-300 dark:bg-slate-600'}`}>
           <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
         </button>
       </label>
-      {hint && <p className="mt-1 text-xs text-slate-500 pr-14">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-slate-500 pr-14 dark:text-slate-400">{hint}</p>}
     </div>
   )
 }
@@ -734,8 +734,8 @@ function BrandRange({ label, value, min, max, step, suffix, onChange }: { label:
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
-        <label className="block text-sm font-medium text-slate-700">{label}</label>
-        <span className="text-xs font-medium text-slate-500 tabular-nums">{value}{suffix}</span>
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">{label}</label>
+        <span className="text-xs font-medium text-slate-500 tabular-nums dark:text-slate-400">{value}{suffix}</span>
       </div>
       <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} aria-label={label} className="w-full accent-orange-600" />
     </div>

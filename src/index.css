@@ -1,8 +1,25 @@
 @import "tailwindcss";
 
+/* Tailwind 4 defaults `dark:` to the OS media query. We drive it from a class
+   on <html> instead, because the suite rule is that an app opens LIGHT and only
+   goes dark when the user says so — see stores/themeStore.ts. With the media
+   default, a laptop set to dark would override that on first paint. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 html, body {
   height: 100%;
   margin: 0;
+}
+
+/* The dark page ground on the root element as well as on the app's root <div>,
+   so anything outside that div — a rubber-band overscroll, the strip under a
+   short page — is dark too rather than a white band. The root element's
+   background propagates to the canvas, which is behind everything.
+
+   ⚠️ Deliberately NO light rule here. Light mode has never painted <html>, and
+   giving it one would be a change to light, which dark mode must not make. */
+html.dark {
+  background-color: #020617; /* slate-950 — the same as the app root's dark: ground */
 }
 
 /* min-height (not a fixed height) so the page grows with its content and the

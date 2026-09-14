@@ -215,29 +215,29 @@ export default function DynamicStudio() {
     <div className={`${CONTAINER} py-6 lg:py-10`}>
       <header className="max-w-2xl">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
             Dynamic QR codes
           </h1>
-          <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">Hosted</span>
+          <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700 dark:bg-orange-500/15 dark:text-orange-300">Hosted</span>
         </div>
         {/* `break-words` on the example link: it is one unbreakable token, so at
             ~320px it is wider than its column and used to poke a couple of
             pixels past the viewport on its own — separately from, and as well
             as, the grid track fixed below. */}
-        <p className="mt-2 text-slate-600">
+        <p className="mt-2 text-slate-600 dark:text-slate-300">
           One printed code, a destination you can change any time — plus a live scan count.
-          The link stays fixed (<code className="break-words text-slate-500">opensource.unisim.co.uk/qr/r/…</code>); you
+          The link stays fixed (<code className="break-words text-slate-500 dark:text-slate-400">opensource.unisim.co.uk/qr/r/…</code>); you
           repoint where it sends people whenever you like.
         </p>
       </header>
 
       {!signedIn ? (
-        <div className="mt-6 max-w-2xl rounded-2xl border border-orange-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Sign in to create dynamic codes</h2>
-          <p className="mt-1 text-sm text-slate-600">
+        <div className="mt-6 max-w-2xl rounded-2xl border border-orange-200 bg-white p-6 shadow-sm dark:border-orange-500/30 dark:bg-slate-900">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Sign in to create dynamic codes</h2>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             Dynamic codes are hosted against your <strong>Universal ID</strong> so they can redirect and
             record scans. Each live code uses one token — every account gets one free, and deleting a code
-            returns its token. The plain <button type="button" className="font-semibold text-orange-700 hover:text-orange-800" onClick={() => setView('static')}>Static</button> designer stays 100% free and on-device.
+            returns its token. The plain <button type="button" className="font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300" onClick={() => setView('static')}>Static</button> designer stays 100% free and on-device.
           </p>
           <a href={SIGNIN_URL} className="mt-4 inline-flex rounded-lg bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800">
             Create / sign in with Universal ID →
@@ -247,7 +247,7 @@ export default function DynamicStudio() {
         <>
         {/* Branding — a live example + controls; defaults to the org's, and is
             what a NEW code is created wearing. Existing codes keep their own. */}
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
           <div className="flex items-start justify-between gap-3">
             <button
               type="button"
@@ -260,8 +260,8 @@ export default function DynamicStudio() {
                 <path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <div className="min-w-0">
-                <h2 className="font-semibold text-slate-900 group-hover:text-orange-700">Branding for new codes</h2>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <h2 className="font-semibold text-slate-900 group-hover:text-orange-700 dark:text-slate-100 dark:group-hover:text-orange-400">Branding for new codes</h2>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                   {hasOrgBranding
                     ? 'Defaults to your organisation’s icon and colour. Each code keeps the look it was created with — change an existing one with Edit branding on its card.'
                     : 'Each code keeps the look it was created with — change an existing one with Edit branding on its card. Add a logo and brand colour to your organisation and they’ll fill in here automatically.'}
@@ -269,7 +269,7 @@ export default function DynamicStudio() {
               </div>
             </button>
             {brandingOpen && (
-              <button type="button" onClick={resetDynamicBrand} className="shrink-0 text-xs font-semibold text-slate-500 hover:text-orange-700">Reset</button>
+              <button type="button" onClick={resetDynamicBrand} className="shrink-0 text-xs font-semibold text-slate-500 hover:text-orange-700 dark:text-slate-400 dark:hover:text-orange-400">Reset</button>
             )}
           </div>
 
@@ -311,18 +311,18 @@ export default function DynamicStudio() {
             already spell out by hand. */}
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-start">
           {/* Create panel */}
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 dark:bg-slate-900 dark:border-slate-800">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-slate-900">New dynamic code</h2>
-              <span className="rounded-lg bg-orange-50/70 px-2.5 py-1 text-xs font-semibold text-orange-700">
+              <h2 className="font-semibold text-slate-900 dark:text-slate-100">New dynamic code</h2>
+              <span className="rounded-lg bg-orange-50/70 px-2.5 py-1 text-xs font-semibold text-orange-700 dark:bg-orange-500/15 dark:text-orange-300">
                 {freeToken === 'available'
                   ? tokens > 0 ? `Free token + ${tokens} purchased` : 'Free token available'
                   : `${tokens} token${tokens === 1 ? '' : 's'}`}
               </span>
             </div>
-            <p className="mt-1 text-xs text-slate-500">Signed in as {user?.email}</p>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Signed in as {user?.email}</p>
 
-            <label htmlFor="dyn-target" className="mt-4 block text-sm font-medium text-slate-700">Destination URL</label>
+            <label htmlFor="dyn-target" className="mt-4 block text-sm font-medium text-slate-700 dark:text-slate-300">Destination URL</label>
             <input
               id="dyn-target"
               type="url"
@@ -330,17 +330,17 @@ export default function DynamicStudio() {
               value={target}
               onChange={(e) => setTarget(e.target.value)}
               placeholder="https://example.com/landing"
-              className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3 text-base text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/40"
+              className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3 text-base text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/40 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-100"
             />
 
-            <label htmlFor="dyn-name" className="mt-3 block text-sm font-medium text-slate-700">Label <span className="font-normal text-slate-400">(optional)</span></label>
+            <label htmlFor="dyn-name" className="mt-3 block text-sm font-medium text-slate-700 dark:text-slate-300">Label <span className="font-normal text-slate-400">(optional)</span></label>
             <input
               id="dyn-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Spring campaign flyer"
-              className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/40"
+              className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/40 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-100"
             />
 
             {canCreate ? (
@@ -353,10 +353,10 @@ export default function DynamicStudio() {
                 {busy ? 'Creating…' : 'Create dynamic code (1 token)'}
               </button>
             ) : freeToken === null ? (
-              <p className="mt-4 text-sm text-slate-500">Checking your tokens…</p>
+              <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">Checking your tokens…</p>
             ) : (
-              <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
-                <p className="text-sm text-amber-800">
+              <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/60 dark:bg-amber-950/40">
+                <p className="text-sm text-amber-800 dark:text-amber-200">
                   {freeToken === 'held'
                     ? 'Your free QR token is in use — delete a code below to get it back, or add tokens.'
                     : 'You have no tokens left.'}
@@ -366,17 +366,17 @@ export default function DynamicStudio() {
                 </a>
               </div>
             )}
-            {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
+            {error && <p className="mt-3 text-sm text-rose-600 dark:text-rose-400">{error}</p>}
           </section>
 
           {/* Codes list */}
           <section>
-            <h2 className="mb-3 text-[11px] font-bold uppercase tracking-wide text-slate-500">Your dynamic codes</h2>
+            <h2 className="mb-3 text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Your dynamic codes</h2>
             {codes === null ? (
               <p className="text-sm text-slate-400">Loading…</p>
             ) : codes.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center">
-                <p className="text-sm text-slate-500">No dynamic codes yet. Create your first one on the left — you can re-point it and watch the scans roll in.</p>
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center dark:border-slate-700 dark:bg-slate-900/60">
+                <p className="text-sm text-slate-500 dark:text-slate-400">No dynamic codes yet. Create your first one on the left — you can re-point it and watch the scans roll in.</p>
               </div>
             ) : (
               <ul className="space-y-3">
