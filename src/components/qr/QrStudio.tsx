@@ -620,7 +620,6 @@ function BrandingPanel() {
                 key={p.name}
                 selected={active}
                 role="radio"
-                aria-checked={active}
                 onClick={() => applyPreset(p.name, p.patch)}
               >
                 {p.name}

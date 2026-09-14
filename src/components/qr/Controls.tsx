@@ -479,7 +479,7 @@ export default function Controls() {
  *  to tell later which preset a design started from. */
 function PresetPill({ name, active, onClick }: { name: string; active: boolean; onClick: () => void }) {
   return (
-    <ChipToggle selected={active} role="radio" aria-checked={active} onClick={onClick}>
+    <ChipToggle selected={active} role="radio" onClick={onClick}>
       {name}
     </ChipToggle>
   )
@@ -488,7 +488,7 @@ function PresetPill({ name, active, onClick }: { name: string; active: boolean; 
 /** One chip in the Type row. */
 function TypeChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
-    <ChipToggle selected={active} role="radio" aria-checked={active} onClick={onClick}>
+    <ChipToggle selected={active} role="radio" onClick={onClick}>
       {label}
     </ChipToggle>
   )
