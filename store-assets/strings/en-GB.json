@@ -1,0 +1,42 @@
+{
+  "01-hero": {
+    "headline": ["Your code,", "*your look.*"],
+    "sub": {
+      "phone": "Your colours, your logo, your shape,\ndrawn on your phone as you type.",
+      "ipad": "Your colours, your logo, your shape,\ndrawn on your iPad as you type."
+    }
+  },
+  "02-hero": {
+    "headline": ["Any shape,", "any colour"],
+    "badges": ["Your logo", "Gradients", "Circle, hexagon, star", "Wi-Fi codes"],
+    "sub": "Built by James Markey\nand the UNI·SIM team"
+  },
+  "03-live": {
+    "headline": ["Drawn as", "you type"],
+    "caption": "Paste a link, and check that it answers",
+    "chips": ["Link check", "PNG", "SVG", "JPEG", "WebP"]
+  },
+  "04-brand": {
+    "headline": ["Your colours,", "your logo"],
+    "caption": "The code is cleared behind your logo, so it still scans",
+    "chips": ["Logo", "Colours", "Gradients", "Two-tone corners", "Transparent background"]
+  },
+  "05-shape": {
+    "headline": ["Pick a shape"],
+    "caption": "Square to star, with corners to match",
+    "chips": ["Circle", "Squircle", "Hexagon", "Star", "Dots", "Rounded"]
+  },
+  "06-wifi": {
+    "headline": ["Guests join", "your Wi-Fi"],
+    "caption": "They scan it and connect, with no password to type",
+    "chips": ["Wi-Fi", "Email", "Phone", "Text message", "Contact card", "Location", "Event"]
+  },
+  "07-barcode": {
+    "headline": ["Barcodes", "too"],
+    "caption": "The check digit is added for you",
+    "chips": ["EAN-13", "UPC-A", "Code 128", "Code 39", "ITF-14"]
+  },
+  "feature-graphic": {
+    "tagline": ["QR codes that look like yours.", "Drawn on your phone."]
+  }
+}
