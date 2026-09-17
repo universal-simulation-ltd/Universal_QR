@@ -12,7 +12,7 @@
 // It is not a style rule. The key IS every user's saved choice: change it and
 // everybody who chose dark is silently back on light.
 //
-// Same three checks as Universal Jukebox's `src/lib/theme.test.ts`, in this
+// The first, third and fourth are the same checks as Universal Jukebox's `src/lib/theme.test.ts`, in this
 // repo's own test style (plain Node, no test runner).
 
 import { strict as assert } from 'node:assert'
@@ -49,6 +49,15 @@ check('the pre-paint script reads the same localStorage key as the theme store',
   assert.ok(
     headScript().includes(`localStorage.getItem('${key}')`),
     `index.html <head> does not read localStorage.getItem('${key}')`,
+  )
+})
+
+// Since SDK 0.143 the app's key is an override: absent, the global choice
+// applies, and the pre-paint script has to know that as well as the store does.
+check("it falls back to Global preferences' universal:color-scheme when the app has no override", () => {
+  assert.ok(
+    headScript().includes("localStorage.getItem('universal:color-scheme')"),
+    "index.html <head> does not read localStorage.getItem('universal:color-scheme')",
   )
 })
 

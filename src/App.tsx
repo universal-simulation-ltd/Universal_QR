@@ -29,6 +29,10 @@ export default function App() {
         productLogo={<ProductLogo />}
         actions={<AppMenu />}
         theme={theme}
+        // Puts this app's colour scheme override (Follow global / Light / Dark /
+        // System) in the SDK's App preferences dialog — the menu's own
+        // Appearance rows moved there with SDK 0.143.
+        themeStore={useThemeStore}
         suiteSwitcherIconSrc={`${import.meta.env.BASE_URL}unisim-icon.png`}
         contentClassName={CONTAINER}
       />
