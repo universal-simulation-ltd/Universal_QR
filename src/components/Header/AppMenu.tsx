@@ -1,9 +1,4 @@
-import { AdvancedMenu, MENU } from '@unisim/sdk'
-// Generated — `npm run credits` after any dependency change. Never edit it by
-// hand: it is read off the installed tree, so a hand-kept list drifts from the
-// lockfile the first time anyone upgrades anything, and a credits list naming a
-// package we removed is worse than no list at all.
-import credits from '../../generated/credits.json'
+import { MENU } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { useThemeStore } from '../../stores/themeStore'
 
@@ -14,9 +9,12 @@ import { useThemeStore } from '../../stores/themeStore'
 //
 // Styling is inline rather than Tailwind to match the SDK dropdown's own rows
 // (the same 8px/14px rhythm and 13px label the profile and language rows use) —
-// these render inside SDK chrome, not ours. The per-row hover tints are kept
-// from the old panel: orange for clearing the logo, red for the destructive
-// reset.
+// these render inside SDK chrome, not ours. The hover tint is kept from the old
+// panel: orange for clearing the logo.
+//
+// No "Reset to defaults" and no Advanced ▸ About here any more (2026-09-27):
+// since SDK 0.161.0 both sit at the foot of "Tune this app", from the navbar's
+// `onResetDefaults` and `about` props in App.tsx.
 //
 // ⚠️ THE SDK PAINTS THE PANEL, NOT THESE ROWS. Once the bar is given
 // `theme="dark"` the dropdown behind them turns slate-800, and any colour typed
@@ -27,8 +25,8 @@ import { useThemeStore } from '../../stores/themeStore'
 // in both colourways.
 //
 // The light values are the ones this menu always had: `MENU.light.accentBg` /
-// `accentText` ARE the old orange tint, and `dangerHoverBg` / `dangerHoverText`
-// the old red one. The one exception is the resting label — see LIGHT_REST.
+// `accentText` ARE the old orange tint. The one exception is the resting label —
+// see LIGHT_REST.
 //
 // There is no Appearance section here any more. Since SDK 0.143 the colour
 // scheme is a Global preference with a per-app override in the SDK's own App
@@ -45,7 +43,6 @@ type Tint = { bg: string; fg: string }
 
 export default function AppMenu() {
   const config = useQrStore((s) => s.config)
-  const reset = useQrStore((s) => s.reset)
   const clearLogo = useQrStore((s) => s.clearLogo)
   const hasLogo = !!config.logoDataUrl
   const theme = useThemeStore((s) => s.effective)
@@ -53,7 +50,6 @@ export default function AppMenu() {
   const m = MENU[theme]
   const rest = theme === 'dark' ? m.body : LIGHT_REST
   const warn: Tint = { bg: m.accentBg, fg: m.accentText }
-  const danger: Tint = { bg: m.dangerHoverBg, fg: m.dangerHoverText }
 
   return (
     <>
@@ -66,31 +62,6 @@ export default function AppMenu() {
           label="Remove logo"
         />
       )}
-
-      <MenuRow
-        icon="↺"
-        tint={danger}
-        rest={rest}
-        onClick={() => { if (confirm('Reset all settings to the defaults?')) reset() }}
-        label="Reset to defaults"
-      />
-
-      {/* Advanced — the SDK's own category, so every app in the suite has one in
-          the same place, and whatever goes in it next is one change rather than
-          nineteen. "About this app" is always its last row. `theme` is the
-          RESOLVED one, the same value the bar gets. */}
-      <AdvancedMenu
-        theme={theme}
-        about={{
-          repo:    'https://github.com/universal-simulation-ltd/Universal_QR',
-          subject: 'What you type',
-          except:  'a code you save to your account',
-          headline: 'Other QR sites build your code on their servers — and a dynamic one can be changed or tracked later.',
-          version: __APP_VERSION__,
-          credits,
-          noticesHref: 'https://github.com/universal-simulation-ltd/Universal_QR/blob/main/THIRD-PARTY-NOTICES.md',
-        }}
-      />
     </>
   )
 }
