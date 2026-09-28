@@ -37,7 +37,8 @@ Part of the [Universal Apps](https://opensource.unisim.co.uk) suite by
   give the three finder corners their own colour for a two-tone look
 - **Shape & size** — six module styles (square, rounded, extra-rounded, dots,
   classy, classy-rounded), independent corner-frame and corner-dot styling, a
-  size slider (128–1024 px), quiet-zone margin, and selectable error-correction
+  size slider (128–1024 px) and quiet-zone margin. Error correction is always
+  the highest level, **H** (about 30% recoverable), so a centre logo still scans
 - **Code shape** — put the code on a circle, squircle, hexagon or star plate
   instead of a square. The code itself is never clipped: it is drawn smaller and
   centred inside the shape, because a QR needs every module and its quiet zone
@@ -148,8 +149,9 @@ they need somewhere to live in order to redirect and to count scans.
 **To read a code:** open the **Scan** tab, hit **Start scanning** and point your
 camera at it.
 
-> **Tip:** when using a logo, keep error correction at **Q** or **H** and
-> scan-test the code before printing at small sizes. The same goes for
+> **Tip:** error correction is fixed at **H**, which is what lets a centre logo
+> cover part of the code — but a large logo can still break it, so scan-test the
+> code before printing at small sizes. The same goes for
 > barcodes — always scan-test before a small print run.
 
 ## Development
