@@ -10,6 +10,7 @@ import QrApp from './components/qr/QrApp'
 import { CONTAINER } from './lib/layout'
 import { useQrStore } from './stores/qrStore'
 import { useThemeStore } from './stores/themeStore'
+import { useSystemBarsStyle } from './lib/systemBars'
 import { KNOWLEDGE_BASE } from './knowledge'
 
 const REPO_URL = 'https://github.com/universal-simulation-ltd/Universal_QR'
@@ -30,6 +31,8 @@ export default function App() {
   // The RESOLVED theme ('light' | 'dark'), never the raw preference: the SDK's
   // bar and its dropdowns come in two colourways, and 'system' is not one.
   const theme = useThemeStore((s) => s.effective)
+  // The native status-bar glyphs follow it wherever the page is under them.
+  useSystemBarsStyle(theme)
   return (
     // ⚠️ pt-[env(safe-area-inset-top)] is for the native (Capacitor) build, not
     // the web one. Capacitor runs the app in a FULL-SCREEN WKWebView, and
