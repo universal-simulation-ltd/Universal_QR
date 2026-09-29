@@ -31,7 +31,7 @@ export default function App() {
   // The RESOLVED theme ('light' | 'dark'), never the raw preference: the SDK's
   // bar and its dropdowns come in two colourways, and 'system' is not one.
   const theme = useThemeStore((s) => s.effective)
-  // The native status-bar glyphs follow it wherever the page is under them.
+  // The native status bar (its strip on Android, and the glyphs) follows it.
   useSystemBarsStyle(theme)
   return (
     // ⚠️ pt-[env(safe-area-inset-top)] is for the native (Capacitor) build, not
