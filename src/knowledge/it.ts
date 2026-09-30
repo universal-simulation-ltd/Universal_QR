@@ -121,7 +121,7 @@ Poiché la destinazione è memorizzata sul nostro server e non nello schema stam
 
 I compromessi:
 
-- **Devi accedere** con il tuo Universal ID, e ogni codice dinamico attivo usa uno dei token del tuo account. Eliminando un codice, il suo token ti viene restituito.
+- **Devi accedere** con il tuo Universal ID. I codici dinamici sono gratuiti con il tuo Universal ID, e gli account gratuiti hanno un limite generoso. Se dovessi raggiungerlo, elimina un codice che non ti serve più per fare spazio.
 - **Dipende dal servizio.** Se un codice dinamico viene eliminato, chi lo scansiona vede una pagina che dice che il codice non è più attivo, invece della tua destinazione.
 - **Ogni scansione viene registrata.** Consulta l'articolo su ciò che lascia il tuo dispositivo per sapere esattamente cosa viene conservato.
 

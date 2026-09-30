@@ -121,7 +121,7 @@ Como o destino está guardado no nosso servidor e não no padrão impresso, pode
 
 As contrapartidas:
 
-- **Tem de iniciar sessão** com o seu Universal ID, e cada código dinâmico ativo usa um dos tokens da sua conta. Eliminar um código devolve o respetivo token.
+- **Tem de iniciar sessão** com o seu Universal ID. Os códigos dinâmicos são gratuitos com o seu Universal ID, e as contas gratuitas têm um limite generoso. Se algum dia o atingir, elimine um código de que já não precisa para libertar espaço.
 - **Depende do serviço.** Se um código dinâmico for eliminado, quem o ler vê uma página a informar que o código já não está ativo, em vez do seu destino.
 - **Cada leitura é registada.** Consulte o artigo sobre o que sai do seu dispositivo para saber exatamente o que é guardado.
 

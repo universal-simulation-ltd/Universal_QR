@@ -121,7 +121,7 @@ Hedef basılı desende değil sunucumuzda saklandığı için onu istediğiniz z
 
 Ödünleşimler:
 
-- **Oturum açmanız gerekir**; bunun için Universal ID'nizi kullanırsınız ve her etkin dinamik kod hesabınızın jetonlarından birini kullanır. Bir kodu silmek jetonunu geri verir.
+- **Oturum açmanız gerekir**; bunun için Universal ID'nizi kullanırsınız. Dinamik kodlar Universal ID'nizle ücretsizdir ve ücretsiz hesapların cömert bir sınırı vardır. Bu sınıra bir gün ulaşırsanız, yer açmak için artık ihtiyacınız olmayan bir kodu silin.
 - **Hizmete bağlıdır.** Bir dinamik kod silinirse onu tarayan herkes hedefiniz yerine kodun artık etkin olmadığını belirten bir sayfa görür.
 - **Her tarama kaydedilir.** Tam olarak nelerin saklandığını öğrenmek için cihazınızdan nelerin çıktığıyla ilgili makaleye bakın.
 

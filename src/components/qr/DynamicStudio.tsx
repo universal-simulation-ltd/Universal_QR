@@ -26,10 +26,17 @@ const GET_TOKENS_URL = 'https://www.unisim.co.uk/everyday'
 // The web and desktop builds keep the link.
 const SHOW_TOKEN_PURCHASE = !isNativeShell()
 
+// Limits are only mentioned once someone actually reaches one — never before
+// sign-up and never while there is room — and never with a number in them
+// (the allowances change). Kept jargon-light: "free dynamic codes", not tokens.
+const AT_LIMIT = "You've used your free dynamic codes."
+const MAKE_ROOM = SHOW_TOKEN_PURCHASE ? 'Delete one to make room, or get more.' : 'Delete one to make room.'
+
 // The "Dynamic" tab — a hosted/PRO feature. A dynamic code encodes a short
 // redirect the owner can re-point later, and every scan is counted. Each live
 // code holds one token (the org's free "Everyday" token first, then a purchased
-// credit), returned when the code is deleted. The free static designer is a
+// credit), returned when the code is deleted — but the UI only talks about that
+// allowance once it has run out (see AT_LIMIT). The free static designer is a
 // sibling tab and is never touched by any of this.
 export default function DynamicStudio() {
   const brandingPanelId = useId()
@@ -178,13 +185,11 @@ export default function DynamicStudio() {
         setError(
           res.error === 'design_too_large'
             ? 'That branding is too big to save — try a smaller centre logo.'
-            : res.error === 'no_credits'
-              ? 'You have no tokens left. Get more to create another dynamic code.'
-              : res.error === 'token_in_use'
-                ? `Your free QR token is already in use${res.heldBy ? ` (${res.heldBy})` : ''} — delete that code or add tokens.`
-                : res.error === 'no_org'
-                  ? 'Your Universal ID has no organisation yet — open the hub once to finish setup.'
-                  : res.error ?? 'Could not create this dynamic code.',
+            : res.error === 'no_credits' || res.error === 'token_in_use'
+              ? `${AT_LIMIT} ${MAKE_ROOM}`
+              : res.error === 'no_org'
+                ? 'Your Universal ID has no organisation yet — open the hub once to finish setup.'
+                : res.error ?? 'Could not create this dynamic code.',
         )
       } else {
         setTarget('')
@@ -200,7 +205,7 @@ export default function DynamicStudio() {
 
   async function onDelete(code: DynamicCode) {
     if (busy) return
-    if (!window.confirm(`Delete "${code.name?.trim() || code.code}"? Anyone who scans it will hit a "not active" page, and its token comes back to you.`)) return
+    if (!window.confirm(`Delete "${code.name?.trim() || code.code}"? Anyone who scans it will hit a "not active" page.`)) return
     setBusy(true)
     setError(null)
     try {
@@ -238,11 +243,10 @@ export default function DynamicStudio() {
 
       {!signedIn ? (
         <div className="mt-6 max-w-2xl rounded-2xl border border-orange-200 bg-white p-6 shadow-sm dark:border-orange-500/30 dark:bg-slate-900">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Sign in to create dynamic codes</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Create a Universal ID to make dynamic QR codes for FREE.</h2>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             Dynamic codes are hosted against your <strong>Universal ID</strong> so they can redirect and
-            record scans. Each live code uses one token — every account gets one free, and deleting a code
-            returns its token. The plain <button type="button" className="font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300" onClick={() => setView('static')}>Static</button> designer stays 100% free and on-device.
+            record scans. The plain <button type="button" className="font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300" onClick={() => setView('static')}>Static</button> designer stays 100% free and on-device.
           </p>
           <a href={SIGNIN_URL} className="mt-4 inline-flex rounded-lg bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800">
             Create / sign in with Universal ID →
@@ -319,11 +323,13 @@ export default function DynamicStudio() {
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 dark:bg-slate-900 dark:border-slate-800">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-slate-900 dark:text-slate-100">New dynamic code</h2>
+              {/* No allowance chip while there is room — only a neutral count
+                  of tokens someone has actually bought. */}
+              {tokens > 0 && (
               <span className="rounded-lg bg-orange-50/70 px-2.5 py-1 text-xs font-semibold text-orange-700 dark:bg-orange-500/15 dark:text-orange-300">
-                {freeToken === 'available'
-                  ? tokens > 0 ? `Free token + ${tokens} purchased` : 'Free token available'
-                  : `${tokens} token${tokens === 1 ? '' : 's'}`}
+                {`${tokens} purchased token${tokens === 1 ? '' : 's'}`}
               </span>
+              )}
             </div>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Signed in as {user?.email}</p>
 
@@ -355,20 +361,20 @@ export default function DynamicStudio() {
                 disabled={busy || !target.trim()}
                 className="mt-4 w-full rounded-xl bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800 disabled:opacity-50"
               >
-                {busy ? 'Creating…' : 'Create dynamic code (1 token)'}
+                {busy ? 'Creating…' : 'Create dynamic code'}
               </button>
             ) : freeToken === null ? (
-              <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">Checking your tokens…</p>
+              <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">Checking your account…</p>
             ) : (
               <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/60 dark:bg-amber-950/40">
                 <p className="text-sm text-amber-800 dark:text-amber-200">
                   {freeToken === 'held'
-                    ? `Your free QR token is in use — delete a code below to get it back${SHOW_TOKEN_PURCHASE ? ', or add tokens' : ''}.`
-                    : 'You have no tokens left.'}
+                    ? `${AT_LIMIT} ${MAKE_ROOM}`
+                    : AT_LIMIT}
                 </p>
                 {SHOW_TOKEN_PURCHASE && (
                 <a href={GET_TOKENS_URL} target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-lg bg-orange-700 px-3.5 py-2 text-sm font-semibold text-white hover:bg-orange-800">
-                  Get tokens →
+                  Get more →
                 </a>
                 )}
               </div>

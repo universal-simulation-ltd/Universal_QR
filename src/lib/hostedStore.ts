@@ -54,7 +54,7 @@ export async function storeCurrentQr(supabase: Supabase, orgId: string, config: 
     sizeBytes: blob.size,
   })
   if (!consumed.ok || !consumed.upload_id) {
-    return { ok: false, error: consumed.error ?? 'Could not reserve a token.' }
+    return { ok: false, error: consumed.error ?? 'Could not save right now.' }
   }
 
   const { error: upErr } = await supabase.storage
@@ -107,7 +107,7 @@ export async function storeCurrentQr(supabase: Supabase, orgId: string, config: 
 export async function deleteHostedQr(supabase: Supabase, upload: HostedUpload): Promise<StoreResult> {
   await supabase.storage.from(HOSTED_BUCKET).remove(hostedQrRemovalPaths(upload))
   const res = await refundHostedUpload(supabase, upload.id)
-  if (!res.ok) return { ok: false, error: res.error ?? 'Could not refund the token.' }
+  if (!res.ok) return { ok: false, error: res.error ?? 'Could not delete this backup right now.' }
   return { ok: true, creditsRemaining: res.credits }
 }
 

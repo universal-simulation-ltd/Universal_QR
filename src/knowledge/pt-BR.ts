@@ -121,7 +121,7 @@ Como o destino fica guardado no nosso servidor e não no padrão impresso, você
 
 As contrapartidas:
 
-- **Você precisa entrar** com o seu Universal ID, e cada código dinâmico ativo usa um dos tokens da sua conta. Excluir um código devolve o token.
+- **Você precisa entrar** com o seu Universal ID. Os códigos dinâmicos são gratuitos com o seu Universal ID, e as contas gratuitas têm um limite generoso. Se um dia você atingi-lo, exclua um código de que não precisa mais para liberar espaço.
 - **Depende do serviço.** Se um código dinâmico for excluído, quem o ler verá uma página dizendo que o código não está mais ativo, em vez do seu destino.
 - **Cada leitura é registrada.** Veja o artigo sobre o que sai do seu dispositivo para saber exatamente o que é guardado.
 

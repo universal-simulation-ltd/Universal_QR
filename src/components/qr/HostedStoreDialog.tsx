@@ -21,9 +21,10 @@ const SHOW_TOKEN_PURCHASE = !isNativeShell()
 // "Back up this QR code" — the free device gallery (SavePanel) plus online
 // save against a Universal ID. Every account gets five free static QR saves
 // (deliberately not advertised in the UI — migration 0127); past those the
-// backend falls back to purchased tokens, which is when the "Get tokens"
-// prompt appears. Dynamic codes keep their own single free token and are
-// untouched by any of this. Backend: 0041 + 0127 + the SDK hosted helpers.
+// backend falls back to purchased tokens, and only when both are used up does
+// the number-free "You've used your free online backups" prompt appear.
+// Dynamic codes keep their own single free token and are untouched by any of
+// this. Backend: 0041 + 0127 + the SDK hosted helpers.
 export default function HostedStoreDialog() {
   const open = useQrStore((s) => s.hostedStoreOpen)
   const setOpen = useQrStore((s) => s.setHostedStoreOpen)
@@ -155,7 +156,7 @@ export default function HostedStoreDialog() {
           <div className="rounded-xl border border-orange-200 bg-white p-4 dark:border-orange-500/30 dark:bg-slate-900">
             {!signedIn ? (
               <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
-                <p className="text-sm text-slate-700 dark:text-slate-200">Sign in with your <strong>Universal ID</strong> to store QR codes online.</p>
+                <p className="text-sm text-slate-700 dark:text-slate-200">Create a <strong>Universal ID</strong> to back up your QR codes online for FREE.</p>
                 <a href={SIGNIN_URL} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
                   Create / sign in with Universal ID →
                 </a>
@@ -180,12 +181,12 @@ export default function HostedStoreDialog() {
                   <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/60 dark:bg-amber-950/40">
                     <p className="text-sm text-amber-800 dark:text-amber-200">
                       {SHOW_TOKEN_PURCHASE
-                        ? 'You have no tokens left. Get more to keep storing QR codes online, or delete a backup below.'
-                        : 'You have no tokens left. Delete a backup below to free one.'}
+                        ? "You've used your free online backups. Delete one below to make room, or get more."
+                        : "You've used your free online backups. Delete one below to make room."}
                     </p>
                     {SHOW_TOKEN_PURCHASE && (
                     <a href={GET_TOKENS_URL} target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-lg bg-orange-700 px-3.5 py-2 text-sm font-semibold text-white hover:bg-orange-800">
-                      Get tokens →
+                      Get more →
                     </a>
                     )}
                   </div>

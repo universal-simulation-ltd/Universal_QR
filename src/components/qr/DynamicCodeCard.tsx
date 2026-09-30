@@ -186,7 +186,7 @@ export default function DynamicCodeCard({
               onClick={() => onDelete(code)}
               disabled={busy}
               className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50 dark:hover:text-rose-400"
-              title="Delete this code and get its token back"
+              title="Delete this code"
             >
               Delete
             </button>

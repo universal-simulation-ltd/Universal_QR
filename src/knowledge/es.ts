@@ -121,7 +121,7 @@ Como el destino se guarda en nuestro servidor y no en el patrón impreso, puede 
 
 Las contrapartidas:
 
-- **Tiene que iniciar sesión** con su Universal ID, y cada código dinámico activo usa uno de los tokens de su cuenta. Al eliminar un código, se le devuelve su token.
+- **Tiene que iniciar sesión** con su Universal ID. Los códigos dinámicos son gratuitos con su Universal ID, y las cuentas gratuitas tienen un límite generoso. Si alguna vez lo alcanza, elimine un código que ya no necesite para hacer sitio.
 - **Depende del servicio.** Si se elimina un código dinámico, quien lo escanee verá una página que indica que el código ya no está activo, en lugar de su destino.
 - **Cada escaneo queda registrado.** Consulte el artículo sobre lo que sale de su dispositivo para saber exactamente qué se guarda.
 

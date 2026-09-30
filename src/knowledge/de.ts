@@ -121,7 +121,7 @@ Weil das Ziel auf unserem Server gespeichert ist und nicht im gedruckten Muster,
 
 Die Kompromisse:
 
-- **Sie müssen sich anmelden**, mit Ihrer Universal ID, und jeder aktive dynamische Code belegt einen Token Ihres Kontos. Wenn Sie einen Code löschen, erhalten Sie den Token zurück.
+- **Sie müssen sich anmelden**, mit Ihrer Universal ID. Dynamische Codes sind mit Ihrer Universal ID kostenlos, und kostenlose Konten haben ein großzügiges Limit. Sollten Sie es einmal erreichen, löschen Sie einen Code, den Sie nicht mehr brauchen, um Platz zu schaffen.
 - **Er hängt vom Dienst ab.** Wird ein dynamischer Code gelöscht, sieht jeder, der ihn scannt, statt Ihres Ziels eine Seite mit dem Hinweis, dass der Code nicht mehr aktiv ist.
 - **Jeder Scan wird erfasst.** Was genau gespeichert wird, steht im Artikel darüber, was Ihr Gerät verlässt.
 

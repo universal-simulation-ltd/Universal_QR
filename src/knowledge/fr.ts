@@ -121,7 +121,7 @@ Comme la destination est enregistrée sur notre serveur et non dans le motif imp
 
 Les contreparties :
 
-- **Vous devez vous connecter** avec votre Universal ID, et chaque code dynamique actif utilise l'un des jetons de votre compte. Supprimer un code vous rend son jeton.
+- **Vous devez vous connecter** avec votre Universal ID. Les codes dynamiques sont gratuits avec votre Universal ID, et les comptes gratuits disposent d'une limite généreuse. Si vous l'atteignez un jour, supprimez un code dont vous n'avez plus besoin pour faire de la place.
 - **Il dépend du service.** Si un code dynamique est supprimé, toute personne qui le scanne voit une page indiquant que le code n'est plus actif, au lieu de votre destination.
 - **Chaque scan est enregistré.** Consultez l'article sur ce qui quitte votre appareil pour savoir exactement ce qui est conservé.
 

@@ -121,7 +121,7 @@ Because the destination is stored on our server rather than in the printed patte
 
 The trade-offs:
 
-- **You need to sign in** with your Universal ID, and each live dynamic code uses one of your account's tokens. Deleting a code returns its token.
+- **You need to sign in** with your Universal ID. Dynamic codes are free with a Universal ID, and free accounts have a generous limit. If you ever reach it, delete a code you no longer need to make room.
 - **It depends on the service.** If a dynamic code is deleted, anyone who scans it sees a page saying the code is no longer active, instead of your destination.
 - **Each scan is recorded.** See the article on what leaves your device for exactly what is kept.
 
