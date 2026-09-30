@@ -1,6 +1,6 @@
 {
   "name": "universal-qr",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
@@ -25,7 +25,8 @@
     "check:ios-launch": "node scripts/verify-ios-launch.mjs",
     "sync:ios-version": "node scripts/sync-ios-version.mjs",
     "cap:open:ios": "npx cap open ios",
-    "cap:open:android": "npx cap open android"
+    "cap:open:android": "npx cap open android",
+    "android:release": "scripts/android-release.sh"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",
