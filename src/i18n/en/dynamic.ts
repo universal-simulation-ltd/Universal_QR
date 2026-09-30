@@ -47,6 +47,7 @@ export default {
 
   // Dynamic tab — reaching the limit. Only ever shown once the free allowance
   // has run out; deliberately no numbers and no "tokens".
+  'near_limit': "You've used {used} of your {limit} free dynamic codes.", // quiet note under the Create button, only once 80% or more are used; used and limit are numbers
   'at_limit': "You've used your free dynamic codes.",
   'at_limit_make_room': "You've used your free dynamic codes. Delete one to make room, or get more.", // web and desktop
   'at_limit_make_room_native': "You've used your free dynamic codes. Delete one to make room.", // phone apps: never mention buying more
@@ -102,6 +103,7 @@ export default {
   'backup_backed_up': '✓ Backed up',
   'backup_back_up_online': 'Back up this QR online', // button
   'backup_needs_data': 'Enter a URL or some text to back up your QR code.',
+  'backup_near_limit': "You've used {used} of your {limit} free online backups.", // quiet note under the Back up button, only once 80% or more are used; used and limit are numbers
   'backup_used_up': "You've used your free online backups. Delete one below to make room, or get more.", // web and desktop; only shown once the free allowance has run out
   'backup_used_up_native': "You've used your free online backups. Delete one below to make room.", // phone apps: never mention buying more
   'backup_your_backups': 'Your backups', // small uppercase list heading

@@ -10,6 +10,7 @@ import {
   listDynamicCodes,
   type DynamicCode,
 } from '../../lib/dynamicCodes'
+import { useFreeAllowance, isNearLimit } from '../../lib/useFreeAllowance'
 import BrandingControls, { type LogoMode } from './BrandingControls'
 import DynamicCodeCard from './DynamicCodeCard'
 import { getT, useT } from '../../i18n'
@@ -27,9 +28,10 @@ const GET_TOKENS_URL = 'https://www.unisim.co.uk/everyday'
 // The web and desktop builds keep the link.
 const SHOW_TOKEN_PURCHASE = !isNativeShell()
 
-// Limits are only mentioned once someone actually reaches one — never before
-// sign-up and never while there is room — and never with a number in them
-// (the allowances change). Kept jargon-light: "free dynamic codes", not tokens.
+// Limits are only mentioned once someone comes close to one — never before
+// sign-up, never below 80% used (see near_limit, whose numbers come from the
+// free_allowance_status RPC because the allowances change; never type one in).
+// Kept jargon-light: "free dynamic codes", not tokens.
 // Read at call time, not at module load, so they follow the active language.
 const atLimit = () => getT()('dynamic.at_limit')
 const atLimitMakeRoom = () =>
@@ -48,6 +50,7 @@ export default function DynamicStudio() {
   const { user } = useUser()
   const { credits, refresh: refreshCredits } = useCredits()
   const { status: freeToken, refresh: refreshFreeToken } = useAppFreeToken('qr')
+  const { status: allowance, refresh: refreshAllowance } = useFreeAllowance('qr')
   const { icon_url: orgIconUrl, brand_color: orgColor } = useOrgBranding()
   const setView = useQrStore((s) => s.setView)
   const dynamicBrand = useQrStore((s) => s.dynamicBrand)
@@ -200,6 +203,7 @@ export default function DynamicStudio() {
         setName('')
         refreshCredits()
         refreshFreeToken()
+        refreshAllowance()
         refreshList()
       }
     } finally {
@@ -218,6 +222,7 @@ export default function DynamicStudio() {
       else {
         refreshCredits()
         refreshFreeToken()
+        refreshAllowance()
         refreshList()
       }
     } finally {
@@ -384,6 +389,14 @@ export default function DynamicStudio() {
                 </a>
                 )}
               </div>
+            )}
+            {/* The one exception to "no limit talk while there is room": once
+                80% of the free dynamic codes are live, a quiet heads-up. The
+                numbers come from the backend (they are tunable) — never typed in. */}
+            {canCreate && isNearLimit(allowance) && (
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                {t('dynamic.near_limit', { used: allowance.used, limit: allowance.limit })}
+              </p>
             )}
             {error && <p className="mt-3 text-sm text-rose-600 dark:text-rose-400">{error}</p>}
           </section>

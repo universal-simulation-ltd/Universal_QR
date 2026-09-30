@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useUniversal, useUser, useHostedUploads, isNativeShell, type HostedUpload } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
+import { useFreeAllowance, isNearLimit } from '../../lib/useFreeAllowance'
 import { storeCurrentQr, deleteHostedQr, openHostedQr, HostedObjectMissingError } from '../../lib/hostedStore'
 import SavePanel from './SavePanel'
 import { intlLocale, useT } from '../../i18n'
@@ -20,8 +21,8 @@ const GET_TOKENS_URL = 'https://www.unisim.co.uk/everyday'
 const SHOW_TOKEN_PURCHASE = !isNativeShell()
 
 // "Back up this QR code" — the free device gallery (SavePanel) plus online
-// save against a Universal ID. Every account gets five free static QR saves
-// (deliberately not advertised in the UI — migration 0127); past those the
+// save against a Universal ID. Every org gets a counted free allowance of
+// static QR saves (0127, counted since 0199 — only mentioned from 80%); past it the
 // backend falls back to purchased tokens, and only when both are used up does
 // the number-free "You've used your free online backups" prompt appear.
 // Dynamic codes keep their own single free token and are untouched by any of
@@ -35,6 +36,11 @@ export default function HostedStoreDialog() {
   const { supabase, session, activeOrgId } = useUniversal()
   const { user } = useUser()
   const { uploads, loading: listLoading, refresh: refreshList } = useHostedUploads('qr')
+  // Fetched only while the dialog is open — it is mounted on every page.
+  const { status: allowance, refresh: refreshAllowance } = useFreeAllowance(
+    'qr_static',
+    open && !!session?.user && session.user.is_anonymous !== true,
+  )
 
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -71,6 +77,7 @@ export default function HostedStoreDialog() {
       } else {
         setJustStored(true)
         refreshList()
+        refreshAllowance()
         window.setTimeout(() => setJustStored(false), 2200)
       }
     } finally {
@@ -109,6 +116,7 @@ export default function HostedStoreDialog() {
         setOutOfTokens(false)
         setMissingId((id) => (id === upload.id ? null : id))
         refreshList()
+        refreshAllowance()
       }
     } finally {
       setBusy(false)
@@ -177,6 +185,14 @@ export default function HostedStoreDialog() {
                   </button>
                 ) : (
                   <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">{t('dynamic.backup_needs_data')}</p>
+                )}
+
+                {/* Only once 80% of the free backups are used, and only while
+                    there is still room; numbers from the backend, never typed in. */}
+                {!outOfTokens && isNearLimit(allowance) && (
+                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                    {t('dynamic.backup_near_limit', { used: allowance.used, limit: allowance.limit })}
+                  </p>
                 )}
 
                 {outOfTokens && (
