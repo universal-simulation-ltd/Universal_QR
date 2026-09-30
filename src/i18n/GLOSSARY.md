@@ -24,7 +24,7 @@ Code 39, ITF-14, and every QR payload (`WIFI:`, `mailto:`, `BEGIN:VCARD`…).
 | QR code | QR code (m.) | código QR | codice QR | QR-Code (m.) | QR code (m.) | código QR | QR kod |
 | barcode | code-barres (pl. codes-barres) | código de barras | codice a barre | Barcode | código de barras | código de barras | barkod |
 | dynamic QR code | QR code dynamique | código QR dinámico | codice QR dinamico | dynamischer QR-Code | QR code dinâmico | código QR dinâmico | dinamik QR kod |
-| scan (verb) | scanner | escanear | scansionare | scannen | escanear | digitalizar | tara |
+| scan (verb) | scanner | escanear | scansionare | scannen | ler (tab "Ler", counts "leituras" — as the pt-BR knowledge base) | ler (tab "Ler", counts "leituras" — as the pt-PT knowledge base) | tara |
 | scanner | scanner | escáner | scanner | Scanner | leitor | leitor | tarayıcı |
 | link | lien | enlace | link | Link | link | ligação | bağlantı |
 | website address | adresse du site | dirección web | indirizzo del sito | Webadresse | endereço do site | endereço do site | web adresi |

@@ -1,4 +1,8 @@
-// PLACEHOLDER until the tr translation lands: English, so the build holds.
-import { en, type Messages } from '../en'
+import type { Messages } from '../en'
+import app from './app'
+import studio from './studio'
+import controls from './controls'
+import dynamic from './dynamic'
+import scan from './scan'
 
-export const tr: Messages = en
+export const tr: Messages = { app, studio, controls, dynamic, scan }

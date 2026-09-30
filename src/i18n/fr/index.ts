@@ -1,4 +1,8 @@
-// PLACEHOLDER until the fr translation lands: English, so the build holds.
-import { en, type Messages } from '../en'
+import type { Messages } from '../en'
+import app from './app'
+import studio from './studio'
+import controls from './controls'
+import dynamic from './dynamic'
+import scan from './scan'
 
-export const fr: Messages = en
+export const fr: Messages = { app, studio, controls, dynamic, scan }

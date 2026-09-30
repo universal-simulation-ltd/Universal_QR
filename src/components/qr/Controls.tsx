@@ -18,7 +18,7 @@ import { DECOR_STYLES, type DecorStyle } from '@unisim/qr'
 import { decorScaleOf, starBehind } from '@unisim/qr'
 import { SYMBOLOGIES, symbologyById, type BarcodeSymbology } from '../../lib/barcode'
 import LinkCheck from './LinkCheck'
-import { getT, useT, type BasicTranslator, type MessageKey } from '../../i18n'
+import { getT, intlLocale, useT, type BasicTranslator, type MessageKey } from '../../i18n'
 
 // ── Labels from @unisim/qr, translated here ───────────────────────────────
 // The option lists and the preset names live in the shared package, in
@@ -79,6 +79,12 @@ function localiseOptions(
 
 /** A preset's name in the current language. The English name stays the id —
  *  it is what the store remembers as the active preset. */
+/** A contrast ratio in the reader's number format: "2.4" in English, "2,4" in
+ *  French, German, Portuguese… `toFixed` always wrote the English point. */
+function oneDecimal(n: number, lang: string): string {
+  return new Intl.NumberFormat(intlLocale(lang), { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(n)
+}
+
 export function presetLabel(name: string, t: BasicTranslator = getT()): string {
   return PRESET_KEYS[name] ? t(PRESET_KEYS[name]) : name
 }
@@ -246,7 +252,7 @@ export default function Controls() {
         {contrast?.kind === 'low' && contrast.where === 'star' && (
           <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-200">
             <strong className="font-semibold">{t('controls.contrast_low_star_title')}</strong>{' '}
-            {t('controls.contrast_low_star_body', { ratio: contrast.ratio.toFixed(1), min: MIN_QR_CONTRAST })}
+            {t('controls.contrast_low_star_body', { ratio: oneDecimal(contrast.ratio, t.lang), min: oneDecimal(MIN_QR_CONTRAST, t.lang) })}
           </p>
         )}
 
@@ -258,8 +264,8 @@ export default function Controls() {
                 : t('controls.contrast_low_modules_title')}
             </strong>{' '}
             {contrast.where === 'corners'
-              ? t('controls.contrast_low_corners_body', { ratio: contrast.ratio.toFixed(1), min: MIN_QR_CONTRAST })
-              : t('controls.contrast_low_modules_body', { ratio: contrast.ratio.toFixed(1), min: MIN_QR_CONTRAST })}
+              ? t('controls.contrast_low_corners_body', { ratio: oneDecimal(contrast.ratio, t.lang), min: oneDecimal(MIN_QR_CONTRAST, t.lang) })
+              : t('controls.contrast_low_modules_body', { ratio: oneDecimal(contrast.ratio, t.lang), min: oneDecimal(MIN_QR_CONTRAST, t.lang) })}
           </p>
         )}
       </Section>
