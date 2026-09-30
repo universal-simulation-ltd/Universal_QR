@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { DEFAULT_CONFIG, randomPreset, type QrConfig } from '@unisim/qr'
+import { readDefaultView } from '@unisim/sdk'
 import type { BarcodeSymbology } from '../lib/barcode'
 
 export type StudioMode = 'simple' | 'branding' | 'advanced'
@@ -18,6 +19,27 @@ export type CodeType = 'qr' | 'barcode'
  * read by POS systems that won't follow a redirect, so Dynamic stays QR-only.
  */
 export type StudioView = 'static' | 'dynamic' | 'scan'
+
+/** The top tabs and the editor modes, in order — also every value the
+ *  double-tap defaults (and their Tune this app rows) may name. */
+export const STUDIO_VIEWS: readonly StudioView[] = ['static', 'scan', 'dynamic']
+export const STUDIO_MODES: readonly StudioMode[] = ['simple', 'branding', 'advanced']
+
+/**
+ * Where the app opens: the default view the person double-tapped, else the
+ * clean front door. James, 2026-09-30: "allow the user to double click the
+ * button to set that as their default view".
+ *
+ * ⚠️ This is NOT the tabs persisting again (v7 below took them out on purpose):
+ * a single tap is still forgotten on reload, so wandering into Advanced or Scan
+ * does not strand you there. Only an explicit double tap — or the same choice
+ * in Tune this app — changes the front door, and the SDK's Reset to defaults
+ * puts it back. The SDK owns the key (`unisim:default-view:qr:<id>`).
+ */
+function openingDefault<T extends string>(id: string, views: readonly T[], fallback: T): T {
+  const stored = readDefaultView('qr', id)
+  return stored && (views as readonly string[]).includes(stored) ? (stored as T) : fallback
+}
 
 /**
  * Branding applied to the hosted "Dynamic" codes. Defaults to the signed-in
@@ -136,9 +158,9 @@ export const useQrStore = create<QrState>()(
   persist(
     (set) => ({
       config: DEFAULT_CONFIG,
-      view: 'static',
+      view: openingDefault<StudioView>('view', STUDIO_VIEWS, 'static'),
       setView: (view) => set({ view }),
-      mode: 'simple',
+      mode: openingDefault<StudioMode>('mode', STUDIO_MODES, 'simple'),
       setMode: (mode) => set({ mode }),
       update: (patch) => set((s) => ({ config: { ...s.config, ...patch } })),
       applyPatch: (patch) => set((s) => ({ config: { ...s.config, ...patch } })),
@@ -181,6 +203,9 @@ export const useQrStore = create<QrState>()(
       // Simple URL box is the exact controls/preview mismatch onModeChange
       // guards against, and `barcodeValue` still persists, so re-picking
       // Advanced ▸ Type ▸ Barcode brings the work straight back.
+      // (Since 2026-09-30 the front door can be CHOSEN — double-tap a tab or a
+      // mode — but that lives in the SDK's default-view key, read into the
+      // initial state above, never in this record; see `openingDefault`.)
       partialize: (s) => ({
         config: s.config,
         presetName: s.presetName,

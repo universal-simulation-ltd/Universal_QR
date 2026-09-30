@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ChipToggle, useFileDrop, useUniversal } from '@unisim/sdk'
+import { ChipToggle, useDefaultView, useFileDrop, useUniversal } from '@unisim/sdk'
 import Controls from './Controls'
 import QrPreview from './QrPreview'
 import PinnedPreview from './PinnedPreview'
 import BarcodePreview from './BarcodePreview'
 import HostedStoreDialog from './HostedStoreDialog'
 import LinkCheck from './LinkCheck'
-import { useQrStore, type StudioMode } from '../../stores/qrStore'
+import { STUDIO_MODES, useQrStore, type StudioMode } from '../../stores/qrStore'
 import { CONTAINER } from '../../lib/layout'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
 import { saveBlob } from '@unisim/media/save'
@@ -510,27 +510,42 @@ function ModeToggle({
     { id: 'branding', label: 'Branding', nudge: brandingNudge },
     { id: 'advanced', label: 'Advanced' },
   ]
+  // Double-tap a mode to have the designer open in it (James, 2026-09-30) —
+  // e.g. straight into Advanced for somebody who always wants every control.
+  // A single tap is still forgotten on reload (store v7); see openingDefault.
+  const dv = useDefaultView<StudioMode>('mode', 'simple', { views: STUDIO_MODES })
   return (
     <div className="inline-flex p-1 bg-slate-200/70 rounded-xl dark:bg-slate-800" role="tablist" aria-label="Editor mode">
-      {tabs.map((t) => (
-        <button
-          key={t.id}
-          type="button"
-          role="tab"
-          aria-selected={mode === t.id}
-          onClick={() => setMode(t.id)}
-          className={`relative px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-            mode === t.id
-              ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white'
-              : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
-          }`}
-        >
-          {t.label}
-          {t.nudge && (
-            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-orange-500" aria-hidden="true" />
-          )}
-        </button>
-      ))}
+      {tabs.map((t) => {
+        const dvProps = dv.buttonProps(t.id, t.label)
+        // The mode it opens in is orange: filled while you are in it,
+        // outlined while you are not — Jukebox's library tabs.
+        const isDefault = dvProps['data-default-view'] === 'true'
+        return (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={mode === t.id}
+            {...dvProps}
+            onClick={() => { dv.tap(t.id); setMode(t.id) }}
+            className={`relative px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              mode === t.id
+                ? isDefault
+                  ? 'bg-gradient-to-br from-[#FE8C01] to-[#E05504] text-white shadow-sm'
+                  : 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white'
+                : isDefault
+                  ? 'text-orange-700 ring-1 ring-inset ring-orange-400/70 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950/40'
+                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
+            }`}
+          >
+            {t.label}
+            {t.nudge && (
+              <span className={`absolute top-1 right-1 w-1.5 h-1.5 rounded-full ${mode === t.id && isDefault ? 'bg-white' : 'bg-orange-500'}`} aria-hidden="true" />
+            )}
+          </button>
+        )
+      })}
     </div>
   )
 }
