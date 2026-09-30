@@ -7,6 +7,7 @@ import { UNISIM_MARK } from '@unisim/qr'
 import EnlargeModal, { placeholderFromPreview, prewarmEnlarged } from './EnlargeModal'
 import { contentSummary } from './Controls'
 import RegenerateButton from './RegenerateButton'
+import { useT } from '../../i18n'
 
 /** `compact` lays the same preview out as a short row instead of a column — the
  *  code small on the left, its name and address beside it. Nothing about how the
@@ -15,6 +16,7 @@ import RegenerateButton from './RegenerateButton'
  *  compact form is what a phone user judges the code by (see PinnedPreview), and
  *  a preview that came from a different code path is a preview that can lie. */
 export default function QrPreview({ compact = false }: { compact?: boolean } = {}) {
+  const t = useT()
   const config = useQrStore((s) => s.config)
   const contentKind = useQrStore((s) => s.contentKind)
   const contentFields = useQrStore((s) => s.contentFields)
@@ -150,7 +152,7 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
         onPointerDown={handlePointerDown}
         role={hasData ? 'button' : undefined}
         tabIndex={hasData ? 0 : undefined}
-        aria-label={hasData ? 'Enlarge QR code for scanning' : undefined}
+        aria-label={hasData ? t('studio.enlarge_aria') : undefined}
         onKeyDown={(e) => {
           if (hasData && (e.key === 'Enter' || e.key === ' ')) {
             e.preventDefault()
@@ -166,7 +168,7 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
           <div
             ref={holderRef}
             className="w-full aspect-square"
-            aria-label={`QR code for ${qrDisplayName(config)}`}
+            aria-label={t('studio.qr_code_for', { name: qrDisplayName(config) })}
             role="img"
           />
 
@@ -191,7 +193,7 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
               }`}
             >
               <p className={compact ? 'text-[11px] leading-tight text-slate-500' : 'text-sm text-slate-500'}>
-                {compact ? 'Nothing to show yet.' : 'Enter a URL or some text to generate your QR code.'}
+                {compact ? t('studio.nothing_yet') : t('studio.enter_to_generate')}
               </p>
             </div>
           )}
@@ -209,7 +211,7 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
                   <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
                   <path d="M10.5 10.5 L14 14 M7 5 V9 M5 7 H9" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                 </svg>
-                Tap to enlarge
+                {t('studio.tap_to_enlarge')}
               </span>
             </div>
           )}
@@ -226,7 +228,7 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
           </div>
         )}
         {compact && hasData && (
-          <div className="mt-1 text-[11px] font-medium text-orange-700 dark:text-orange-400">Tap the code to enlarge</div>
+          <div className="mt-1 text-[11px] font-medium text-orange-700 dark:text-orange-400">{t('studio.tap_code_to_enlarge')}</div>
         )}
         {/* The compact (phone) layout has no room beside the code, so the
             pinned card puts it on its own full-width row instead. */}

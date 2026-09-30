@@ -4,6 +4,7 @@ import { useUniversal, useUser, useHostedUploads, isNativeShell, type HostedUplo
 import { useQrStore } from '../../stores/qrStore'
 import { storeCurrentQr, deleteHostedQr, openHostedQr, HostedObjectMissingError } from '../../lib/hostedStore'
 import SavePanel from './SavePanel'
+import { intlLocale, useT } from '../../i18n'
 
 const SIGNIN_URL = 'https://app.unisim.co.uk/login'
 // Was /subscription.html until 2026-09-07, when the marketing site split its
@@ -26,6 +27,7 @@ const SHOW_TOKEN_PURCHASE = !isNativeShell()
 // Dynamic codes keep their own single free token and are untouched by any of
 // this. Backend: 0041 + 0127 + the SDK hosted helpers.
 export default function HostedStoreDialog() {
+  const t = useT()
   const open = useQrStore((s) => s.hostedStoreOpen)
   const setOpen = useQrStore((s) => s.setHostedStoreOpen)
   const config = useQrStore((s) => s.config)
@@ -65,7 +67,7 @@ export default function HostedStoreDialog() {
       const res = await storeCurrentQr(supabase, activeOrgId, config)
       if (!res.ok) {
         if (res.error === 'no_credits') setOutOfTokens(true)
-        else setError(res.error ?? 'Could not store this QR code.')
+        else setError(res.error ?? t('dynamic.backup_could_not_store'))
       } else {
         setJustStored(true)
         refreshList()
@@ -102,7 +104,7 @@ export default function HostedStoreDialog() {
     setError(null)
     try {
       const res = await deleteHostedQr(supabase, upload)
-      if (!res.ok) setError(res.error ?? 'Could not delete this QR code.')
+      if (!res.ok) setError(res.error ?? t('dynamic.backup_could_not_delete'))
       else {
         setOutOfTokens(false)
         setMissingId((id) => (id === upload.id ? null : id))
@@ -139,8 +141,8 @@ export default function HostedStoreDialog() {
           with the content the moment there was more of it than would fit. */}
       <div className="flex max-h-[min(100%,100svh)] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-slate-900 dark:ring-1 dark:ring-slate-700">
         <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-800">
-          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Back up this QR code</h2>
-          <button onClick={close} aria-label="Close" className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200">
+          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">{t('dynamic.backup_title')}</h2>
+          <button onClick={close} aria-label={t('dynamic.backup_close')} className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200">
             <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M5 5l10 10M15 5L5 15" strokeLinecap="round" /></svg>
           </button>
         </div>
@@ -156,9 +158,9 @@ export default function HostedStoreDialog() {
           <div className="rounded-xl border border-orange-200 bg-white p-4 dark:border-orange-500/30 dark:bg-slate-900">
             {!signedIn ? (
               <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
-                <p className="text-sm text-slate-700 dark:text-slate-200">Create a <strong>Universal ID</strong> to back up your QR codes online for FREE.</p>
+                <p className="text-sm text-slate-700 dark:text-slate-200">{t.rich('dynamic.backup_sign_in', { id: <strong>Universal ID</strong> })}</p>
                 <a href={SIGNIN_URL} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
-                  Create / sign in with Universal ID →
+                  {t('dynamic.signin_button')}
                 </a>
               </div>
             ) : (
@@ -171,22 +173,22 @@ export default function HostedStoreDialog() {
                     disabled={busy}
                     className="mt-3 w-full rounded-lg bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800 disabled:opacity-50"
                   >
-                    {busy ? 'Backing up…' : justStored ? '✓ Backed up' : 'Back up this QR online'}
+                    {busy ? t('dynamic.backup_backing_up') : justStored ? t('dynamic.backup_backed_up') : t('dynamic.backup_back_up_online')}
                   </button>
                 ) : (
-                  <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">Enter a URL or some text to back up your QR code.</p>
+                  <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">{t('dynamic.backup_needs_data')}</p>
                 )}
 
                 {outOfTokens && (
                   <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/60 dark:bg-amber-950/40">
                     <p className="text-sm text-amber-800 dark:text-amber-200">
                       {SHOW_TOKEN_PURCHASE
-                        ? "You've used your free online backups. Delete one below to make room, or get more."
-                        : "You've used your free online backups. Delete one below to make room."}
+                        ? t('dynamic.backup_used_up')
+                        : t('dynamic.backup_used_up_native')}
                     </p>
                     {SHOW_TOKEN_PURCHASE && (
                     <a href={GET_TOKENS_URL} target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-lg bg-orange-700 px-3.5 py-2 text-sm font-semibold text-white hover:bg-orange-800">
-                      Get more →
+                      {t('dynamic.get_more')}
                     </a>
                     )}
                   </div>
@@ -196,11 +198,11 @@ export default function HostedStoreDialog() {
 
                 {/* The user's hosted QR codes */}
                 <div className="mt-4">
-                  <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Your backups</p>
+                  <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{t('dynamic.backup_your_backups')}</p>
                   {listLoading ? (
-                    <p className="text-xs text-slate-400">Loading…</p>
+                    <p className="text-xs text-slate-400">{t('dynamic.loading')}</p>
                   ) : uploads.length === 0 ? (
-                    <p className="text-xs text-slate-400">None yet.</p>
+                    <p className="text-xs text-slate-400">{t('dynamic.backup_none_yet')}</p>
                   ) : (
                     <ul className="space-y-2">
                       {uploads.map((u) => (
@@ -208,10 +210,10 @@ export default function HostedStoreDialog() {
                           <div className="flex items-center gap-2">
                             <span className="min-w-0 flex-1">
                               <span className="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">{u.file_name || 'qr-code.png'}</span>
-                              <span className="block text-[10px] text-slate-400">{new Date(u.created_at).toLocaleDateString()}</span>
+                              <span className="block text-[10px] text-slate-400">{new Date(u.created_at).toLocaleDateString(intlLocale(t.lang))}</span>
                             </span>
-                            <button onClick={() => onOpen(u)} disabled={busy} className="shrink-0 rounded-md bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800 disabled:opacity-50">Open</button>
-                            <button onClick={() => onDelete(u)} disabled={busy} className="shrink-0 rounded-md px-2 py-1.5 text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50 dark:hover:text-rose-400" title="Delete this backup">Delete</button>
+                            <button onClick={() => onOpen(u)} disabled={busy} className="shrink-0 rounded-md bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800 disabled:opacity-50">{t('dynamic.backup_open')}</button>
+                            <button onClick={() => onDelete(u)} disabled={busy} className="shrink-0 rounded-md px-2 py-1.5 text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50 dark:hover:text-rose-400" title={t('dynamic.backup_delete_title')}>{t('dynamic.delete')}</button>
                           </div>
 
                           {/* A save with nothing behind it. Say which file, say
@@ -228,9 +230,7 @@ export default function HostedStoreDialog() {
                               className="mt-2 rounded-md border border-amber-200 bg-amber-50 p-2 dark:border-amber-900/60 dark:bg-amber-950/40"
                             >
                               <p className="text-[11px] leading-snug text-amber-900 dark:text-amber-200">
-                                <strong className="font-semibold">{u.file_name || 'qr-code.png'}</strong> is listed here,
-                                but there is no file behind it — this save never finished, so nothing was ever stored.
-                                Your save slot is still being held for it.
+                                {t.rich('dynamic.backup_missing', { file: <strong className="font-semibold">{u.file_name || 'qr-code.png'}</strong> })}
                               </p>
                               <button
                                 type="button"
@@ -238,7 +238,7 @@ export default function HostedStoreDialog() {
                                 disabled={busy}
                                 className="mt-2 inline-flex rounded-md bg-amber-700 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-amber-800 disabled:opacity-50"
                               >
-                                Remove this entry and free the save
+                                {t('dynamic.backup_remove_entry')}
                               </button>
                             </div>
                           )}

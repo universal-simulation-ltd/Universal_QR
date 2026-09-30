@@ -1,6 +1,7 @@
 import { MENU } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { useThemeStore } from '../../stores/themeStore'
+import { useT } from '../../i18n'
 
 // The per-app actions that slot into <UniversalAppsNavBar />'s `actions` prop —
 // ROWS ONLY, no trigger and no panel of its own. The SDK renders them inside the
@@ -46,6 +47,7 @@ export default function AppMenu() {
   const clearLogo = useQrStore((s) => s.clearLogo)
   const hasLogo = !!config.logoDataUrl
   const theme = useThemeStore((s) => s.effective)
+  const t = useT()
 
   const m = MENU[theme]
   const rest = theme === 'dark' ? m.body : LIGHT_REST
@@ -59,7 +61,7 @@ export default function AppMenu() {
           tint={warn}
           rest={rest}
           onClick={clearLogo}
-          label="Remove logo"
+          label={t('app.menu_remove_logo')}
         />
       )}
     </>

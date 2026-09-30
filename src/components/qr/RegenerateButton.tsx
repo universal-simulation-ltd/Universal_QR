@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useQrStore } from '../../stores/qrStore'
+import { presetLabel } from './Controls'
+import { useT } from '../../i18n'
 
 /**
  * "Regenerate style" — one press, one new random style, no reload.
@@ -14,6 +16,7 @@ import { useQrStore } from '../../stores/qrStore'
  * shufflePreset in the store).
  */
 export default function RegenerateButton({ full = false }: { full?: boolean } = {}) {
+  const t = useT()
   const shufflePreset = useQrStore((s) => s.shufflePreset)
   const presetName = useQrStore((s) => s.presetName)
   const [turns, setTurns] = useState(0)
@@ -24,7 +27,7 @@ export default function RegenerateButton({ full = false }: { full?: boolean } = 
         shufflePreset()
         setTurns((n) => n + 1)
       }}
-      title={presetName ? `${presetName} — pick another style at random` : 'Pick a style at random'}
+      title={presetName ? t('studio.regenerate_title_from', { preset: presetLabel(presetName, t) }) : t('studio.regenerate_title')}
       className={`${full ? 'flex w-full' : 'inline-flex'} items-center justify-center gap-2 rounded-xl border border-orange-300 bg-orange-50 px-3.5 py-2 text-sm font-semibold text-orange-800 shadow-sm transition-colors hover:border-orange-400 hover:bg-orange-100 dark:border-orange-500/40 dark:bg-orange-500/10 dark:text-orange-300 dark:hover:bg-orange-500/20`}
     >
       <svg
@@ -41,7 +44,7 @@ export default function RegenerateButton({ full = false }: { full?: boolean } = 
         <path d="M21 12a9 9 0 1 1-2.64-6.36" />
         <path d="M21 4v5h-5" />
       </svg>
-      Regenerate style
+      {t('studio.regenerate')}
     </button>
   )
 }

@@ -12,6 +12,7 @@ import {
 } from '../../lib/dynamicCodes'
 import BrandingControls, { type LogoMode } from './BrandingControls'
 import DynamicCodeCard from './DynamicCodeCard'
+import { getT, useT } from '../../i18n'
 
 const SIGNIN_URL = 'https://app.unisim.co.uk/login'
 // Was /subscription.html until 2026-09-07, when the marketing site split its
@@ -29,16 +30,19 @@ const SHOW_TOKEN_PURCHASE = !isNativeShell()
 // Limits are only mentioned once someone actually reaches one — never before
 // sign-up and never while there is room — and never with a number in them
 // (the allowances change). Kept jargon-light: "free dynamic codes", not tokens.
-const AT_LIMIT = "You've used your free dynamic codes."
-const MAKE_ROOM = SHOW_TOKEN_PURCHASE ? 'Delete one to make room, or get more.' : 'Delete one to make room.'
+// Read at call time, not at module load, so they follow the active language.
+const atLimit = () => getT()('dynamic.at_limit')
+const atLimitMakeRoom = () =>
+  getT()(SHOW_TOKEN_PURCHASE ? 'dynamic.at_limit_make_room' : 'dynamic.at_limit_make_room_native')
 
 // The "Dynamic" tab — a hosted feature that needs a Universal ID. A dynamic code encodes a short
 // redirect the owner can re-point later, and every scan is counted. Each live
 // code holds one token (the org's free "Everyday" token first, then a purchased
 // credit), returned when the code is deleted — but the UI only talks about that
-// allowance once it has run out (see AT_LIMIT). The free static designer is a
+// allowance once it has run out (see atLimit). The free static designer is a
 // sibling tab and is never touched by any of this.
 export default function DynamicStudio() {
+  const t = useT()
   const brandingPanelId = useId()
   const { supabase, session, activeOrgId } = useUniversal()
   const { user } = useUser()
@@ -184,12 +188,12 @@ export default function DynamicStudio() {
       if (!res.ok) {
         setError(
           res.error === 'design_too_large'
-            ? 'That branding is too big to save — try a smaller centre logo.'
+            ? t('dynamic.error_branding_too_large')
             : res.error === 'no_credits' || res.error === 'token_in_use'
-              ? `${AT_LIMIT} ${MAKE_ROOM}`
+              ? atLimitMakeRoom()
               : res.error === 'no_org'
-                ? 'Your Universal ID has no organisation yet — open the hub once to finish setup.'
-                : res.error ?? 'Could not create this dynamic code.',
+                ? t('dynamic.error_no_org')
+                : res.error ?? t('dynamic.error_could_not_create'),
         )
       } else {
         setTarget('')
@@ -205,12 +209,12 @@ export default function DynamicStudio() {
 
   async function onDelete(code: DynamicCode) {
     if (busy) return
-    if (!window.confirm(`Delete "${code.name?.trim() || code.code}"? Anyone who scans it will hit a "not active" page.`)) return
+    if (!window.confirm(t('dynamic.confirm_delete', { name: code.name?.trim() || code.code }))) return
     setBusy(true)
     setError(null)
     try {
       const res = await deleteDynamicCode(supabase, code.id)
-      if (!res.ok) setError(res.error ?? 'Could not delete this code.')
+      if (!res.ok) setError(res.error ?? t('dynamic.error_could_not_delete'))
       else {
         refreshCredits()
         refreshFreeToken()
@@ -226,30 +230,32 @@ export default function DynamicStudio() {
       <header className="max-w-2xl">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
-            Dynamic QR codes
+            {t('dynamic.title')}
           </h1>
-          <Chip size="sm">Requires Universal ID</Chip>
+          <Chip size="sm">{t('dynamic.requires_universal_id')}</Chip>
         </div>
         {/* `break-words` on the example link: it is one unbreakable token, so at
             ~320px it is wider than its column and used to poke a couple of
             pixels past the viewport on its own — separately from, and as well
             as, the grid track fixed below. */}
         <p className="mt-2 text-slate-600 dark:text-slate-300">
-          One printed code, a destination you can change any time — plus a live scan count.
-          The link stays fixed (<code className="break-words text-slate-500 dark:text-slate-400">opensource.unisim.co.uk/qr/r/…</code>); you
-          repoint where it sends people whenever you like.
+          {t.rich('dynamic.intro', {
+            link: <code className="break-words text-slate-500 dark:text-slate-400">opensource.unisim.co.uk/qr/r/…</code>,
+          })}
         </p>
       </header>
 
       {!signedIn ? (
         <div className="mt-6 max-w-2xl rounded-2xl border border-orange-200 bg-white p-6 shadow-sm dark:border-orange-500/30 dark:bg-slate-900">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Create a Universal ID to make dynamic QR codes for FREE.</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{t('dynamic.signin_title')}</h2>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-            Dynamic codes are hosted against your <strong>Universal ID</strong> so they can redirect and
-            record scans. The plain <button type="button" className="font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300" onClick={() => setView('static')}>QR</button> tab stays 100% free and on your device.
+            {t.rich('dynamic.signin_body', {
+              id: <strong>Universal ID</strong>,
+              qr: <button type="button" className="font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300" onClick={() => setView('static')}>{t('dynamic.signin_body_qr_tab')}</button>,
+            })}
           </p>
           <a href={SIGNIN_URL} className="mt-4 inline-flex rounded-lg bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800">
-            Create / sign in with Universal ID →
+            {t('dynamic.signin_button')}
           </a>
         </div>
       ) : (
@@ -269,16 +275,16 @@ export default function DynamicStudio() {
                 <path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <div className="min-w-0">
-                <h2 className="font-semibold text-slate-900 group-hover:text-orange-700 dark:text-slate-100 dark:group-hover:text-orange-400">Branding for new codes</h2>
+                <h2 className="font-semibold text-slate-900 group-hover:text-orange-700 dark:text-slate-100 dark:group-hover:text-orange-400">{t('dynamic.branding_title')}</h2>
                 <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                   {hasOrgBranding
-                    ? 'Defaults to your organisation’s icon and colour. Each code keeps the look it was created with — change an existing one with Edit branding on its card.'
-                    : 'Each code keeps the look it was created with — change an existing one with Edit branding on its card. Add a logo and brand colour to your organisation and they’ll fill in here automatically.'}
+                    ? t('dynamic.branding_hint_org')
+                    : t('dynamic.branding_hint_no_org')}
                 </p>
               </div>
             </button>
             {brandingOpen && (
-              <button type="button" onClick={resetDynamicBrand} className="shrink-0 text-xs font-semibold text-slate-500 hover:text-orange-700 dark:text-slate-400 dark:hover:text-orange-400">Reset</button>
+              <button type="button" onClick={resetDynamicBrand} className="shrink-0 text-xs font-semibold text-slate-500 hover:text-orange-700 dark:text-slate-400 dark:hover:text-orange-400">{t('dynamic.branding_reset')}</button>
             )}
           </div>
 
@@ -288,8 +294,8 @@ export default function DynamicStudio() {
               config={brandConfig}
               onPatch={applyConfigPatch}
               previewData="https://www.unisim.co.uk"
-              previewCaption="Example · unisim.co.uk"
-              previewLabel="Example dynamic QR with your branding"
+              previewCaption={t('dynamic.branding_preview_caption')}
+              previewLabel={t('dynamic.branding_preview_label')}
               logo={{
                 mode: dynamicBrand.logoMode,
                 orgIconAvailable: !!orgIcon,
@@ -322,18 +328,18 @@ export default function DynamicStudio() {
           {/* Create panel */}
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 dark:bg-slate-900 dark:border-slate-800">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-slate-900 dark:text-slate-100">New dynamic code</h2>
+              <h2 className="font-semibold text-slate-900 dark:text-slate-100">{t('dynamic.new_code_title')}</h2>
               {/* No allowance chip while there is room — only a neutral count
                   of tokens someone has actually bought. */}
               {tokens > 0 && (
               <span className="rounded-lg bg-orange-50/70 px-2.5 py-1 text-xs font-semibold text-orange-700 dark:bg-orange-500/15 dark:text-orange-300">
-                {`${tokens} purchased token${tokens === 1 ? '' : 's'}`}
+                {t.plural('dynamic.purchased_tokens', tokens)}
               </span>
               )}
             </div>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Signed in as {user?.email}</p>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t('dynamic.signed_in_as', { email: user?.email ?? '' })}</p>
 
-            <label htmlFor="dyn-target" className="mt-4 block text-sm font-medium text-slate-700 dark:text-slate-300">Destination URL</label>
+            <label htmlFor="dyn-target" className="mt-4 block text-sm font-medium text-slate-700 dark:text-slate-300">{t('dynamic.destination_label')}</label>
             <input
               id="dyn-target"
               type="url"
@@ -344,13 +350,13 @@ export default function DynamicStudio() {
               className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3 text-base text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/40 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-100"
             />
 
-            <label htmlFor="dyn-name" className="mt-3 block text-sm font-medium text-slate-700 dark:text-slate-300">Label <span className="font-normal text-slate-400">(optional)</span></label>
+            <label htmlFor="dyn-name" className="mt-3 block text-sm font-medium text-slate-700 dark:text-slate-300">{t.rich('dynamic.name_label', { optional: <span className="font-normal text-slate-400">{t('dynamic.optional')}</span> })}</label>
             <input
               id="dyn-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Spring campaign flyer"
+              placeholder={t('dynamic.name_placeholder')}
               className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/40 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-100"
             />
 
@@ -361,20 +367,20 @@ export default function DynamicStudio() {
                 disabled={busy || !target.trim()}
                 className="mt-4 w-full rounded-xl bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800 disabled:opacity-50"
               >
-                {busy ? 'Creating…' : 'Create dynamic code'}
+                {busy ? t('dynamic.creating') : t('dynamic.create')}
               </button>
             ) : freeToken === null ? (
-              <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">Checking your account…</p>
+              <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">{t('dynamic.checking_account')}</p>
             ) : (
               <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/60 dark:bg-amber-950/40">
                 <p className="text-sm text-amber-800 dark:text-amber-200">
                   {freeToken === 'held'
-                    ? `${AT_LIMIT} ${MAKE_ROOM}`
-                    : AT_LIMIT}
+                    ? atLimitMakeRoom()
+                    : atLimit()}
                 </p>
                 {SHOW_TOKEN_PURCHASE && (
                 <a href={GET_TOKENS_URL} target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-lg bg-orange-700 px-3.5 py-2 text-sm font-semibold text-white hover:bg-orange-800">
-                  Get more →
+                  {t('dynamic.get_more')}
                 </a>
                 )}
               </div>
@@ -384,12 +390,12 @@ export default function DynamicStudio() {
 
           {/* Codes list */}
           <section>
-            <h2 className="mb-3 text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Your dynamic codes</h2>
+            <h2 className="mb-3 text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{t('dynamic.your_codes')}</h2>
             {codes === null ? (
-              <p className="text-sm text-slate-400">Loading…</p>
+              <p className="text-sm text-slate-400">{t('dynamic.loading')}</p>
             ) : codes.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center dark:border-slate-700 dark:bg-slate-900/60">
-                <p className="text-sm text-slate-500 dark:text-slate-400">No dynamic codes yet. Create your first one on the left — you can re-point it and watch the scans roll in.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{t('dynamic.empty')}</p>
               </div>
             ) : (
               <ul className="space-y-3">

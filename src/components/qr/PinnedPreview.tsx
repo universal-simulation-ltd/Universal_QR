@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import QrPreview from './QrPreview'
 import RegenerateButton from './RegenerateButton'
+import { useT } from '../../i18n'
 
 /** How far down the page the pinned bar comes to rest.
  *
@@ -48,6 +49,7 @@ const PINNED_TOP = 'calc(4rem + env(safe-area-inset-top))'
  * It has to be a child of the plain block container that spans the whole studio.
  */
 export default function PinnedPreview() {
+  const t = useT()
   const [open, setOpen] = useState(true)
   const barRef = useRef<HTMLDivElement>(null)
 
@@ -95,9 +97,9 @@ export default function PinnedPreview() {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              aria-label="Hide the pinned preview"
+              aria-label={t('studio.hide_pinned')}
               aria-expanded
-              title="Hide the pinned preview"
+              title={t('studio.hide_pinned')}
               className="-m-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
             >
               <Chevron open />
@@ -121,7 +123,7 @@ export default function PinnedPreview() {
             aria-expanded={false}
             className="-m-1 flex w-[calc(100%+0.5rem)] items-center gap-3 rounded-xl p-1 text-left text-sm font-medium text-slate-600 hover:text-orange-700 dark:text-slate-300 dark:hover:text-orange-400"
           >
-            <span className="min-w-0 flex-1">Show QR preview</span>
+            <span className="min-w-0 flex-1">{t('studio.show_preview')}</span>
             <Chevron open={false} />
           </button>
         )}

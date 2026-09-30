@@ -2,6 +2,8 @@ import { useFileDrop } from '@unisim/sdk'
 import { PRESETS, type QrDesign } from '@unisim/qr'
 import QrCanvas from './QrCanvas'
 import { downscaleDataUrl } from '../../lib/imageScale'
+import { useT } from '../../i18n'
+import { presetLabel } from './Controls'
 
 // The branding control set for a hosted dynamic code — a live preview plus the
 // style, colour and centre-logo controls.
@@ -54,6 +56,7 @@ export default function BrandingControls({
   logo,
   colorFollowsOrg,
 }: BrandingControlsProps) {
+  const t = useT()
   // A chip in a row of chips, so no drop target here — the SDK just owns the
   // input, which means re-picking the same logo still fires.
   const logoPicker = useFileDrop({
@@ -83,34 +86,34 @@ export default function BrandingControls({
       {/* Controls */}
       <div className="min-w-0 flex-1 space-y-4">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Style</span>
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{t('controls.brand_style')}</span>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {PRESETS.map((p) => (
-              <BrandChip key={p.name} active={false} onClick={() => onPatch(p.patch)}>{p.name}</BrandChip>
+              <BrandChip key={p.name} active={false} onClick={() => onPatch(p.patch)}>{presetLabel(p.name, t)}</BrandChip>
             ))}
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-          <ColorField label="Modules" value={config.fgColor} onChange={(v) => onPatch({ fgColor: v })}>
+          <ColorField label={t('controls.colour_modules')} value={config.fgColor} onChange={(v) => onPatch({ fgColor: v })}>
             {colorFollowsOrg?.canFollow
-              ? <button type="button" onClick={colorFollowsOrg.onFollow} className="text-[11px] font-semibold text-slate-400 hover:text-orange-700 dark:hover:text-orange-400">use org</button>
+              ? <button type="button" onClick={colorFollowsOrg.onFollow} className="text-[11px] font-semibold text-slate-400 hover:text-orange-700 dark:hover:text-orange-400">{t('controls.brand_use_org')}</button>
               : null}
           </ColorField>
-          <ColorField label="Background" value={config.bgColor} onChange={(v) => onPatch({ bgColor: v })} disabled={config.bgTransparent} />
+          <ColorField label={t('controls.colour_background')} value={config.bgColor} onChange={(v) => onPatch({ bgColor: v })} disabled={config.bgTransparent} />
           <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
-            <input type="checkbox" checked={config.bgTransparent} onChange={(e) => onPatch({ bgTransparent: e.target.checked })} /> Transparent
+            <input type="checkbox" checked={config.bgTransparent} onChange={(e) => onPatch({ bgTransparent: e.target.checked })} /> {t('controls.brand_transparent')}
           </label>
         </div>
 
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
           <label className="flex items-center gap-1.5 text-sm text-slate-700 dark:text-slate-300">
-            <input type="checkbox" checked={config.useGradient} onChange={(e) => onPatch({ useGradient: e.target.checked })} /> <span className="font-medium">Gradient</span>
+            <input type="checkbox" checked={config.useGradient} onChange={(e) => onPatch({ useGradient: e.target.checked })} /> <span className="font-medium">{t('controls.brand_gradient')}</span>
           </label>
           {config.useGradient && (
             <>
-              <ColorField label="End" value={config.gradientColor} onChange={(v) => onPatch({ gradientColor: v })} />
-              <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">Angle
+              <ColorField label={t('controls.brand_gradient_end')} value={config.gradientColor} onChange={(v) => onPatch({ gradientColor: v })} />
+              <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">{t('controls.brand_angle')}
                 <input type="range" min={0} max={360} step={5} value={config.gradientRotation} onChange={(e) => onPatch({ gradientRotation: Number(e.target.value) })} className="w-24 accent-orange-600" />
                 <span className="tabular-nums">{config.gradientRotation}°</span>
               </label>
@@ -129,22 +132,22 @@ export default function BrandingControls({
               // it means unticking and re-ticking gives back the two-tone you
               // had rather than a fresh pick.
               onChange={(e) => onPatch({ matchCornerColor: !e.target.checked })}
-            /> <span className="font-medium">Two-tone corners</span>
+            /> <span className="font-medium">{t('controls.two_tone_corners')}</span>
           </label>
-          {!config.matchCornerColor && <ColorField label="Corners" value={config.cornerColor} onChange={(v) => onPatch({ cornerColor: v })} />}
+          {!config.matchCornerColor && <ColorField label={t('controls.brand_corners')} value={config.cornerColor} onChange={(v) => onPatch({ cornerColor: v })} />}
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Centre logo</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('controls.brand_centre_logo')}</span>
           <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded border border-slate-200 bg-slate-50">
             {config.logoDataUrl
               ? <img src={config.logoDataUrl} alt="" className="h-full w-full object-contain" />
-              : <span className="text-[8px] font-semibold text-slate-400">{config.unisimMark ? 'UNI·SIM' : 'none'}</span>}
+              : <span className="text-[8px] font-semibold text-slate-400">{config.unisimMark ? 'UNI·SIM' : t('controls.brand_logo_none_preview')}</span>}
           </div>
           <div className="flex flex-wrap gap-1.5">
-            <BrandChip active={logo.mode === 'org'} disabled={!logo.orgIconAvailable} onClick={() => logo.onMode('org')}>Org icon</BrandChip>
-            <BrandChip active={logo.mode === 'custom'} onClick={logoPicker.open}>Upload…</BrandChip>
-            <BrandChip active={logo.mode === 'none'} onClick={() => logo.onMode('none')}>None</BrandChip>
+            <BrandChip active={logo.mode === 'org'} disabled={!logo.orgIconAvailable} onClick={() => logo.onMode('org')}>{t('controls.brand_org_icon')}</BrandChip>
+            <BrandChip active={logo.mode === 'custom'} onClick={logoPicker.open}>{t('controls.brand_upload')}</BrandChip>
+            <BrandChip active={logo.mode === 'none'} onClick={() => logo.onMode('none')}>{t('controls.brand_none')}</BrandChip>
           </div>
           <input {...logoPicker.inputProps} className="hidden" />
         </div>

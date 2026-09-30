@@ -11,6 +11,7 @@ import {
   saveAskOnOpen,
   type CameraPermission,
 } from '../../lib/cameraAccess'
+import { getT, useT } from '../../i18n'
 
 // The camera "Scan" tab — decodes both QR codes and 1D barcodes from a live
 // camera stream via @zxing/browser (lazy-loaded on first use). The stream is
@@ -40,6 +41,7 @@ function looksLikeUrl(text: string): boolean {
 }
 
 export default function ScanStudio() {
+  const t = useT()
   const videoRef = useRef<HTMLVideoElement>(null)
   const controlsRef = useRef<IScannerControls | null>(null)
   // Bumped by every start and every stop. A start that finishes after its own
@@ -81,7 +83,7 @@ export default function ScanStudio() {
         (res) => {
           if (!res) return
           const text = res.getText()
-          const fmt = BarcodeFormat[res.getBarcodeFormat()] ?? 'Unknown'
+          const fmt = BarcodeFormat[res.getBarcodeFormat()] ?? getT()('scan.format_unknown')
           setResult({ text, format: fmt.replace(/_/g, ' '), isUrl: looksLikeUrl(text) })
           stop()
         },
@@ -103,13 +105,13 @@ export default function ScanStudio() {
         setPermission('denied')
         setError(blockedCameraHelp())
       } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
-        setError('No camera was found on this device.')
+        setError(getT()('scan.error_no_camera'))
       } else {
         // The raw message ("Not supported", "Could not start video source")
         // means nothing to anyone, and it sat in a red box under an overlay
         // that already said the camera could not start. One sentence instead.
         console.error(err)
-        setError('The camera could not start. Close any other app that is using it, then try again.')
+        setError(getT()('scan.error_camera_start'))
       }
     } finally {
       if (token === startToken.current) setStarting(false)
@@ -171,11 +173,12 @@ export default function ScanStudio() {
     <div className={`${CONTAINER} py-6 lg:py-10`}>
       <header className="max-w-2xl">
         <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-          Scan a <span className="text-orange-600 dark:text-orange-400">QR code or barcode</span>
+          {t.rich('scan.headline', {
+            em: <span className="text-orange-600 dark:text-orange-400">{t('scan.headline_em')}</span>,
+          })}
         </h1>
         <p className="mt-2 text-slate-600 dark:text-slate-300">
-          Point your camera at any QR code or 1D barcode (EAN, UPC, Code 128, Code 39…). Decoding
-          happens on your device — the camera feed never leaves it.
+          {t('scan.intro')}
         </p>
       </header>
 
@@ -191,10 +194,10 @@ export default function ScanStudio() {
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-900/70 text-center px-6">
               <p className="text-sm text-slate-200">
                 {starting
-                  ? 'Waiting for camera access…'
+                  ? t('scan.status_waiting')
                   : result
-                    ? 'Scan another code when you’re ready.'
-                    : error ?? 'The camera is off.'}
+                    ? t('scan.status_scan_another')
+                    : error ?? t('scan.status_camera_off')}
               </p>
               <button
                 type="button"
@@ -202,7 +205,7 @@ export default function ScanStudio() {
                 disabled={starting}
                 className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-orange-700 text-white text-sm font-semibold shadow-sm hover:bg-orange-800 disabled:opacity-60 transition-colors"
               >
-                {starting ? 'Starting camera…' : result ? 'Scan again' : 'Start scanning'}
+                {starting ? t('scan.button_starting') : result ? t('scan.button_scan_again') : t('scan.button_start')}
               </button>
             </div>
           )}
@@ -212,7 +215,7 @@ export default function ScanStudio() {
               onClick={stop}
               className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-lg bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow hover:bg-white"
             >
-              Stop
+              {t('scan.button_stop')}
             </button>
           )}
         </div>
@@ -232,7 +235,7 @@ export default function ScanStudio() {
             />
             <span className="text-sm">
               <span className="font-medium text-slate-800 dark:text-slate-100">
-                Ask for camera access when I open Scan
+                {t('scan.ask_on_open')}
               </span>
               <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{rememberedByHint()}</span>
             </span>
@@ -259,7 +262,7 @@ export default function ScanStudio() {
                 onClick={onCopy}
                 className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 transition-colors dark:border-slate-700 dark:text-slate-200 dark:hover:bg-orange-500/10"
               >
-                {copied ? '✓ Copied' : 'Copy'}
+                {copied ? t('scan.copied') : t('scan.copy')}
               </button>
               {result.isUrl && (
                 <a
@@ -268,7 +271,7 @@ export default function ScanStudio() {
                   rel="noopener noreferrer"
                   className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-xl bg-orange-700 text-white text-sm font-semibold hover:bg-orange-800 transition-colors"
                 >
-                  Open link ↗
+                  {t('scan.open_link')}
                 </a>
               )}
             </div>

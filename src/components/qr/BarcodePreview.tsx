@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useQrStore } from '../../stores/qrStore'
 import { renderBarcodeToCanvas, symbologyById } from '../../lib/barcode'
+import { getT, useT } from '../../i18n'
 
 /**
  * The 1D preview, shown in place of QrPreview when Advanced ▸ Type is a barcode.
@@ -16,6 +17,7 @@ import { renderBarcodeToCanvas, symbologyById } from '../../lib/barcode'
  * replacing it.
  */
 export default function BarcodePreview({ onError }: { onError: (message: string | null) => void }) {
+  const t = useT()
   const symbology = useQrStore((s) => s.barcodeSymbology)
   const value = useQrStore((s) => s.barcodeValue)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -43,7 +45,7 @@ export default function BarcodePreview({ onError }: { onError: (message: string 
       .catch((err: unknown) => {
         if (cancelled) return
         clear()
-        onError(err instanceof Error ? err.message : 'That value can’t be encoded.')
+        onError(err instanceof Error ? err.message : getT()('studio.barcode_cant_encode'))
       })
     return () => { cancelled = true }
   }, [symbology, trimmed, validationError, onError])
@@ -62,8 +64,8 @@ export default function BarcodePreview({ onError }: { onError: (message: string 
           {!drawable && (
             <p className="text-center text-sm text-slate-400">
               {trimmed.length === 0
-                ? 'Enter a value to preview your barcode.'
-                : 'Fix the value above to preview your barcode.'}
+                ? t('studio.barcode_enter')
+                : t('studio.barcode_fix')}
             </p>
           )}
         </div>

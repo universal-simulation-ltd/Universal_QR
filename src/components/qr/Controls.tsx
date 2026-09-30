@@ -18,8 +18,90 @@ import { DECOR_STYLES, type DecorStyle } from '@unisim/qr'
 import { decorScaleOf, starBehind } from '@unisim/qr'
 import { SYMBOLOGIES, symbologyById, type BarcodeSymbology } from '../../lib/barcode'
 import LinkCheck from './LinkCheck'
+import { getT, useT, type BasicTranslator, type MessageKey } from '../../i18n'
+
+// ── Labels from @unisim/qr, translated here ───────────────────────────────
+// The option lists and the preset names live in the shared package, in
+// English. The package is not ours to translate, so each list is mapped here
+// from its option id (a preset: its name) to a key. An id with no key — one
+// the package added after this map was written — shows the package's English
+// label rather than breaking.
+const PRESET_KEYS: Record<string, MessageKey> = {
+  Classic: 'controls.preset_classic',
+  Rounded: 'controls.preset_rounded',
+  Dots: 'controls.preset_dots',
+  Sunset: 'controls.preset_sunset',
+  Radial: 'controls.preset_radial',
+  Star: 'controls.preset_star',
+}
+const FRAME_SHAPE_KEYS: Record<string, MessageKey> = {
+  square: 'controls.shape_square',
+  rounded: 'controls.shape_rounded',
+  circle: 'controls.shape_circle',
+  squircle: 'controls.shape_squircle',
+  hexagon: 'controls.shape_hexagon',
+  star: 'controls.shape_star',
+}
+const STAR_PLACEMENT_KEYS: Record<string, MessageKey> = {
+  inside: 'controls.star_placement_inside',
+  behind: 'controls.star_placement_behind',
+}
+const DECOR_STYLE_KEYS: Record<string, MessageKey> = {
+  none: 'controls.decor_none',
+  burst: 'controls.decor_burst',
+  scatter: 'controls.decor_scatter',
+}
+const DOT_TYPE_KEYS: Record<string, MessageKey> = {
+  square: 'controls.dot_square',
+  rounded: 'controls.dot_rounded',
+  'extra-rounded': 'controls.dot_extra_rounded',
+  dots: 'controls.dot_dots',
+  classy: 'controls.dot_classy',
+  'classy-rounded': 'controls.dot_classy_rounded',
+}
+const CORNER_SQUARE_KEYS: Record<string, MessageKey> = {
+  square: 'controls.corner_frame_square',
+  'extra-rounded': 'controls.corner_frame_rounded',
+  dot: 'controls.corner_frame_dot',
+}
+const CORNER_DOT_KEYS: Record<string, MessageKey> = {
+  square: 'controls.corner_dot_square',
+  dot: 'controls.corner_dot_dot',
+}
+
+function localiseOptions(
+  t: BasicTranslator,
+  options: readonly { value: string; label: string }[],
+  keys: Record<string, MessageKey>,
+): { value: string; label: string }[] {
+  return options.map((o) => ({ value: o.value, label: keys[o.value] ? t(keys[o.value]) : o.label }))
+}
+
+/** A preset's name in the current language. The English name stays the id —
+ *  it is what the store remembers as the active preset. */
+export function presetLabel(name: string, t: BasicTranslator = getT()): string {
+  return PRESET_KEYS[name] ? t(PRESET_KEYS[name]) : name
+}
+
+// frameSizeNote's sentence, rebuilt from its numbers. Matched by its shape
+// rather than recomputed, so the figures are exactly the package's; a note in a
+// shape this does not know is shown as the package wrote it.
+const FRAME_NOTE_KEYS: Record<string, MessageKey> = {
+  rounded: 'controls.frame_note_rounded',
+  circle: 'controls.frame_note_circle',
+  squircle: 'controls.frame_note_squircle',
+  hexagon: 'controls.frame_note_hexagon',
+  star: 'controls.frame_note_star',
+}
+function localiseFrameNote(t: BasicTranslator, note: string, shape: string, behind: boolean): string {
+  const m = /^The code fills (\d+)% of the (\d+)px image \((\d+)px\) — /.exec(note)
+  const key = behind ? 'controls.frame_note_star_behind' : FRAME_NOTE_KEYS[shape]
+  if (!m || !key) return note
+  return t(key, { pct: m[1], size: m[2], inner: m[3] })
+}
 
 export default function Controls() {
+  const t = useT()
   const config = useQrStore((s) => s.config)
   const update = useQrStore((s) => s.update)
   const applyPreset = useQrStore((s) => s.applyPreset)
@@ -39,13 +121,13 @@ export default function Controls() {
     onFiles: (files) => onLogoFile(files[0]),
     accept: 'image/*,.svg',
     multiple: false,
-    label: 'Drop a logo here, or click to choose one',
+    label: t('controls.logo_drop_label'),
   })
 
   function onLogoFile(file: File | undefined) {
     if (!file) return
     if (!file.type.startsWith('image/')) {
-      alert('Please choose an image file (PNG, JPG, or SVG).')
+      alert(t('controls.logo_not_image'))
       return
     }
     const reader = new FileReader()
@@ -64,22 +146,22 @@ export default function Controls() {
   return (
     <div className="space-y-5">
       {/* ── Name ────────────────────────────────────────────────────────── */}
-      <Section title="Name" desc="Shown on this code in your online backups.">
+      <Section title={t('controls.name_title')} desc={t('controls.name_desc')}>
         <TextField
-          label="Name"
+          label={t('controls.name_label')}
           value={config.name}
           onChange={(v) => update({ name: v })}
-          placeholder="My QR code"
+          placeholder={t('controls.name_placeholder')}
         />
       </Section>
 
       {/* ── Presets ─────────────────────────────────────────────────────── */}
-      <Section title="Style presets" desc="A starting point — tweak anything below.">
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Style presets">
+      <Section title={t('controls.presets_title')} desc={t('controls.presets_desc')}>
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('controls.presets_title')}>
           {PRESETS.map((p) => (
             <PresetPill
               key={p.name}
-              name={p.name}
+              name={presetLabel(p.name, t)}
               active={p.name === activePreset}
               onClick={() => applyPreset(p.name, p.patch)}
             />
@@ -88,11 +170,11 @@ export default function Controls() {
       </Section>
 
       {/* ── Colours ─────────────────────────────────────────────────────── */}
-      <Section title="Colours">
+      <Section title={t('controls.colours_title')}>
         <div className="grid grid-cols-2 gap-3">
-          <Swatch label="Modules" value={config.fgColor} onChange={(v) => update({ fgColor: v })} />
+          <Swatch label={t('controls.colour_modules')} value={config.fgColor} onChange={(v) => update({ fgColor: v })} />
           <Swatch
-            label="Background"
+            label={t('controls.colour_background')}
             value={config.bgColor}
             onChange={(v) => update({ bgColor: v })}
             disabled={config.bgTransparent}
@@ -100,14 +182,14 @@ export default function Controls() {
         </div>
 
         <Toggle
-          label="Transparent background"
+          label={t('controls.transparent_background')}
           checked={config.bgTransparent}
           onChange={(v) => update({ bgTransparent: v })}
-          hint="Export a PNG/SVG with no background fill."
+          hint={t('controls.transparent_background_hint')}
         />
 
         <Toggle
-          label="Gradient modules"
+          label={t('controls.gradient_modules')}
           checked={config.useGradient}
           onChange={(v) => update({ useGradient: v })}
         />
@@ -115,12 +197,12 @@ export default function Controls() {
           <div className="pl-1 space-y-3 border-l-2 border-orange-100 ml-1 dark:border-orange-500/30">
             <div className="pl-3 space-y-3">
               <Swatch
-                label="Gradient end"
+                label={t('controls.gradient_end')}
                 value={config.gradientColor}
                 onChange={(v) => update({ gradientColor: v })}
               />
               <RangeField
-                label="Gradient angle"
+                label={t('controls.gradient_angle')}
                 value={config.gradientRotation}
                 min={0}
                 max={360}
@@ -133,15 +215,15 @@ export default function Controls() {
         )}
 
         <Toggle
-          label="Two-tone corners"
+          label={t('controls.two_tone_corners')}
           checked={!config.matchCornerColor}
           onChange={(v) => update({ matchCornerColor: !v })}
-          hint="Give the three finder corners their own colour."
+          hint={t('controls.two_tone_corners_hint')}
         />
         {!config.matchCornerColor && (
           <div className="pl-4">
             <Swatch
-              label="Corner colour"
+              label={t('controls.corner_colour')}
               value={config.cornerColor}
               onChange={(v) => update({ cornerColor: v })}
             />
@@ -151,50 +233,43 @@ export default function Controls() {
         {contrast?.kind === 'inverted' && (
           <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-200">
             <strong className="font-semibold">
-              Light modules on a dark {contrast.where === 'star' ? 'star' : 'background'}.
+              {contrast.where === 'star'
+                ? t('controls.contrast_inverted_star_title')
+                : t('controls.contrast_inverted_background_title')}
             </strong>{' '}
-            The QR standard expects the opposite, and strict readers refuse an inverted
-            code outright — this app's own Scan tab is one of them. Most phone cameras
-            cope, but {contrast.where === 'star'
-              ? 'darken the modules or lighten the star behind them'
-              : 'swap the two colours'}{' '}
-            if the code has to work everywhere.
+            {contrast.where === 'star'
+              ? t('controls.contrast_inverted_star_body')
+              : t('controls.contrast_inverted_background_body')}
           </p>
         )}
 
         {contrast?.kind === 'low' && contrast.where === 'star' && (
           <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-200">
-            <strong className="font-semibold">
-              Not much contrast between the modules and the star behind them.
-            </strong>{' '}
-            {contrast.ratio.toFixed(1)}:1, where a reader wants at least {MIN_QR_CONTRAST}:1.
-            The star sits under most of the code, so it is a background as far as a scanner
-            is concerned — however light the page around it is. Lighten the star or darken
-            the modules.
+            <strong className="font-semibold">{t('controls.contrast_low_star_title')}</strong>{' '}
+            {t('controls.contrast_low_star_body', { ratio: contrast.ratio.toFixed(1), min: MIN_QR_CONTRAST })}
           </p>
         )}
 
         {contrast?.kind === 'low' && contrast.where !== 'star' && (
           <p className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-200">
             <strong className="font-semibold">
-              Not much contrast between the {contrast.where === 'corners' ? 'corners' : 'modules'} and the
-              background.
+              {contrast.where === 'corners'
+                ? t('controls.contrast_low_corners_title')
+                : t('controls.contrast_low_modules_title')}
             </strong>{' '}
-            {contrast.ratio.toFixed(1)}:1, where a reader wants at least {MIN_QR_CONTRAST}:1.
             {contrast.where === 'corners'
-              ? ' A scanner finds the three corner squares before it reads anything else, so this is the riskiest place to be short.'
-              : ' Codes this close tend to scan on screen and then fail printed or at a distance.'}{' '}
-            Darken the {contrast.where === 'corners' ? 'corner' : 'module'} colour or lighten the background.
+              ? t('controls.contrast_low_corners_body', { ratio: contrast.ratio.toFixed(1), min: MIN_QR_CONTRAST })
+              : t('controls.contrast_low_modules_body', { ratio: contrast.ratio.toFixed(1), min: MIN_QR_CONTRAST })}
           </p>
         )}
       </Section>
 
       {/* ── Shape & size ────────────────────────────────────────────────── */}
-      <Section title="Shape & size" desc="The code's outline, module rounding, corner styling and dimensions.">
+      <Section title={t('controls.shape_title')} desc={t('controls.shape_desc')}>
         <OptionRow
-          label="Code shape"
+          label={t('controls.code_shape')}
           value={config.frameShape}
-          options={FRAME_SHAPES}
+          options={localiseOptions(t, FRAME_SHAPES, FRAME_SHAPE_KEYS)}
           onChange={(v) => {
             // A shaped plate arrives DECORATED. The empty ring is the thing that
             // makes a shaped code look like a square one dropped on a circle, so
@@ -230,9 +305,9 @@ export default function Controls() {
         {config.frameShape === 'star' && (
           <>
             <OptionRow
-              label="Star placement"
+              label={t('controls.star_placement')}
               value={config.starPlacement}
-              options={STAR_PLACEMENTS}
+              options={localiseOptions(t, STAR_PLACEMENTS, STAR_PLACEMENT_KEYS)}
               // The colours move WITH the switch — see starPlacementPatch for
               // why a placement change cannot be just a placement change.
               onChange={(v) => update(starPlacementPatch(config, v as StarPlacement))}
@@ -240,15 +315,13 @@ export default function Controls() {
             />
             {behind && (
               <Swatch
-                label="Star colour"
+                label={t('controls.star_colour')}
                 value={config.starColor}
                 onChange={(v) => update({ starColor: v })}
               />
             )}
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {behind
-                ? 'The star sits behind the code as a backdrop, with its points showing around it — the look of the QR star mark in Universal PDF. The code is drawn over the star rather than squeezed inside its points, so it is around half again as big as the same design set to Inside, and correspondingly easier to scan. Decoration has no ring to fill in this arrangement, so it is not offered.'
-                : 'The code sits inside the star, never crossing its edges. That keeps the star whole, at the cost of a much smaller code — the five notches cut into every side of the square that fits.'}
+              {behind ? t('controls.star_behind_desc') : t('controls.star_inside_desc')}
             </p>
           </>
         )}
@@ -268,9 +341,9 @@ export default function Controls() {
             switching back to Inside brings the burst back with it. */}
         {!behind && (
           <OptionRow
-            label="Decoration"
+            label={t('controls.decoration')}
             value={config.decorStyle}
-            options={DECOR_STYLES}
+            options={localiseOptions(t, DECOR_STYLES, DECOR_STYLE_KEYS)}
             onChange={(v) => {
               const decorStyle = v as DecorStyle
               update(
@@ -285,15 +358,15 @@ export default function Controls() {
         {!behind && config.decorStyle !== 'none' && (
           <>
             <Toggle
-              label="Decoration matches the modules"
+              label={t('controls.decoration_matches')}
               checked={config.matchDecorColor}
               onChange={(v) => update({ matchDecorColor: v })}
-              hint="Turn off to give the decoration its own colour."
+              hint={t('controls.decoration_matches_hint')}
             />
             {!config.matchDecorColor && (
               <div className="pl-3 border-l-2 border-orange-100 dark:border-orange-500/30">
                 <Swatch
-                  label="Decoration colour"
+                  label={t('controls.decoration_colour')}
                   value={config.decorColor}
                   onChange={(v) => update({ decorColor: v })}
                 />
@@ -303,47 +376,39 @@ export default function Controls() {
         )}
 
         {behind ? null : config.decorStyle !== 'none' ? (
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Decoration fills the space the shape leaves around the code — and needs that
-            space, so the code is drawn smaller to make it. Export larger than usual, and
-            scan-test before printing. It sits outside the code, so its colour is free —
-            there is no contrast rule to satisfy.
-          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{t('controls.decoration_on_note')}</p>
         ) : (
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Fills the space a shaped plate leaves around the code. Choosing one switches a
-            square code to a circle, since a square plate has no space to fill.
-          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{t('controls.decoration_off_note')}</p>
         )}
         {frameNote && (
           <p className="-mt-1 text-xs text-slate-500 dark:text-slate-400">
-            {frameNote} The code is never trimmed to fit the shape — that would stop it scanning.
+            {localiseFrameNote(t, frameNote, config.frameShape, behind)} {t('controls.frame_note_never_trimmed')}
           </p>
         )}
         <OptionRow
-          label="Module style"
+          label={t('controls.module_style')}
           value={config.dotType}
-          options={DOT_TYPES}
+          options={localiseOptions(t, DOT_TYPES, DOT_TYPE_KEYS)}
           onChange={(v) => update({ dotType: v as DotType })}
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <OptionRow
-            label="Corner frame"
+            label={t('controls.corner_frame')}
             value={config.cornerSquareType}
-            options={CORNER_SQUARE_TYPES}
+            options={localiseOptions(t, CORNER_SQUARE_TYPES, CORNER_SQUARE_KEYS)}
             onChange={(v) => update({ cornerSquareType: v as CornerSquareType })}
             compact
           />
           <OptionRow
-            label="Corner dot"
+            label={t('controls.corner_dot')}
             value={config.cornerDotType}
-            options={CORNER_DOT_TYPES}
+            options={localiseOptions(t, CORNER_DOT_TYPES, CORNER_DOT_KEYS)}
             onChange={(v) => update({ cornerDotType: v as CornerDotType })}
             compact
           />
         </div>
         <RangeField
-          label="Size"
+          label={t('controls.size')}
           value={config.size}
           min={128}
           max={1024}
@@ -352,7 +417,7 @@ export default function Controls() {
           onChange={(v) => update({ size: v })}
         />
         <RangeField
-          label="Quiet-zone margin"
+          label={t('controls.quiet_zone')}
           value={config.margin}
           min={0}
           max={64}
@@ -363,29 +428,29 @@ export default function Controls() {
       </Section>
 
       {/* ── Logo & branding ─────────────────────────────────────────────── */}
-      <Section title="Logo & branding" desc="Drop your brand mark into the centre.">
+      <Section title={t('controls.logo_title')} desc={t('controls.logo_desc')}>
         <input {...logo.inputProps} hidden />
         {config.logoDataUrl ? (
           <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
             <img
               src={config.logoDataUrl}
-              alt="Logo preview"
+              alt={t('controls.logo_preview_alt')}
               className="w-12 h-12 rounded-lg object-contain bg-white ring-1 ring-slate-200 p-1 dark:ring-slate-600"
             />
-            <div className="flex-1 text-sm text-slate-600 dark:text-slate-300">Custom logo added</div>
+            <div className="flex-1 text-sm text-slate-600 dark:text-slate-300">{t('controls.logo_added')}</div>
             <button
               type="button"
               onClick={logo.open}
               className="text-xs font-medium text-slate-600 hover:text-orange-700 px-2 py-1 dark:text-slate-300 dark:hover:text-orange-400"
             >
-              Replace
+              {t('controls.logo_replace')}
             </button>
             <button
               type="button"
               onClick={clearLogo}
               className="text-xs font-medium text-red-600 hover:text-red-700 px-2 py-1 dark:text-red-400 dark:hover:text-red-300"
             >
-              Remove
+              {t('controls.logo_remove')}
             </button>
           </div>
         ) : (
@@ -404,7 +469,7 @@ export default function Controls() {
         {config.logoDataUrl && (
           <>
             <RangeField
-              label="Logo size"
+              label={t('controls.logo_size')}
               value={Math.round(config.logoSize * 100)}
               min={10}
               max={50}
@@ -413,7 +478,7 @@ export default function Controls() {
               onChange={(v) => update({ logoSize: v / 100 })}
             />
             <RangeField
-              label="Logo padding"
+              label={t('controls.logo_padding')}
               value={config.logoMargin}
               min={0}
               max={24}
@@ -425,7 +490,7 @@ export default function Controls() {
         )}
 
         <Toggle
-          label="Clear modules behind logo"
+          label={t('controls.clear_behind_logo')}
           checked={config.hideBackgroundDots}
           onChange={(v) => update({ hideBackgroundDots: v })}
         />
@@ -447,15 +512,16 @@ export function UnisimMarkToggle() {
   const unisimMark = useQrStore((s) => s.config.unisimMark)
   const hasLogo = useQrStore((s) => !!s.config.logoDataUrl)
   const update = useQrStore((s) => s.update)
+  const t = useT()
   return (
     <Toggle
-      label="Remove UNI·SIM mark"
+      label={t('controls.remove_unisim_mark')}
       checked={!unisimMark}
       onChange={(remove) => update({ unisimMark: !remove })}
       hint={
         hasLogo
-          ? 'Takes away the small UNI·SIM badge in the bottom-right corner.'
-          : 'Takes the UNI·SIM mark out of the centre.'
+          ? t('controls.remove_unisim_mark_hint_logo')
+          : t('controls.remove_unisim_mark_hint')
       }
     />
   )
@@ -465,7 +531,8 @@ export function UnisimMarkToggle() {
  *  there is nothing to drop and nobody clicks. Coarse pointer ⇒ touch. */
 export function logoPickerLabel(): string {
   const touch = isNativeShell() || (typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches)
-  return touch ? 'Tap to choose a logo (PNG, JPG, SVG)' : 'Drop a logo here, or click to choose (PNG, JPG, SVG)'
+  const t = getT()
+  return touch ? t('controls.logo_pick_touch') : t('controls.logo_pick_desktop')
 }
 
 /** A style-preset pill. Shows its SELECTED state, not just hover — a row where
@@ -496,18 +563,19 @@ function BarcodeFields({
   value: string
   onChange: (v: string) => void
 }) {
+  const t = useT()
   const def = symbologyById(symbology)
   const trimmed = value.trim()
   const error = trimmed.length === 0 ? null : def.validate(trimmed)
   return (
     <div className="space-y-3">
       <OptionRow
-        label="Barcode type"
+        label={t('controls.barcode_type')}
         value={symbology}
         options={SYMBOLOGIES.map((s) => ({ value: s.id, label: s.label }))}
         onChange={(v) => setSymbology(v as BarcodeSymbology)}
       />
-      <FieldLabel>Value</FieldLabel>
+      <FieldLabel>{t('controls.barcode_value')}</FieldLabel>
       <input
         id="barcode-value"
         type="text"
@@ -515,7 +583,7 @@ function BarcodeFields({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={def.placeholder}
-        aria-label={`${def.label} value`}
+        aria-label={t('controls.barcode_value_aria', { format: def.label })}
         aria-invalid={!!error}
         className={`w-full rounded-xl border px-4 py-3 font-mono text-base text-slate-900 focus:outline-none focus:ring-2 dark:bg-slate-950 dark:text-slate-100 ${
           error
@@ -525,7 +593,7 @@ function BarcodeFields({
       />
       {error && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>}
       <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-        {def.hint} Barcodes are static and unstyled — no colours, logo or shape.
+        {def.hint} {t('controls.barcode_static_note')}
       </p>
     </div>
   )
@@ -589,6 +657,7 @@ function Swatch({
   onChange: (v: string) => void
   disabled?: boolean
 }) {
+  const t = useT()
   return (
     <div className={disabled ? 'opacity-40 pointer-events-none' : ''}>
       <FieldLabel>{label}</FieldLabel>
@@ -604,7 +673,7 @@ function Swatch({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          aria-label={`${label} hex value`}
+          aria-label={t('controls.colour_hex_aria', { label })}
           className="w-full min-w-0 text-sm font-mono uppercase text-slate-700 focus:outline-none dark:text-slate-200"
         />
       </div>
@@ -738,18 +807,19 @@ function OptionRow({
 // 2026-09-30: "just have link, wifi, more"); everything else waits behind More.
 // Barcode sits there too: a different kind of code altogether, and rarer than
 // any QR payload.
-const PRIMARY_KINDS: { id: ContentKind; label: string }[] = [
-  { id: 'text', label: 'Link' },
-  { id: 'wifi', label: 'Wi-Fi' },
+// Labels are keys, read at render, so the chips follow the language.
+const PRIMARY_KINDS: { id: ContentKind; labelKey: MessageKey }[] = [
+  { id: 'text', labelKey: 'controls.kind_link' },
+  { id: 'wifi', labelKey: 'controls.kind_wifi' },
 ]
-const MORE_KINDS: { id: ContentKind | 'barcode'; label: string }[] = [
-  { id: 'vcard', label: 'Contact' },
-  { id: 'email', label: 'Email' },
-  { id: 'phone', label: 'Phone' },
-  { id: 'sms', label: 'SMS' },
-  { id: 'geo', label: 'Location' },
-  { id: 'event', label: 'Event' },
-  { id: 'barcode', label: 'Barcode' },
+const MORE_KINDS: { id: ContentKind | 'barcode'; labelKey: MessageKey }[] = [
+  { id: 'vcard', labelKey: 'controls.kind_contact' },
+  { id: 'email', labelKey: 'controls.kind_email' },
+  { id: 'phone', labelKey: 'controls.kind_phone' },
+  { id: 'sms', labelKey: 'controls.kind_sms' },
+  { id: 'geo', labelKey: 'controls.kind_location' },
+  { id: 'event', labelKey: 'controls.kind_event' },
+  { id: 'barcode', labelKey: 'controls.kind_barcode' },
 ]
 
 /**
@@ -760,14 +830,15 @@ const MORE_KINDS: { id: ContentKind | 'barcode'; label: string }[] = [
  */
 export function contentSummary(kind: ContentKind, f: Record<string, string>, data: string): { title: string | null; detail: string } {
   const joined = (...parts: (string | undefined)[]) => parts.filter(Boolean).join(' ')
+  const t = getT()
   switch (kind) {
-    case 'wifi': return { title: 'Wi-Fi', detail: f.ssid || '' }
-    case 'vcard': return { title: 'Contact', detail: joined(f.firstName, f.lastName) || f.org || '' }
-    case 'email': return { title: 'Email', detail: f.to || '' }
-    case 'phone': return { title: 'Phone', detail: f.phone || '' }
-    case 'sms': return { title: 'SMS', detail: f.phone || '' }
-    case 'geo': return { title: 'Location', detail: f.lat && f.lng ? `${f.lat}, ${f.lng}` : '' }
-    case 'event': return { title: 'Event', detail: f.title || '' }
+    case 'wifi': return { title: t('controls.kind_wifi'), detail: f.ssid || '' }
+    case 'vcard': return { title: t('controls.kind_contact'), detail: joined(f.firstName, f.lastName) || f.org || '' }
+    case 'email': return { title: t('controls.kind_email'), detail: f.to || '' }
+    case 'phone': return { title: t('controls.kind_phone'), detail: f.phone || '' }
+    case 'sms': return { title: t('controls.kind_sms'), detail: f.phone || '' }
+    case 'geo': return { title: t('controls.kind_location'), detail: f.lat && f.lng ? `${f.lat}, ${f.lng}` : '' }
+    case 'event': return { title: t('controls.kind_event'), detail: f.title || '' }
     default: return { title: null, detail: data }
   }
 }
@@ -838,6 +909,7 @@ function composeContent(kind: ContentKind, f: Record<string, string>): string {
  * listing sold them as the headline features.
  */
 export function ContentCard() {
+  const t = useT()
   const data = useQrStore((s) => s.config.data)
   const update = useQrStore((s) => s.update)
   const kind = useQrStore((s) => s.contentKind)
@@ -875,17 +947,17 @@ export function ContentCard() {
     update({ data: next === 'text' ? (fields.text ?? '') : composeContent(next, fields) })
   }
 
-  function Kind({ id, label }: { id: ContentKind | 'barcode'; label: string }) {
+  function Kind({ id, labelKey }: { id: ContentKind | 'barcode'; labelKey: MessageKey }) {
     return (
       <ChipToggle selected={current === id} role="radio" onClick={() => pick(id)}>
-        {label}
+        {t(labelKey)}
       </ChipToggle>
     )
   }
 
   return (
-    <Section title="What's it for?">
-      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="What's it for?">
+    <Section title={t('controls.content_title')}>
+      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('controls.content_title')}>
         {PRIMARY_KINDS.map((k) => (
           <Kind key={k.id} {...k} />
         ))}
@@ -912,7 +984,7 @@ export function ContentCard() {
             }
           }}
         >
-          More
+          {t('controls.kind_more')}
           <span className="u-chip__icon" aria-hidden="true">
             <svg
               viewBox="0 0 20 20"
@@ -931,7 +1003,7 @@ export function ContentCard() {
         </button>
       </div>
       {(moreOpen || inMore) && (
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="More kinds of code">
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('controls.more_kinds_aria')}>
           {MORE_KINDS.map((k) => (
             <Kind key={k.id} {...k} />
           ))}
@@ -944,70 +1016,70 @@ export function ContentCard() {
 
       {!isBarcode && kind === 'text' && (
         <div>
-          <TextField label="Website address or text" value={data} onChange={(v) => update({ data: v })} placeholder="https://example.com" type="url" />
+          <TextField label={t('controls.link_label')} value={data} onChange={(v) => update({ data: v })} placeholder="https://example.com" type="url" />
           <LinkCheck value={data} onFix={(href) => update({ data: href })} />
         </div>
       )}
 
       {!isBarcode && kind === 'wifi' && (
         <>
-          <TextField label="Network name (SSID)" value={f.ssid || ''} onChange={(v) => setField('ssid', v)} placeholder="MyWiFi" />
-          <TextField label="Password" value={f.password || ''} onChange={(v) => setField('password', v)} placeholder="leave blank if open" />
+          <TextField label={t('controls.wifi_ssid')} value={f.ssid || ''} onChange={(v) => setField('ssid', v)} placeholder={t('controls.wifi_ssid_placeholder')} />
+          <TextField label={t('controls.wifi_password')} value={f.password || ''} onChange={(v) => setField('password', v)} placeholder={t('controls.wifi_password_placeholder')} />
           <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
             <input type="checkbox" checked={f.hidden === 'true'} onChange={(e) => setField('hidden', e.target.checked ? 'true' : '')} />
-            Hidden network
+            {t('controls.wifi_hidden')}
           </label>
         </>
       )}
 
       {!isBarcode && kind === 'email' && (
         <>
-          <TextField label="To" value={f.to || ''} onChange={(v) => setField('to', v)} placeholder="name@example.com" type="email" />
-          <TextField label="Subject" value={f.subject || ''} onChange={(v) => setField('subject', v)} placeholder="Optional" />
-          <TextField label="Message" value={f.body || ''} onChange={(v) => setField('body', v)} placeholder="Optional" />
+          <TextField label={t('controls.email_to')} value={f.to || ''} onChange={(v) => setField('to', v)} placeholder="name@example.com" type="email" />
+          <TextField label={t('controls.email_subject')} value={f.subject || ''} onChange={(v) => setField('subject', v)} placeholder={t('controls.optional')} />
+          <TextField label={t('controls.email_message')} value={f.body || ''} onChange={(v) => setField('body', v)} placeholder={t('controls.optional')} />
         </>
       )}
 
       {!isBarcode && kind === 'phone' && (
-        <TextField label="Phone number" value={f.phone || ''} onChange={(v) => setField('phone', v)} placeholder="+44 7700 900000" type="tel" />
+        <TextField label={t('controls.phone_number')} value={f.phone || ''} onChange={(v) => setField('phone', v)} placeholder="+44 7700 900000" type="tel" />
       )}
 
       {!isBarcode && kind === 'sms' && (
         <>
-          <TextField label="Phone number" value={f.phone || ''} onChange={(v) => setField('phone', v)} placeholder="+44 7700 900000" type="tel" />
-          <TextField label="Message" value={f.message || ''} onChange={(v) => setField('message', v)} placeholder="Optional pre-filled text" />
+          <TextField label={t('controls.phone_number')} value={f.phone || ''} onChange={(v) => setField('phone', v)} placeholder="+44 7700 900000" type="tel" />
+          <TextField label={t('controls.sms_message')} value={f.message || ''} onChange={(v) => setField('message', v)} placeholder={t('controls.sms_message_placeholder')} />
         </>
       )}
 
       {!isBarcode && kind === 'vcard' && (
         <>
           <div className="grid grid-cols-2 gap-3">
-            <TextField label="First name" value={f.firstName || ''} onChange={(v) => setField('firstName', v)} placeholder="Jane" />
-            <TextField label="Last name" value={f.lastName || ''} onChange={(v) => setField('lastName', v)} placeholder="Doe" />
+            <TextField label={t('controls.contact_first_name')} value={f.firstName || ''} onChange={(v) => setField('firstName', v)} placeholder={t('controls.contact_first_name_placeholder')} />
+            <TextField label={t('controls.contact_last_name')} value={f.lastName || ''} onChange={(v) => setField('lastName', v)} placeholder={t('controls.contact_last_name_placeholder')} />
           </div>
-          <TextField label="Organisation" value={f.org || ''} onChange={(v) => setField('org', v)} placeholder="Optional" />
-          <TextField label="Phone" value={f.phone2 || ''} onChange={(v) => setField('phone2', v)} placeholder="+44 7700 900000" type="tel" />
-          <TextField label="Email" value={f.email2 || ''} onChange={(v) => setField('email2', v)} placeholder="name@example.com" type="email" />
-          <TextField label="Website" value={f.url || ''} onChange={(v) => setField('url', v)} placeholder="https://example.com" type="url" />
+          <TextField label={t('controls.contact_org')} value={f.org || ''} onChange={(v) => setField('org', v)} placeholder={t('controls.optional')} />
+          <TextField label={t('controls.contact_phone')} value={f.phone2 || ''} onChange={(v) => setField('phone2', v)} placeholder="+44 7700 900000" type="tel" />
+          <TextField label={t('controls.contact_email')} value={f.email2 || ''} onChange={(v) => setField('email2', v)} placeholder="name@example.com" type="email" />
+          <TextField label={t('controls.contact_website')} value={f.url || ''} onChange={(v) => setField('url', v)} placeholder="https://example.com" type="url" />
         </>
       )}
 
       {!isBarcode && kind === 'geo' && (
         <div className="grid grid-cols-2 gap-3">
-          <TextField label="Latitude" value={f.lat || ''} onChange={(v) => setField('lat', v)} placeholder="51.5074" />
-          <TextField label="Longitude" value={f.lng || ''} onChange={(v) => setField('lng', v)} placeholder="-0.1278" />
+          <TextField label={t('controls.geo_latitude')} value={f.lat || ''} onChange={(v) => setField('lat', v)} placeholder="51.5074" />
+          <TextField label={t('controls.geo_longitude')} value={f.lng || ''} onChange={(v) => setField('lng', v)} placeholder="-0.1278" />
         </div>
       )}
 
       {!isBarcode && kind === 'event' && (
         <>
-          <TextField label="Title" value={f.title || ''} onChange={(v) => setField('title', v)} placeholder="Team meeting" />
-          <TextField label="Location" value={f.location || ''} onChange={(v) => setField('location', v)} placeholder="Optional" />
+          <TextField label={t('controls.event_title')} value={f.title || ''} onChange={(v) => setField('title', v)} placeholder={t('controls.event_title_placeholder')} />
+          <TextField label={t('controls.event_location')} value={f.location || ''} onChange={(v) => setField('location', v)} placeholder={t('controls.optional')} />
           <div className="grid grid-cols-2 gap-3">
-            <TextField label="Starts" value={f.start || ''} onChange={(v) => setField('start', v)} type="datetime-local" />
-            <TextField label="Ends" value={f.end || ''} onChange={(v) => setField('end', v)} type="datetime-local" />
+            <TextField label={t('controls.event_starts')} value={f.start || ''} onChange={(v) => setField('start', v)} type="datetime-local" />
+            <TextField label={t('controls.event_ends')} value={f.end || ''} onChange={(v) => setField('end', v)} type="datetime-local" />
           </div>
-          <TextField label="Description" value={f.desc || ''} onChange={(v) => setField('desc', v)} placeholder="Optional" />
+          <TextField label={t('controls.event_description')} value={f.desc || ''} onChange={(v) => setField('desc', v)} placeholder={t('controls.optional')} />
         </>
       )}
     </Section>

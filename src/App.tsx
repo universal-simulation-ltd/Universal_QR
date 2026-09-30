@@ -12,11 +12,19 @@ import { useQrStore } from './stores/qrStore'
 import { useThemeStore } from './stores/themeStore'
 import { useSystemBarsStyle } from './lib/systemBars'
 import { KNOWLEDGE_BASE } from './knowledge'
+import { useT } from './i18n'
 
 const REPO_URL = 'https://github.com/universal-simulation-ltd/Universal_QR'
 
 // "About this app" — drawn by the SDK at the foot of "Tune this app" (SDK
 // 0.161.0; it was the last row of Actions ▸ Advanced until 2026-09-27).
+//
+// ⚠️ subject / except / headline stay ENGLISH on purpose — they are not missed
+// i18n keys. The SDK translates all three itself, from its privacy catalogue
+// (`privacyCopy.ts`) keyed by their EXACT English, into every suite language.
+// Passing our own translation in would miss that catalogue, and a miss makes
+// the SDK render the whole privacy note in English. Rewording one means adding
+// the new wording to the SDK catalogue (or passing an `{ en, fr, … }` map).
 const ABOUT: AboutAppConfig = {
   repo:    REPO_URL,
   subject: 'What you type',
@@ -28,6 +36,7 @@ const ABOUT: AboutAppConfig = {
 }
 
 export default function App() {
+  const t = useT()
   // The RESOLVED theme ('light' | 'dark'), never the raw preference: the SDK's
   // bar and its dropdowns come in two colourways, and 'system' is not one.
   const theme = useThemeStore((s) => s.effective)
@@ -80,20 +89,26 @@ export default function App() {
       <footer className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
         <div className={`${CONTAINER} py-4 flex flex-row items-center gap-3 sm:gap-4 text-xs text-slate-500 dark:text-slate-400`}>
           <span>
-            With{' '}
-            <span aria-hidden="true" className="text-orange-600">&hearts;</span>
-            <span className="sr-only">love</span>{' '}
-            from{' '}
-            <a href="https://www.unisim.co.uk" target="_blank" rel="noreferrer" className="text-slate-700 hover:text-orange-700 underline-offset-2 hover:underline dark:text-slate-300 dark:hover:text-orange-400">
-              UNISIM.co.uk
-            </a>
+            {t.rich('app.footer_with_love', {
+              heart: (
+                <>
+                  <span aria-hidden="true" className="text-orange-600">&hearts;</span>
+                  <span className="sr-only">{t('app.footer_love_sr')}</span>
+                </>
+              ),
+              link: (
+                <a href="https://www.unisim.co.uk" target="_blank" rel="noreferrer" className="text-slate-700 hover:text-orange-700 underline-offset-2 hover:underline dark:text-slate-300 dark:hover:text-orange-400">
+                  UNISIM.co.uk
+                </a>
+              ),
+            })}
           </span>
           <a
             href={REPO_URL}
             target="_blank"
             rel="noreferrer"
-            aria-label="Universal QR on GitHub"
-            title="View source on GitHub"
+            aria-label={t('app.github_aria')}
+            title={t('app.github_title')}
             className="ml-auto shrink-0 inline-flex items-center gap-1.5 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden="true">

@@ -35,6 +35,8 @@
 // preference wrapping the permission read, so an opt-out gated a granted camera
 // too — the one shape this must not have.
 
+import { getT } from '../i18n'
+
 const KEY = 'unisim.qr.scan.ask-on-open.v1'
 
 /**
@@ -140,24 +142,20 @@ function nativePlatform(): 'ios' | 'android' | null {
 export function blockedCameraHelp(): string {
   switch (nativePlatform()) {
     case 'ios':
-      return 'Camera access is off for Universal QR. Turn it on in Settings ▸ Universal QR ▸ Camera, then come back to this tab.'
+      return getT()('scan.blocked_ios')
     case 'android':
-      return 'Camera access is off for Universal QR. Turn it on in Settings ▸ Apps ▸ Universal QR ▸ Permissions ▸ Camera, then come back to this tab.'
+      return getT()('scan.blocked_android')
     default:
-      return 'Camera access is blocked for this site. Allow it from the camera icon in your browser’s address bar, then try again.'
+      return getT()('scan.blocked_browser')
   }
 }
 
 /** One line under the ask-on-open checkbox saying who does the remembering. */
 export function rememberedByHint(): string {
-  return nativePlatform()
-    ? 'Your device remembers the answer, so you are only asked once.'
-    : 'Your browser remembers this site’s camera permission.'
+  return getT()(nativePlatform() ? 'scan.remembered_native' : 'scan.remembered_browser')
 }
 
 /** Shown in place of the checkbox once there is nothing left to ask about. */
 export function grantedHint(): string {
-  return nativePlatform()
-    ? 'Camera access is allowed on this device — Scan opens straight to the viewfinder.'
-    : 'Camera access is allowed for this site — Scan opens straight to the viewfinder.'
+  return getT()(nativePlatform() ? 'scan.granted_native' : 'scan.granted_browser')
 }

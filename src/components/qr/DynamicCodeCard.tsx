@@ -16,6 +16,7 @@ import {
   type DailyScan,
   type DynamicCode,
 } from '../../lib/dynamicCodes'
+import { intlLocale, useT } from '../../i18n'
 
 // One saved dynamic code: its live QR (encoding the hosted redirect), the
 // current destination (editable in place), its own branding (editable in
@@ -41,6 +42,7 @@ export default function DynamicCodeCard({
   onChanged: () => void
   onDelete: (code: DynamicCode) => void
 }) {
+  const t = useT()
   const { supabase } = useUniversal()
   const config = useMemo(() => dynamicQrConfig(code, studioBrand), [code, studioBrand])
 
@@ -89,7 +91,7 @@ export default function DynamicCodeCard({
     const res = await setDynamicTarget(supabase, code.id, draftUrl)
     setSaving(false)
     if (!res.ok) {
-      setError(res.error ?? 'Could not update the destination.')
+      setError(res.error ?? t('dynamic.error_could_not_update_destination'))
       return
     }
     setEditing(false)
@@ -112,7 +114,7 @@ export default function DynamicCodeCard({
     const res = await setDynamicDesign(supabase, code.id, draft)
     setSavingBrand(false)
     if (!res.ok) {
-      setBrandError(res.error ?? 'Could not save this code’s branding.')
+      setBrandError(res.error ?? t('dynamic.error_could_not_save_branding'))
       return
     }
     setBrandOpen(false)
@@ -135,14 +137,14 @@ export default function DynamicCodeCard({
               setEnlarged(true)
             }}
             className="w-28 cursor-zoom-in rounded-xl border border-slate-200 bg-white p-2 transition-colors hover:border-orange-300 dark:border-slate-700"
-            title="Tap to enlarge"
-            aria-label={`Enlarge QR code for ${targetLabel(code.target_url)}`}
+            title={t('dynamic.tap_to_enlarge')}
+            aria-label={t('dynamic.enlarge_label', { target: targetLabel(code.target_url) })}
           >
             <QrCanvas
               config={config}
               size={256}
               margin={8}
-              label={`Dynamic QR code for ${targetLabel(code.target_url)}`}
+              label={t('dynamic.qr_label', { target: targetLabel(code.target_url) })}
               className="leading-[0]"
             />
           </button>
@@ -159,7 +161,7 @@ export default function DynamicCodeCard({
               aria-controls={brandPanelId}
               className="text-[11px] font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300"
             >
-              {brandOpen ? 'Close branding' : '✏️ Edit branding'}
+              {brandOpen ? t('dynamic.close_branding') : t('dynamic.edit_branding')}
             </button>
           </div>
         </div>
@@ -175,9 +177,9 @@ export default function DynamicCodeCard({
                   type="button"
                   onClick={onCopy}
                   className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-                  aria-label="Copy dynamic link"
+                  aria-label={t('dynamic.copy_link_label')}
                 >
-                  {copied ? '✓' : 'Copy'}
+                  {copied ? '✓' : t('dynamic.copy')}
                 </button>
               </div>
             </div>
@@ -186,19 +188,19 @@ export default function DynamicCodeCard({
               onClick={() => onDelete(code)}
               disabled={busy}
               className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50 dark:hover:text-rose-400"
-              title="Delete this code"
+              title={t('dynamic.delete_title')}
             >
-              Delete
+              {t('dynamic.delete')}
             </button>
           </div>
 
           {/* Destination — editable in place */}
           <div className="mt-3 rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Redirects to</span>
+              <span className="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{t('dynamic.redirects_to')}</span>
               {!editing && (
                 <button type="button" onClick={() => { setDraftUrl(code.target_url); setEditing(true) }} className="text-xs font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300">
-                  Change destination
+                  {t('dynamic.change_destination')}
                 </button>
               )}
             </div>
@@ -214,11 +216,11 @@ export default function DynamicCodeCard({
                 />
                 <div className="flex gap-2">
                   <button type="button" onClick={onSave} disabled={saving || !draftUrl.trim()} className="rounded-lg bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800 disabled:opacity-50">
-                    {saving ? 'Saving…' : 'Save destination'}
+                    {saving ? t('dynamic.saving') : t('dynamic.save_destination')}
                   </button>
-                  <button type="button" onClick={() => { setEditing(false); setError(null) }} className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">Cancel</button>
+                  <button type="button" onClick={() => { setEditing(false); setError(null) }} className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">{t('dynamic.cancel')}</button>
                 </div>
-                <p className="text-[11px] text-slate-400">The printed code stays the same — only where it sends people changes.</p>
+                <p className="text-[11px] text-slate-400">{t('dynamic.destination_hint')}</p>
               </div>
             ) : (
               <a href={code.target_url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-sm text-slate-700 underline-offset-2 hover:text-orange-700 hover:underline dark:text-slate-300 dark:hover:text-orange-400" title={code.target_url}>
@@ -231,14 +233,14 @@ export default function DynamicCodeCard({
           {/* Analytics */}
           <div className="mt-3 flex items-center gap-4">
             <div>
-              <div className="text-xl font-bold tabular-nums text-slate-900 dark:text-slate-100">{code.scan_count.toLocaleString()}</div>
-              <div className="text-[11px] uppercase tracking-wide text-slate-400">Total scans</div>
+              <div className="text-xl font-bold tabular-nums text-slate-900 dark:text-slate-100">{code.scan_count.toLocaleString(intlLocale(t.lang))}</div>
+              <div className="text-[11px] uppercase tracking-wide text-slate-400">{t('dynamic.total_scans')}</div>
             </div>
             <Sparkline daily={daily} />
             <div className="ml-auto text-right text-[11px] text-slate-400">
               {code.last_scan_at
-                ? <>Last scan<br /><span className="text-slate-600 dark:text-slate-300">{new Date(code.last_scan_at).toLocaleString()}</span></>
-                : 'No scans yet'}
+                ? <>{t('dynamic.last_scan')}<br /><span className="text-slate-600 dark:text-slate-300">{new Date(code.last_scan_at).toLocaleString(intlLocale(t.lang))}</span></>
+                : t('dynamic.no_scans_yet')}
             </div>
           </div>
         </div>
@@ -250,8 +252,8 @@ export default function DynamicCodeCard({
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
               {code.design
-                ? 'This code’s own branding. Changing it re-draws this code and nothing else.'
-                : 'This code was made before codes kept their own branding, so it still follows the panel above. Saving here pins the look to this code.'}
+                ? t('dynamic.brand_own_hint')
+                : t('dynamic.brand_legacy_hint')}
             </p>
             {studioBrand && (
               <button
@@ -259,7 +261,7 @@ export default function DynamicCodeCard({
                 onClick={() => setDraft({ ...studioBrand, data: config.data, name: config.name })}
                 className="text-[11px] font-semibold text-slate-500 hover:text-orange-700 dark:text-slate-400 dark:hover:text-orange-400"
               >
-                Match branding for new codes
+                {t('dynamic.match_branding')}
               </button>
             )}
           </div>
@@ -268,8 +270,8 @@ export default function DynamicCodeCard({
             config={draft}
             onPatch={(patch) => setDraft((d) => ({ ...d, ...patch }))}
             previewData={config.data}
-            previewCaption={`Preview · ${targetLabel(code.target_url)}`}
-            previewLabel={`Preview of ${code.name?.trim() || targetLabel(code.target_url)} with this branding`}
+            previewCaption={t('dynamic.brand_preview_caption', { target: targetLabel(code.target_url) })}
+            previewLabel={t('dynamic.brand_preview_label', { name: code.name?.trim() || targetLabel(code.target_url) })}
             logo={{
               mode: logoModeOf(draft, orgIcon),
               orgIconAvailable: !!orgIcon,
@@ -292,11 +294,11 @@ export default function DynamicCodeCard({
               disabled={savingBrand}
               className="rounded-lg bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800 disabled:opacity-50"
             >
-              {savingBrand ? 'Saving…' : 'Save branding'}
+              {savingBrand ? t('dynamic.saving') : t('dynamic.save_branding')}
             </button>
-            <button type="button" onClick={() => { setBrandOpen(false); setBrandError(null) }} className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">Cancel</button>
+            <button type="button" onClick={() => { setBrandOpen(false); setBrandError(null) }} className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">{t('dynamic.cancel')}</button>
             <p className="text-[11px] text-slate-400">
-              The link and the scan count are untouched — but anything already printed keeps the old look, so re-download it.
+              {t('dynamic.brand_save_hint')}
             </p>
           </div>
           {brandError && <p className="mt-2 text-xs text-rose-600 dark:text-rose-400">{brandError}</p>}
@@ -313,6 +315,7 @@ export default function DynamicCodeCard({
 // A tiny 30-day bar sparkline built from the daily view. Zero-fills missing
 // days so the shape reads as a real timeline, not just the days with traffic.
 function Sparkline({ daily }: { daily: DailyScan[] | null }) {
+  const t = useT()
   const bars = useMemo(() => {
     const byDay = new Map((daily ?? []).map((d) => [d.day, d.scans]))
     const out: number[] = []
@@ -326,13 +329,13 @@ function Sparkline({ daily }: { daily: DailyScan[] | null }) {
   if (daily === null) return <div className="h-8 flex-1" aria-hidden="true" />
   const max = Math.max(1, ...bars)
   return (
-    <div className="flex h-8 flex-1 items-end gap-px" aria-label="Scans over the last 30 days" role="img">
+    <div className="flex h-8 flex-1 items-end gap-px" aria-label={t('dynamic.scans_chart_label')} role="img">
       {bars.map((v, i) => (
         <div
           key={i}
           className={`flex-1 rounded-sm ${v > 0 ? 'bg-orange-400' : 'bg-slate-100 dark:bg-slate-800'}`}
           style={{ height: `${Math.max(v > 0 ? 12 : 6, (v / max) * 100)}%` }}
-          title={`${v} scan${v === 1 ? '' : 's'}`}
+          title={t.plural('dynamic.scans', v)}
         />
       ))}
     </div>

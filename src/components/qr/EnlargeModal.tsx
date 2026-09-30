@@ -4,6 +4,7 @@ import type { QrConfig } from '@unisim/qr'
 import { qrDisplayName } from '@unisim/qr'
 import { enlargedPngDataUrl } from '../../lib/download'
 import { fillsWholeImage } from '@unisim/qr'
+import { useT } from '../../i18n'
 
 // Renders the QR big and bright, filling the screen, so it's easy to scan from
 // another phone. A few hints help when a scan won't take.
@@ -80,6 +81,7 @@ export default function EnlargeModal({
    *  render lands. */
   placeholder?: string | null
 }) {
+  const t = useT()
   const [png, setPng] = useState<string | null>(null)
   // Fixed for the life of the modal: recomputing on a rotate would throw away a
   // finished render to produce a barely different one.
@@ -141,13 +143,13 @@ export default function EnlargeModal({
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label={`Enlarged QR code for ${qrDisplayName(config)}`}
+      aria-label={t('studio.enlarged_aria', { name: qrDisplayName(config) })}
     >
       {/* Offset by the safe-area inset so the Close button clears the Dynamic
           Island in the full-screen Capacitor WKWebView. 0 in a browser. */}
       <button
         onClick={onClose}
-        aria-label="Close"
+        aria-label={t('studio.close')}
         className="absolute right-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-xl leading-none text-white hover:bg-white/25"
       >
         ×
@@ -155,10 +157,10 @@ export default function EnlargeModal({
 
       {/* Dismiss hints down each side — the whole backdrop is clickable. */}
       <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium tracking-wide text-white/60 sm:left-6">
-        Click to dismiss
+        {t('studio.click_to_dismiss')}
       </span>
       <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium tracking-wide text-white/60 sm:right-6">
-        Click to dismiss
+        {t('studio.click_to_dismiss')}
       </span>
 
       {/* Stop clicks on the code itself from closing, so a phone held against
@@ -181,7 +183,7 @@ export default function EnlargeModal({
           {(png ?? placeholder) && (
             <img
               src={png ?? placeholder ?? undefined}
-              alt={png ? `QR code for ${qrDisplayName(config)}` : ''}
+              alt={png ? t('studio.qr_code_for', { name: qrDisplayName(config) }) : ''}
               aria-busy={png ? undefined : true}
               className="block h-full w-full"
             />
@@ -190,13 +192,12 @@ export default function EnlargeModal({
       </div>
 
       <div className="max-w-md text-center">
-        <p className="text-sm font-semibold text-white">Point another phone's camera at this code</p>
+        <p className="text-sm font-semibold text-white">{t('studio.point_camera')}</p>
         <p className="mt-1 text-xs text-white/70">
-          Struggling? Turn your screen brightness up to max, and make sure the camera
-          isn't in close-up (macro) mode — pull back a little so the whole code is in frame.
+          {t('studio.scan_trouble')}
         </p>
         <p className="mt-1 text-xs text-white/70">
-          On a phone, press and hold the code to save or share it as an image.
+          {t('studio.press_to_save')}
         </p>
       </div>
     </div>,

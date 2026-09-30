@@ -3,6 +3,7 @@ import { CONTAINER } from '../../lib/layout'
 import QrStudio from './QrStudio'
 import DynamicStudio from './DynamicStudio'
 import ScanStudio from './ScanStudio'
+import { useT } from '../../i18n'
 
 // Top-level shell: a QR | Scan | Dynamic switch above the studios.
 //  • QR       — the free/on-device designer (QrStudio). 1D barcodes live inside
@@ -16,6 +17,7 @@ import ScanStudio from './ScanStudio'
 export default function QrApp() {
   const view = useQrStore((s) => s.view)
   const setView = useQrStore((s) => s.setView)
+  const t = useT()
 
   return (
     <div>
@@ -27,9 +29,9 @@ export default function QrApp() {
             swap ate. Three tabs now, but the rule is kept: it costs nothing and
             the Dynamic hint is the longest of them. */}
         <div className={`${CONTAINER} flex items-center gap-0.5 pt-3 sm:gap-1`}>
-          <TopTab id="static" current={view} onClick={setView} label="QR" hint="Free · on your device" />
-          <TopTab id="scan" current={view} onClick={setView} label="Scan" hint="Camera · QR + barcodes" />
-          <TopTab id="dynamic" current={view} onClick={setView} label="Dynamic" hint="Requires Universal ID" />
+          <TopTab id="static" current={view} onClick={setView} label={t('app.tab_qr')} hint={t('app.tab_qr_hint')} />
+          <TopTab id="scan" current={view} onClick={setView} label={t('app.tab_scan')} hint={t('app.tab_scan_hint')} />
+          <TopTab id="dynamic" current={view} onClick={setView} label={t('app.tab_dynamic')} hint={t('app.tab_dynamic_hint')} />
         </div>
       </div>
 

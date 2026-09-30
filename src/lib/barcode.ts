@@ -18,6 +18,12 @@
 //
 // Everything here runs on the device: no upload, no network — the same promise
 // as the rest of the app.
+//
+// The hint and the validation messages are translated (controls namespace) and
+// looked up when read, never at module load, so they follow the language the
+// user has now. Labels are format names and placeholders are example values:
+// both stay as they are in every language.
+import { getT } from '../i18n/runtime.ts'
 
 export type BarcodeSymbology =
   | 'code128'
@@ -32,8 +38,8 @@ export interface SymbologyDef {
   label: string
   /** The bwip-js `bcid` for this symbology. */
   bcid: string
-  /** One-line guidance shown under the input. */
-  hint: string
+  /** One-line guidance shown under the input, in the current language. */
+  readonly hint: string
   /** Input placeholder / example value. */
   placeholder: string
   /**
@@ -44,7 +50,7 @@ export interface SymbologyDef {
   validate: (value: string) => string | null
 }
 
-const digits = (re: RegExp, msg: string) => (v: string) => (re.test(v) ? null : msg)
+const digits = (re: RegExp, msg: () => string) => (v: string) => (re.test(v) ? null : msg())
 
 // The retail symbologies carry a trailing check digit. bwip-js computes it for
 // you when you supply the payload one short (e.g. 12 digits for EAN-13), and
@@ -56,42 +62,42 @@ export const SYMBOLOGIES: SymbologyDef[] = [
     id: 'code128',
     label: 'Code 128',
     bcid: 'code128',
-    hint: 'Any text or numbers — the most common general-purpose barcode.',
+    get hint() { return getT()('controls.barcode_hint_code128') },
     placeholder: 'PKG-000123',
-    validate: (v) => (v.length > 0 && v.length <= 80 ? null : 'Enter up to 80 characters.'),
+    validate: (v) => (v.length > 0 && v.length <= 80 ? null : getT()('controls.barcode_error_code128', { max: 80 })),
   },
   {
     id: 'ean13',
     label: 'EAN-13',
     bcid: 'ean13',
-    hint: '12 digits (the 13th check digit is added for you), or paste all 13.',
+    get hint() { return getT()('controls.barcode_hint_ean13') },
     placeholder: '501234567890',
-    validate: digits(/^\d{12,13}$/, 'EAN-13 needs 12 or 13 digits.'),
+    validate: digits(/^\d{12,13}$/, () => getT()('controls.barcode_error_ean13')),
   },
   {
     id: 'upca',
     label: 'UPC-A',
     bcid: 'upca',
-    hint: '11 digits (check digit added), or paste all 12.',
+    get hint() { return getT()('controls.barcode_hint_upca') },
     placeholder: '03600029145',
-    validate: digits(/^\d{11,12}$/, 'UPC-A needs 11 or 12 digits.'),
+    validate: digits(/^\d{11,12}$/, () => getT()('controls.barcode_error_upca')),
   },
   {
     id: 'code39',
     label: 'Code 39',
     bcid: 'code39',
-    hint: 'Uppercase A–Z, 0–9 and - . $ / + % or space.',
+    get hint() { return getT()('controls.barcode_hint_code39') },
     placeholder: 'ABC-123',
     validate: (v) =>
-      /^[0-9A-Z\-.$/+%\s]+$/.test(v) ? null : 'Use uppercase A–Z, 0–9 and - . $ / + % only.',
+      /^[0-9A-Z\-.$/+%\s]+$/.test(v) ? null : getT()('controls.barcode_error_code39'),
   },
   {
     id: 'itf14',
     label: 'ITF-14',
     bcid: 'itf14',
-    hint: 'Shipping-carton code — 13 digits (check digit added) or all 14.',
+    get hint() { return getT()('controls.barcode_hint_itf14') },
     placeholder: '1540014128876',
-    validate: digits(/^\d{13,14}$/, 'ITF-14 needs 13 or 14 digits.'),
+    validate: digits(/^\d{13,14}$/, () => getT()('controls.barcode_error_itf14')),
   },
 ]
 

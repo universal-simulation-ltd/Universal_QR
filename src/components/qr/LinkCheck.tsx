@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { parseLink, probeLink, type ProbeResult } from '../../lib/linkCheck'
+import { useT } from '../../i18n'
 
 // "Test link is working" — the honest test (a tab, a human, a real page), plus
 // a best-effort tick from the browser. See lib/linkCheck.ts for why the tick is
@@ -22,6 +23,7 @@ export default function LinkCheck({
    *  into the field. Omitted where the field isn't directly editable. */
   onFix?: (href: string) => void
 }) {
+  const t = useT()
   const shape = useMemo(() => parseLink(value), [value])
   const [status, setStatus] = useState<'idle' | 'checking' | ProbeResult>('idle')
 
@@ -75,22 +77,21 @@ export default function LinkCheck({
             <path d="M16 4l-7 7" />
             <path d="M15 12v3.5A1.5 1.5 0 0 1 13.5 17h-9A1.5 1.5 0 0 1 3 15.5v-9A1.5 1.5 0 0 1 4.5 5H8" />
           </svg>
-          Test link
+          {t('studio.test_link')}
         </a>
         <Status status={status} shape={shape.kind} />
       </div>
 
       {shape.kind === 'no-scheme' && (
         <p className="text-xs text-amber-800 dark:text-amber-300">
-          No <code className="font-mono">https://</code> in front — some scanners will open this,
-          others will read it as plain text.{' '}
+          {t.rich('studio.no_scheme', { https: <code className="font-mono">https://</code> })}{' '}
           {onFix && (
             <button
               type="button"
               onClick={() => onFix(shape.suggestion)}
               className="font-semibold underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-200"
             >
-              Add https://
+              {t('studio.add_https')}
             </button>
           )}
         </p>
@@ -98,8 +99,7 @@ export default function LinkCheck({
 
       {shape.kind === 'insecure' && (
         <p className="text-xs text-amber-800 dark:text-amber-300">
-          An <code className="font-mono">http://</code> address. It will open, but phones show it as
-          “Not secure” — and it can’t be checked from this page.
+          {t.rich('studio.insecure', { http: <code className="font-mono">http://</code> })}
         </p>
       )}
     </div>
@@ -107,13 +107,14 @@ export default function LinkCheck({
 }
 
 function Status({ status, shape }: { status: 'idle' | 'checking' | ProbeResult; shape: string }) {
+  const t = useT()
   if (shape !== 'web' || status === 'idle') return null
 
   if (status === 'checking') {
     return (
       <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
         <span className="h-2 w-2 animate-pulse rounded-full bg-slate-300 dark:bg-slate-600" aria-hidden="true" />
-        Checking the address…
+        {t('studio.checking')}
       </span>
     )
   }
@@ -122,28 +123,28 @@ function Status({ status, shape }: { status: 'idle' | 'checking' | ProbeResult; 
     return (
       <span
         className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400"
-        title="Something answered at that address. It can't tell a real page from a 404 — open it to be sure."
+        title={t('studio.responds_title')}
       >
         <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <circle cx="10" cy="10" r="7.5" strokeWidth="1.5" />
           <path d="M6.5 10.3l2.4 2.4 4.6-5" />
         </svg>
-        The address responds
+        {t('studio.responds')}
       </span>
     )
   }
 
   const message =
     status === 'offline'
-      ? 'You’re offline — not checked'
+      ? t('studio.offline')
       : status === 'timeout'
-        ? 'No answer yet — it may just be slow'
-        : 'Couldn’t reach it from this browser'
+        ? t('studio.timeout')
+        : t('studio.unreachable')
 
   return (
     <span
       className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-400"
-      title="Not proof the link is broken — some sites refuse this kind of check. Open it in a tab to be sure."
+      title={t('studio.not_proof_title')}
     >
       <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <circle cx="10" cy="10" r="7.5" strokeWidth="1.5" />

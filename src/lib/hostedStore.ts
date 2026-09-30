@@ -7,6 +7,7 @@ import {
 import { renderQrBlob } from './download'
 import { hostedQrPath, hostedQrPathCandidates, hostedQrRemovalPaths, newObjectId, sidecarPath } from './hostedPaths'
 import type { QrConfig } from '@unisim/qr'
+import { getT } from '../i18n'
 
 // Online storage for Universal QR. Local saves (the device gallery in
 // SavePanel) stay free and on-device; saving to an account keeps a QR PNG
@@ -54,7 +55,7 @@ export async function storeCurrentQr(supabase: Supabase, orgId: string, config: 
     sizeBytes: blob.size,
   })
   if (!consumed.ok || !consumed.upload_id) {
-    return { ok: false, error: consumed.error ?? 'Could not save right now.' }
+    return { ok: false, error: consumed.error ?? getT()('dynamic.backup_could_not_save_now') }
   }
 
   const { error: upErr } = await supabase.storage
@@ -107,7 +108,7 @@ export async function storeCurrentQr(supabase: Supabase, orgId: string, config: 
 export async function deleteHostedQr(supabase: Supabase, upload: HostedUpload): Promise<StoreResult> {
   await supabase.storage.from(HOSTED_BUCKET).remove(hostedQrRemovalPaths(upload))
   const res = await refundHostedUpload(supabase, upload.id)
-  if (!res.ok) return { ok: false, error: res.error ?? 'Could not delete this backup right now.' }
+  if (!res.ok) return { ok: false, error: res.error ?? getT()('dynamic.backup_could_not_delete_now') }
   return { ok: true, creditsRemaining: res.credits }
 }
 

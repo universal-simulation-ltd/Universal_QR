@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { UniversalProvider } from '@unisim/sdk'
 import type { ProductCode } from '@unisim/sdk'
 import App from './App'
+import { I18nRoot } from './i18n'
 import { UsageTracker } from '@unisim/sdk'
 import { useQrStore } from './stores/qrStore'
 import './index.css'
@@ -53,7 +54,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <UniversalProvider config={universalConfig}>
       <UsageTracker />
-      <App />
+      {/* Keeps getT() and <html lang> on the suite language (src/i18n). */}
+      <I18nRoot>
+        <App />
+      </I18nRoot>
     </UniversalProvider>
   </React.StrictMode>
 )

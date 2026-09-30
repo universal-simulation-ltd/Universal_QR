@@ -9,11 +9,13 @@ import {
   removeLocalDesign,
   type LocalDesign,
 } from '../../lib/localDesigns'
+import { useT } from '../../i18n'
 
 // Free, no-account "Save to this device" — keep the QR codes you design in this
 // browser and reopen them later. Cross-device / online save lives in the same
 // backup dialog under the Universal ID sign-in.
 export default function SavePanel() {
+  const t = useT()
   const config = useQrStore((s) => s.config)
   const applyPatch = useQrStore((s) => s.applyPatch)
   const setMode = useQrStore((s) => s.setMode)
@@ -38,7 +40,7 @@ export default function SavePanel() {
       window.setTimeout(() => setJustSaved(false), 1800)
     } catch (err) {
       console.error(err)
-      alert(`Sorry, that couldn't be saved: ${(err as Error).message}`)
+      alert(t('studio.save_failed', { message: (err as Error).message }))
     } finally {
       setBusy(false)
     }
@@ -59,12 +61,11 @@ export default function SavePanel() {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3 dark:bg-slate-900 dark:border-slate-800">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Save your design</span>
-        <Chip size="sm">No account</Chip>
+        <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('studio.save_title')}</span>
+        <Chip size="sm">{t('studio.no_account')}</Chip>
       </div>
       <p className="text-xs text-slate-500 -mt-1.5 dark:text-slate-400">
-        Keep this QR code on this device and reopen it later — free, no sign-in. It stays in your
-        browser and never leaves it.
+        {t('studio.save_body')}
       </p>
 
       <button
@@ -77,12 +78,12 @@ export default function SavePanel() {
           <path d="M5 3h8l2 2v12H5V3z M8 3v4h4 M7 12h6 M7 15h6" />
         </svg>
         {justSaved
-          ? '✓ Saved to this device'
+          ? t('studio.saved')
           : busy
-            ? 'Saving…'
+            ? t('studio.saving')
             : !hasData
-              ? 'Enter a URL to save'
-              : 'Save to this device'}
+              ? t('studio.enter_url_to_save')
+              : t('studio.save_to_device')}
       </button>
 
       {saved.length > 0 && (
@@ -97,7 +98,7 @@ export default function SavePanel() {
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">
-                  {design.name || 'QR code'}
+                  {design.name || t('studio.untitled_design')}
                 </span>
                 <span className="block truncate text-[10px] text-slate-400" title={design.config.data}>
                   {design.config.data}
@@ -108,15 +109,15 @@ export default function SavePanel() {
                 onClick={() => onOpen(design)}
                 className="shrink-0 rounded-md bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800"
               >
-                Open
+                {t('studio.open')}
               </button>
               <button
                 type="button"
                 onClick={() => onRemove(design.id)}
-                aria-label={`Remove ${design.name || 'saved design'}`}
+                aria-label={design.name ? t('studio.remove_design_aria', { name: design.name }) : t('studio.remove_saved_design_aria')}
                 className="shrink-0 rounded-md px-2 py-1.5 text-xs font-medium text-slate-400 hover:text-rose-600 dark:hover:text-rose-400"
               >
-                Remove
+                {t('studio.remove')}
               </button>
             </li>
           ))}

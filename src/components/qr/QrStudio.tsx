@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { ChipToggle, isNativeShell, useFileDrop } from '@unisim/sdk'
-import Controls, { ContentCard, UnisimMarkToggle, logoPickerLabel } from './Controls'
+import Controls, { ContentCard, UnisimMarkToggle, logoPickerLabel, presetLabel } from './Controls'
 import QrPreview from './QrPreview'
 import PinnedPreview from './PinnedPreview'
 import BarcodePreview from './BarcodePreview'
@@ -11,6 +11,7 @@ import { copyQrToClipboard, downloadQr } from '../../lib/download'
 import { saveBlob } from '@unisim/media/save'
 import { DEFAULT_CONFIG, PRESETS, type ExportFormat, type QrConfig } from '@unisim/qr'
 import { barcodeFileStem, renderBarcodeToSvg, symbologyById } from '../../lib/barcode'
+import { useT, type MessageKey } from '../../i18n'
 
 // Which config keys count as "branding has been customised" — used to decide
 // whether to nudge the user towards the Branding tab (see ModeToggle). The
@@ -67,7 +68,7 @@ function presetBaseline(presetName: string | null): QrConfig {
 
 // In the phone app the PNG goes to the share sheet (Save Image, Messages…),
 // not a Downloads folder, so "Download" was the wrong word there.
-const SAVE_LABEL = isNativeShell() ? 'Save or share' : 'Download PNG'
+const SAVE_LABEL: MessageKey = isNativeShell() ? 'studio.save_or_share' : 'studio.download_png'
 
 const FORMATS: { value: ExportFormat; label: string }[] = [
   { value: 'png', label: 'PNG' },
@@ -97,6 +98,7 @@ export default function QrStudio() {
   const reset = useQrStore((s) => s.reset)
   const presetName = useQrStore((s) => s.presetName)
   const setHostedStoreOpen = useQrStore((s) => s.setHostedStoreOpen)
+  const t = useT()
   const [busy, setBusy] = useState(false)
   const [copied, setCopied] = useState<'idle' | 'ok' | 'fail'>('idle')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -135,9 +137,9 @@ export default function QrStudio() {
           triggerDownload(new Blob([svg], { type: 'image/svg+xml' }), `${stem}.svg`)
         } else {
           const canvas = barcodeCanvas()
-          if (!canvas) throw new Error('Nothing to export yet.')
+          if (!canvas) throw new Error(t('studio.nothing_to_export'))
           const blob: Blob = await new Promise((resolve, reject) =>
-            canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Export failed'))), 'image/png'),
+            canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(t('studio.export_failed_reason')))), 'image/png'),
           )
           triggerDownload(blob, `${stem}.png`)
         }
@@ -146,7 +148,7 @@ export default function QrStudio() {
       await downloadQr(config, format)
     } catch (err) {
       console.error(err)
-      alert(`Sorry, that export failed: ${(err as Error).message}`)
+      alert(t('studio.export_failed', { message: (err as Error).message }))
     } finally {
       setBusy(false)
     }
@@ -187,11 +189,12 @@ export default function QrStudio() {
                 Images, That just work." — with only "just work" in orange, plus
                 the promise a static code keeps: it never expires (James,
                 2026-09-30). It was "QR Codes that just. work. FOREVER.". */}
-            QR codes that <span className="text-orange-600 dark:text-orange-400">just work</span>. Forever.
+            {t.rich('studio.headline', {
+              em: <span className="text-orange-600 dark:text-orange-400">{t('studio.headline_em')}</span>,
+            })}
           </h1>
           <p className="mt-2 hidden text-slate-600 sm:block dark:text-slate-300">
-            Pick your colours, shape the modules, drop in a logo — it renders live, on your
-            device. Download as PNG, SVG, JPEG or WebP.
+            {t('studio.lead')}
           </p>
         </header>
 
@@ -223,7 +226,7 @@ export default function QrStudio() {
                   onClick={reset}
                   className="text-xs font-medium text-slate-500 hover:text-orange-700 border border-slate-200 px-3 py-1.5 rounded-lg hover:border-orange-300 transition-colors dark:text-slate-400 dark:hover:text-orange-400 dark:border-slate-700 dark:hover:border-orange-500/60"
                 >
-                  Reset all
+                  {t('studio.reset_all')}
                 </button>
               )}
             </div>}
@@ -261,10 +264,10 @@ export default function QrStudio() {
 
               <p className="text-xs text-slate-500 text-center dark:text-slate-400">
                 {copied === 'ok'
-                  ? '✓ Copied to clipboard'
+                  ? t('studio.copied')
                   : copied === 'fail'
-                    ? 'Copy not supported — use Download'
-                    : 'Always scan-test before printing at small sizes.'}
+                    ? t('studio.copy_unsupported')
+                    : t('studio.scan_test_hint')}
               </p>
             </div>
           </div>
@@ -303,6 +306,7 @@ function ExportButton({
   onCopy: () => void
   onBackUp: () => void
 }) {
+  const t = useT()
   const wrapRef = useRef<HTMLDivElement>(null)
   const [dropUp, setDropUp] = useState(false)
 
@@ -352,15 +356,15 @@ function ExportButton({
           <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 16h12" />
           </svg>
-          {busy ? 'Preparing…' : SAVE_LABEL}
+          {busy ? t('studio.preparing') : t(SAVE_LABEL)}
         </button>
         <button
           type="button"
           onClick={toggle}
           aria-haspopup="menu"
           aria-expanded={menuOpen}
-          aria-label="More export options"
-          title="More options"
+          aria-label={t('studio.more_export_aria')}
+          title={t('studio.more_options')}
           className="shrink-0 inline-flex items-center justify-center w-11 rounded-r-xl border-l border-orange-800/40 bg-orange-700 text-white shadow-sm hover:bg-orange-800 transition-colors"
         >
           <svg
@@ -386,7 +390,7 @@ function ExportButton({
           }`}
         >
           <p className="px-3 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-            Download as
+            {t('studio.download_as')}
           </p>
           {otherFormats.map((f) => (
             <MenuItem
@@ -410,7 +414,7 @@ function ExportButton({
               <path d="M7 7V4h9v9h-3 M4 7h9v9H4V7z" />
             }
           >
-            Copy PNG to clipboard
+            {t('studio.copy_png')}
           </MenuItem>
           <MenuItem
             onClick={onBackUp}
@@ -418,7 +422,7 @@ function ExportButton({
               <path d="M16 17H4a1.5 1.5 0 0 1-1.5-1.5v-11A1.5 1.5 0 0 1 4 3h8l4 4v8.5A1.5 1.5 0 0 1 16 17z M14 17v-6H6v6 M6 3v4h6" />
             }
           >
-            Back up online to unisim.co.uk
+            {t('studio.back_up_online')}
           </MenuItem>
         </div>
       )}
@@ -457,27 +461,28 @@ function MenuItem({
 // The Branding tab had an unlabelled orange dot nudging signed-out visitors
 // towards it; nobody could tell what it meant, so it went on 2026-09-30.
 function ModeToggle({ mode, setMode }: { mode: StudioMode; setMode: (m: StudioMode) => void }) {
-  const tabs: { id: StudioMode; label: string }[] = [
-    { id: 'simple', label: 'Simple' },
-    { id: 'branding', label: 'Branding' },
-    { id: 'advanced', label: 'Advanced' },
+  const t = useT()
+  const tabs: { id: StudioMode; label: MessageKey }[] = [
+    { id: 'simple', label: 'studio.mode_simple' },
+    { id: 'branding', label: 'studio.mode_branding' },
+    { id: 'advanced', label: 'studio.mode_advanced' },
   ]
   return (
-    <div className="inline-flex p-1 bg-slate-200/70 rounded-xl dark:bg-slate-800" role="tablist" aria-label="Editor mode">
-      {tabs.map((t) => (
+    <div className="inline-flex p-1 bg-slate-200/70 rounded-xl dark:bg-slate-800" role="tablist" aria-label={t('studio.mode_aria')}>
+      {tabs.map((tab) => (
         <button
-          key={t.id}
+          key={tab.id}
           type="button"
           role="tab"
-          aria-selected={mode === t.id}
-          onClick={() => setMode(t.id)}
+          aria-selected={mode === tab.id}
+          onClick={() => setMode(tab.id)}
           className={`relative px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-            mode === t.id
+            mode === tab.id
               ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white'
               : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
           }`}
         >
-          {t.label}
+          {t(tab.label)}
         </button>
       ))}
     </div>
@@ -492,19 +497,20 @@ function BrandingPanel() {
   const activePreset = useQrStore((s) => s.presetName)
   const setLogo = useQrStore((s) => s.setLogo)
   const clearLogo = useQrStore((s) => s.clearLogo)
+  const t = useT()
   // Same picker as the Simple tab's Controls panel — SDK mechanics, and the
   // empty state below takes a dragged image as well as a click.
   const logo = useFileDrop({
     onFiles: (files) => onLogoFile(files[0]),
     accept: 'image/*,.svg',
     multiple: false,
-    label: 'Drop a logo here, or click to choose one',
+    label: t('studio.logo_drop_label'),
   })
 
   function onLogoFile(file: File | undefined) {
     if (!file) return
     if (!file.type.startsWith('image/')) {
-      alert('Please choose an image file (PNG, JPG, or SVG).')
+      alert(t('studio.logo_not_image'))
       return
     }
     const reader = new FileReader()
@@ -518,9 +524,9 @@ function BrandingPanel() {
     <div className="space-y-5">
       {/* Style presets */}
       <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-        <h2 className="font-semibold text-slate-900 dark:text-slate-100">Style presets</h2>
-        <p className="mt-0.5 mb-3 text-xs text-slate-500 dark:text-slate-400">A starting point — tweak the colours and logo below.</p>
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Style presets">
+        <h2 className="font-semibold text-slate-900 dark:text-slate-100">{t('studio.presets_title')}</h2>
+        <p className="mt-0.5 mb-3 text-xs text-slate-500 dark:text-slate-400">{t('studio.presets_hint')}</p>
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('studio.presets_title')}>
           {PRESETS.map((p) => {
             const active = p.name === activePreset
             return (
@@ -530,7 +536,7 @@ function BrandingPanel() {
                 role="radio"
                 onClick={() => applyPreset(p.name, p.patch)}
               >
-                {p.name}
+                {presetLabel(p.name, t)}
               </ChipToggle>
             )
           })}
@@ -539,24 +545,24 @@ function BrandingPanel() {
 
       {/* Colours */}
       <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-        <h2 className="font-semibold text-slate-900 dark:text-slate-100">Colours</h2>
+        <h2 className="font-semibold text-slate-900 dark:text-slate-100">{t('studio.colours_title')}</h2>
         <div className="mt-3 space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <BrandSwatch label="Modules" value={config.fgColor} onChange={(v) => update({ fgColor: v })} />
-            <BrandSwatch label="Background" value={config.bgColor} onChange={(v) => update({ bgColor: v })} disabled={config.bgTransparent} />
+            <BrandSwatch label={t('studio.modules')} value={config.fgColor} onChange={(v) => update({ fgColor: v })} />
+            <BrandSwatch label={t('studio.background')} value={config.bgColor} onChange={(v) => update({ bgColor: v })} disabled={config.bgTransparent} />
           </div>
-          <BrandToggle label="Transparent background" checked={config.bgTransparent} onChange={(v) => update({ bgTransparent: v })} hint="Export a PNG/SVG with no background fill." />
-          <BrandToggle label="Gradient modules" checked={config.useGradient} onChange={(v) => update({ useGradient: v })} />
+          <BrandToggle label={t('studio.transparent_background')} checked={config.bgTransparent} onChange={(v) => update({ bgTransparent: v })} hint={t('studio.transparent_background_hint')} />
+          <BrandToggle label={t('studio.gradient_modules')} checked={config.useGradient} onChange={(v) => update({ useGradient: v })} />
           {config.useGradient && (
             <div className="pl-4 space-y-3 border-l-2 border-orange-100 dark:border-orange-500/30">
-              <BrandSwatch label="Gradient end" value={config.gradientColor} onChange={(v) => update({ gradientColor: v })} />
-              <BrandRange label="Gradient angle" value={config.gradientRotation} min={0} max={360} step={5} suffix="°" onChange={(v) => update({ gradientRotation: v })} />
+              <BrandSwatch label={t('studio.gradient_end')} value={config.gradientColor} onChange={(v) => update({ gradientColor: v })} />
+              <BrandRange label={t('studio.gradient_angle')} value={config.gradientRotation} min={0} max={360} step={5} suffix="°" onChange={(v) => update({ gradientRotation: v })} />
             </div>
           )}
-          <BrandToggle label="Two-tone corners" checked={!config.matchCornerColor} onChange={(v) => update({ matchCornerColor: !v })} hint="Give the three finder corners their own colour." />
+          <BrandToggle label={t('studio.two_tone_corners')} checked={!config.matchCornerColor} onChange={(v) => update({ matchCornerColor: !v })} hint={t('studio.two_tone_corners_hint')} />
           {!config.matchCornerColor && (
             <div className="pl-4">
-              <BrandSwatch label="Corner colour" value={config.cornerColor} onChange={(v) => update({ cornerColor: v })} />
+              <BrandSwatch label={t('studio.corner_colour')} value={config.cornerColor} onChange={(v) => update({ cornerColor: v })} />
             </div>
           )}
         </div>
@@ -564,15 +570,15 @@ function BrandingPanel() {
 
       {/* Logo & branding */}
       <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-        <h2 className="font-semibold text-slate-900 dark:text-slate-100">Logo & branding</h2>
+        <h2 className="font-semibold text-slate-900 dark:text-slate-100">{t('studio.logo_title')}</h2>
         <div className="mt-3 space-y-3">
           <input {...logo.inputProps} hidden />
           {config.logoDataUrl ? (
             <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
-              <img src={config.logoDataUrl} alt="Logo preview" className="w-12 h-12 rounded-lg object-contain bg-white ring-1 ring-slate-200 p-1 dark:ring-slate-600" />
-              <div className="flex-1 text-sm text-slate-600 dark:text-slate-300">Custom logo added</div>
-              <button type="button" onClick={logo.open} className="text-xs font-medium text-slate-600 hover:text-orange-700 px-2 py-1 dark:text-slate-300 dark:hover:text-orange-400">Replace</button>
-              <button type="button" onClick={clearLogo} className="text-xs font-medium text-red-600 hover:text-red-700 px-2 py-1 dark:text-red-400 dark:hover:text-red-300">Remove</button>
+              <img src={config.logoDataUrl} alt={t('studio.logo_preview_alt')} className="w-12 h-12 rounded-lg object-contain bg-white ring-1 ring-slate-200 p-1 dark:ring-slate-600" />
+              <div className="flex-1 text-sm text-slate-600 dark:text-slate-300">{t('studio.logo_added')}</div>
+              <button type="button" onClick={logo.open} className="text-xs font-medium text-slate-600 hover:text-orange-700 px-2 py-1 dark:text-slate-300 dark:hover:text-orange-400">{t('studio.logo_replace')}</button>
+              <button type="button" onClick={clearLogo} className="text-xs font-medium text-red-600 hover:text-red-700 px-2 py-1 dark:text-red-400 dark:hover:text-red-300">{t('studio.remove')}</button>
             </div>
           ) : (
             <div
@@ -588,11 +594,11 @@ function BrandingPanel() {
           )}
           {config.logoDataUrl && (
             <>
-              <BrandRange label="Logo size" value={Math.round(config.logoSize * 100)} min={10} max={50} step={1} suffix="%" onChange={(v) => update({ logoSize: v / 100 })} />
-              <BrandRange label="Logo padding" value={config.logoMargin} min={0} max={24} step={1} suffix=" px" onChange={(v) => update({ logoMargin: v })} />
+              <BrandRange label={t('studio.logo_size')} value={Math.round(config.logoSize * 100)} min={10} max={50} step={1} suffix="%" onChange={(v) => update({ logoSize: v / 100 })} />
+              <BrandRange label={t('studio.logo_padding')} value={config.logoMargin} min={0} max={24} step={1} suffix=" px" onChange={(v) => update({ logoMargin: v })} />
             </>
           )}
-          <BrandToggle label="Clear modules behind logo" checked={config.hideBackgroundDots} onChange={(v) => update({ hideBackgroundDots: v })} />
+          <BrandToggle label={t('studio.clear_behind_logo')} checked={config.hideBackgroundDots} onChange={(v) => update({ hideBackgroundDots: v })} />
           <UnisimMarkToggle />
         </div>
       </section>
@@ -601,12 +607,13 @@ function BrandingPanel() {
 }
 
 function BrandSwatch({ label, value, onChange, disabled }: { label: string; value: string; onChange: (v: string) => void; disabled?: boolean }) {
+  const t = useT()
   return (
     <div className={disabled ? 'opacity-40 pointer-events-none' : ''}>
       <label className="block text-sm font-medium text-slate-700 mb-1.5 dark:text-slate-300">{label}</label>
       <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700">
         <input type="color" value={value} onChange={(e) => onChange(e.target.value)} className="w-8 h-8 shrink-0" aria-label={label} />
-        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} aria-label={`${label} hex value`} className="w-full min-w-0 text-sm font-mono uppercase text-slate-700 focus:outline-none dark:text-slate-200" />
+        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} aria-label={t('studio.hex_value_aria', { label })} className="w-full min-w-0 text-sm font-mono uppercase text-slate-700 focus:outline-none dark:text-slate-200" />
       </div>
     </div>
   )

@@ -3,6 +3,7 @@ import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark, ty
 import { composeShapedCanvas, composeShapedSvg } from '@unisim/qr'
 import { UNISIM_MARK } from '@unisim/qr'
 import { saveBlob } from '@unisim/media/save'
+import { getT } from '../i18n'
 
 /** Slugify the QR's name into a safe filename stem. */
 export function fileStem(name: string): string {
@@ -19,7 +20,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
     const img = new Image()
     img.crossOrigin = 'anonymous'
     img.onload = () => resolve(img)
-    img.onerror = () => reject(new Error('Failed to load image'))
+    img.onerror = () => reject(new Error(getT()('app.error_load_image')))
     img.src = src
   })
 }
@@ -85,7 +86,7 @@ function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => resolve(reader.result as string)
-    reader.onerror = () => reject(new Error('Failed to read image'))
+    reader.onerror = () => reject(new Error(getT()('app.error_read_image')))
     reader.readAsDataURL(blob)
   })
 }
@@ -103,7 +104,7 @@ export async function renderThumbnailDataUrl(config: QrConfig, size = 160): Prom
   const margin = Math.max(2, Math.round((config.margin / config.size) * size))
   const qr = new QRCodeStyling(buildQrOptions({ ...config, size, margin }, 'canvas'))
   const raw = (await qr.getRawData('png')) as Blob | null
-  if (!raw) throw new Error('Could not render thumbnail')
+  if (!raw) throw new Error(getT()('app.error_render_thumbnail'))
   return blobToDataUrl(raw)
 }
 
@@ -194,14 +195,14 @@ export async function renderQrBlob(
       flat.width = shaped.width
       flat.height = shaped.height
       const fctx = flat.getContext('2d')
-      if (!fctx) throw new Error('Canvas not supported')
+      if (!fctx) throw new Error(getT()('app.error_canvas_unsupported'))
       fctx.fillStyle = '#ffffff'
       fctx.fillRect(0, 0, flat.width, flat.height)
       fctx.drawImage(shaped, 0, 0)
       out = flat
     }
     const blob: Blob = await new Promise((resolve, reject) =>
-      out.toBlob((b) => (b ? resolve(b) : reject(new Error('Export failed'))), MIME[format], 0.92)
+      out.toBlob((b) => (b ? resolve(b) : reject(new Error(getT()('app.error_export_failed')))), MIME[format], 0.92)
     )
     return { blob, fileName: `${stem}.${format}`, contentType: MIME[format] }
   }
@@ -209,7 +210,7 @@ export async function renderQrBlob(
   if (format === 'svg') {
     const qr = new QRCodeStyling(buildQrOptions(config, 'svg'))
     const raw = (await qr.getRawData('svg')) as Blob | null
-    if (!raw) throw new Error('Could not render SVG')
+    if (!raw) throw new Error(getT()('app.error_render_svg'))
     let svg = await raw.text()
     if (showsCornerMark(config)) {
       const { badge, x, y } = cornerStampGeometry(config.size, config.margin)
@@ -226,7 +227,7 @@ export async function renderQrBlob(
   // (a) flatten onto white for JPEG, and (b) stamp the corner mark.
   const qr = new QRCodeStyling(buildQrOptions(config, 'canvas'))
   const raw = (await qr.getRawData('png')) as Blob | null
-  if (!raw) throw new Error('Could not render QR code')
+  if (!raw) throw new Error(getT()('app.error_render_qr'))
 
   // ⚠️ The composite below is only ever needed for one of those two reasons,
   // and a PNG without a corner stamp has neither. It was still being run: the
@@ -252,7 +253,7 @@ export async function renderQrBlob(
   canvas.width = size
   canvas.height = size
   const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('Canvas not supported')
+  if (!ctx) throw new Error(getT()('app.error_canvas_unsupported'))
 
   // JPEG has no alpha — flatten transparency onto white so it doesn't go black.
   if (format === 'jpeg') {
@@ -270,7 +271,7 @@ export async function renderQrBlob(
 
   const blob: Blob = await new Promise((resolve, reject) =>
     canvas.toBlob(
-      (b) => (b ? resolve(b) : reject(new Error('Export failed'))),
+      (b) => (b ? resolve(b) : reject(new Error(getT()('app.error_export_failed')))),
       MIME[format],
       0.92
     )

@@ -1,5 +1,8 @@
 import type { useUniversal } from '@unisim/sdk'
 import { DEFAULT_CONFIG, type QrDesign } from '@unisim/qr'
+// The runtime, not '../i18n': plain node unit-tests this module
+// (scripts/dynamicDesign.test.mjs), and the index pulls in React and the SDK.
+import { getT } from '../i18n/runtime.ts'
 
 // Client helpers for Universal QR "Dynamic" codes — the hosted/PRO path. A
 // dynamic code encodes a short redirect (opensource.unisim.co.uk/qr/r/<code>)
@@ -148,7 +151,7 @@ export async function setDynamicDesign(
   return {
     ok: r.ok === true,
     error: r.error === 'design_too_large'
-      ? 'That design is too big to save — try a smaller centre logo.'
+      ? getT()('dynamic.error_design_too_large')
       : (r.error as string | undefined),
   }
 }
