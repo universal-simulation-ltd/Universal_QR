@@ -1,0 +1,103 @@
+{
+  "01-hero": {
+    "headline": [
+      "O seu código,",
+      "*à sua imagem.*"
+    ],
+    "sub": {
+      "phone": "As suas cores, o seu logótipo, a sua forma,\ndesenhados no telemóvel enquanto escreve.",
+      "ipad": "As suas cores, o seu logótipo, a sua forma,\ndesenhados no iPad enquanto escreve."
+    }
+  },
+  "02-hero": {
+    "headline": [
+      "Forma e cor",
+      "à escolha"
+    ],
+    "badges": [
+      "O seu logótipo",
+      "Gradientes",
+      "Círculo, hexágono, estrela",
+      "Códigos Wi-Fi"
+    ],
+    "sub": "Criado por James Markey MBE\ne pela equipa UNI·SIM"
+  },
+  "03-live": {
+    "headline": [
+      "Desenhado",
+      "ao escrever"
+    ],
+    "caption": "Cole uma ligação e confirme que responde",
+    "chips": [
+      "Testar ligação",
+      "PNG",
+      "SVG",
+      "JPEG",
+      "WebP"
+    ]
+  },
+  "04-brand": {
+    "headline": [
+      "As suas cores,",
+      "o seu logótipo"
+    ],
+    "caption": "O código abre espaço ao logótipo e continua a ser lido",
+    "chips": [
+      "Logótipo",
+      "Cores",
+      "Gradientes",
+      "Cantos em dois tons",
+      "Fundo transparente"
+    ]
+  },
+  "05-shape": {
+    "headline": [
+      "Escolha a forma"
+    ],
+    "caption": "Do quadrado à estrela, com cantos a condizer",
+    "chips": [
+      "Círculo",
+      "Quadrado arredondado",
+      "Hexágono",
+      "Estrela",
+      "Pontos",
+      "Arredondado"
+    ]
+  },
+  "06-wifi": {
+    "headline": [
+      "Convidados",
+      "no seu Wi-Fi"
+    ],
+    "caption": "Leem o código e ligam-se, sem palavra-passe para escrever",
+    "chips": [
+      "Wi-Fi",
+      "Email",
+      "Telefone",
+      "SMS",
+      "Contacto",
+      "Local",
+      "Evento"
+    ]
+  },
+  "07-barcode": {
+    "headline": [
+      "Códigos de",
+      "barras também"
+    ],
+    "caption": "O dígito de controlo é acrescentado automaticamente",
+    "chips": [
+      "EAN-13",
+      "UPC-A",
+      "Code 128",
+      "Code 39",
+      "ITF-14"
+    ]
+  },
+  "feature-graphic": {
+    "tagline": [
+      "Códigos QR à sua imagem.",
+      "Desenhados no telemóvel."
+    ]
+  }
+}

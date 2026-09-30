@@ -1,0 +1,103 @@
+{
+  "01-hero": {
+    "headline": [
+      "Tu código,",
+      "*tu estilo.*"
+    ],
+    "sub": {
+      "phone": "Tus colores, tu logotipo, tu forma,\ngenerados al instante en tu móvil.",
+      "ipad": "Tus colores, tu logotipo, tu forma,\ngenerados al instante en tu iPad."
+    }
+  },
+  "02-hero": {
+    "headline": [
+      "Mil formas,",
+      "mil colores"
+    ],
+    "badges": [
+      "Tu logotipo",
+      "Degradados",
+      "Círculo, hexágono, estrella",
+      "Códigos Wi-Fi"
+    ],
+    "sub": "Creado por James Markey MBE\ny el equipo de UNI·SIM"
+  },
+  "03-live": {
+    "headline": [
+      "Se genera",
+      "al escribir"
+    ],
+    "caption": "Pega un enlace y comprueba que responde",
+    "chips": [
+      "Probar enlace",
+      "PNG",
+      "SVG",
+      "JPEG",
+      "WebP"
+    ]
+  },
+  "04-brand": {
+    "headline": [
+      "Tus colores,",
+      "tu logotipo"
+    ],
+    "caption": "El código se despeja tras tu logotipo y se sigue escaneando",
+    "chips": [
+      "Logotipo",
+      "Colores",
+      "Degradados",
+      "Esquinas de dos tonos",
+      "Fondo transparente"
+    ]
+  },
+  "05-shape": {
+    "headline": [
+      "Elige una forma"
+    ],
+    "caption": "Del cuadrado a la estrella, con esquinas a juego",
+    "chips": [
+      "Círculo",
+      "Supercírculo",
+      "Hexágono",
+      "Estrella",
+      "Puntos",
+      "Redondeado"
+    ]
+  },
+  "06-wifi": {
+    "headline": [
+      "Tus invitados,",
+      "a tu Wi-Fi"
+    ],
+    "caption": "Lo escanean y se conectan, sin escribir la contraseña",
+    "chips": [
+      "Wi-Fi",
+      "Correo",
+      "Teléfono",
+      "SMS",
+      "Contacto",
+      "Ubicación",
+      "Evento"
+    ]
+  },
+  "07-barcode": {
+    "headline": [
+      "Y códigos",
+      "de barras"
+    ],
+    "caption": "El dígito de control se añade solo",
+    "chips": [
+      "EAN-13",
+      "UPC-A",
+      "Code 128",
+      "Code 39",
+      "ITF-14"
+    ]
+  },
+  "feature-graphic": {
+    "tagline": [
+      "Códigos QR con tu estilo.",
+      "Generados en tu móvil."
+    ]
+  }
+}

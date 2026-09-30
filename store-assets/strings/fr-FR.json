@@ -1,0 +1,104 @@
+{
+  "01-hero": {
+    "headline": [
+      "Votre code,",
+      "*votre style.*"
+    ],
+    "sub": {
+      "phone": "Vos couleurs, votre logo, votre forme,\nen direct sur votre téléphone.",
+      "ipad": "Vos couleurs, votre logo, votre forme,\nen direct sur votre iPad."
+    }
+  },
+  "02-hero": {
+    "headline": [
+      "Toute forme,",
+      "toute couleur"
+    ],
+    "badges": [
+      "Votre logo",
+      "Dégradés",
+      "Cercle, hexagone, étoile",
+      "Codes Wi-Fi"
+    ],
+    "sub": "Conçu par James Markey MBE\net l’équipe UNI·SIM"
+  },
+  "03-live": {
+    "headline": [
+      "Généré",
+      "en direct"
+    ],
+    "caption": "Collez un lien et vérifiez qu’il répond",
+    "chips": [
+      "Tester le lien",
+      "PNG",
+      "SVG",
+      "JPEG",
+      "WebP"
+    ]
+  },
+  "04-brand": {
+    "headline": [
+      "Vos couleurs,",
+      "votre logo"
+    ],
+    "caption": "Le code s’efface derrière votre logo et reste lisible",
+    "chips": [
+      "Logo",
+      "Couleurs",
+      "Dégradés",
+      "Coins bicolores",
+      "Fond transparent"
+    ]
+  },
+  "05-shape": {
+    "headline": [
+      "Choisissez",
+      "votre forme"
+    ],
+    "caption": "Du carré à l’étoile, avec des coins assortis",
+    "chips": [
+      "Cercle",
+      "Carré arrondi",
+      "Hexagone",
+      "Étoile",
+      "Points",
+      "Arrondi"
+    ]
+  },
+  "06-wifi": {
+    "headline": [
+      "Le Wi-Fi",
+      "en un scan"
+    ],
+    "caption": "Vos invités se connectent sans taper le mot de passe",
+    "chips": [
+      "Wi-Fi",
+      "E-mail",
+      "Téléphone",
+      "SMS",
+      "Contact",
+      "Lieu",
+      "Événement"
+    ]
+  },
+  "07-barcode": {
+    "headline": [
+      "Et aussi des",
+      "codes-barres"
+    ],
+    "caption": "Le chiffre de contrôle est ajouté pour vous",
+    "chips": [
+      "EAN-13",
+      "UPC-A",
+      "Code 128",
+      "Code 39",
+      "ITF-14"
+    ]
+  },
+  "feature-graphic": {
+    "tagline": [
+      "Des QR codes à votre image.",
+      "Générés sur votre téléphone."
+    ]
+  }
+}

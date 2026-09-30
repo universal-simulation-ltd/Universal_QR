@@ -1,0 +1,103 @@
+{
+  "01-hero": {
+    "headline": [
+      "Il tuo codice,",
+      "*il tuo stile.*"
+    ],
+    "sub": {
+      "phone": "I tuoi colori, il tuo logo, la tua forma,\ndisegnati sul telefono mentre scrivi.",
+      "ipad": "I tuoi colori, il tuo logo, la tua forma,\ndisegnati sull’iPad mentre scrivi."
+    }
+  },
+  "02-hero": {
+    "headline": [
+      "Ogni forma,",
+      "ogni colore"
+    ],
+    "badges": [
+      "Il tuo logo",
+      "Sfumature",
+      "Cerchio, esagono, stella",
+      "Codici Wi-Fi"
+    ],
+    "sub": "Realizzato da James Markey MBE\ne dal team UNI·SIM"
+  },
+  "03-live": {
+    "headline": [
+      "Disegnato",
+      "mentre scrivi"
+    ],
+    "caption": "Incolla un link e verifica che risponda",
+    "chips": [
+      "Prova il link",
+      "PNG",
+      "SVG",
+      "JPEG",
+      "WebP"
+    ]
+  },
+  "04-brand": {
+    "headline": [
+      "I tuoi colori,",
+      "il tuo logo"
+    ],
+    "caption": "Il codice si libera dietro il logo, così si scansiona comunque",
+    "chips": [
+      "Logo",
+      "Colori",
+      "Sfumature",
+      "Angoli bicolore",
+      "Sfondo trasparente"
+    ]
+  },
+  "05-shape": {
+    "headline": [
+      "Scegli la forma"
+    ],
+    "caption": "Dal quadrato alla stella, con angoli coordinati",
+    "chips": [
+      "Cerchio",
+      "Squircle",
+      "Esagono",
+      "Stella",
+      "Punti",
+      "Arrotondato"
+    ]
+  },
+  "06-wifi": {
+    "headline": [
+      "Il Wi-Fi",
+      "per gli ospiti"
+    ],
+    "caption": "Scansionano e si collegano, senza digitare la password",
+    "chips": [
+      "Wi-Fi",
+      "Email",
+      "Telefono",
+      "SMS",
+      "Contatto",
+      "Posizione",
+      "Evento"
+    ]
+  },
+  "07-barcode": {
+    "headline": [
+      "Anche codici",
+      "a barre"
+    ],
+    "caption": "La cifra di controllo viene aggiunta per te",
+    "chips": [
+      "EAN-13",
+      "UPC-A",
+      "Code 128",
+      "Code 39",
+      "ITF-14"
+    ]
+  },
+  "feature-graphic": {
+    "tagline": [
+      "Codici QR con il tuo stile.",
+      "Disegnati sul tuo telefono."
+    ]
+  }
+}

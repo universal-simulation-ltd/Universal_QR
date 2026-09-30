@@ -1,0 +1,103 @@
+{
+  "01-hero": {
+    "headline": [
+      "Seu código,",
+      "*seu estilo.*"
+    ],
+    "sub": {
+      "phone": "Suas cores, seu logotipo, seu formato,\nno seu celular, enquanto você digita.",
+      "ipad": "Suas cores, seu logotipo, seu formato,\nno seu iPad, enquanto você digita."
+    }
+  },
+  "02-hero": {
+    "headline": [
+      "Qualquer forma,",
+      "qualquer cor"
+    ],
+    "badges": [
+      "Seu logotipo",
+      "Degradês",
+      "Círculo, hexágono, estrela",
+      "Códigos de Wi-Fi"
+    ],
+    "sub": "Feito por James Markey MBE\ne pela equipe UNI·SIM"
+  },
+  "03-live": {
+    "headline": [
+      "Surge enquanto",
+      "você digita"
+    ],
+    "caption": "Cole um link e confira se ele responde",
+    "chips": [
+      "Testar link",
+      "PNG",
+      "SVG",
+      "JPEG",
+      "WebP"
+    ]
+  },
+  "04-brand": {
+    "headline": [
+      "Suas cores,",
+      "seu logotipo"
+    ],
+    "caption": "O código abre espaço para o logotipo e continua sendo lido",
+    "chips": [
+      "Logotipo",
+      "Cores",
+      "Degradês",
+      "Cantos em duas cores",
+      "Fundo transparente"
+    ]
+  },
+  "05-shape": {
+    "headline": [
+      "Escolha a forma"
+    ],
+    "caption": "Do quadrado à estrela, com cantos combinando",
+    "chips": [
+      "Círculo",
+      "Superelipse",
+      "Hexágono",
+      "Estrela",
+      "Pontos",
+      "Arredondado"
+    ]
+  },
+  "06-wifi": {
+    "headline": [
+      "Convidados",
+      "no seu Wi-Fi"
+    ],
+    "caption": "Eles leem o código e se conectam, sem digitar senha",
+    "chips": [
+      "Wi-Fi",
+      "E-mail",
+      "Telefone",
+      "SMS",
+      "Contato",
+      "Local",
+      "Evento"
+    ]
+  },
+  "07-barcode": {
+    "headline": [
+      "Códigos de",
+      "barras também"
+    ],
+    "caption": "O dígito verificador é adicionado para você",
+    "chips": [
+      "EAN-13",
+      "UPC-A",
+      "Code 128",
+      "Code 39",
+      "ITF-14"
+    ]
+  },
+  "feature-graphic": {
+    "tagline": [
+      "QR codes com a sua cara.",
+      "Desenhados no seu celular."
+    ]
+  }
+}

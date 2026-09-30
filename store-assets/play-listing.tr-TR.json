@@ -1,0 +1,62 @@
+{
+  "language": "tr-TR",
+  "details": {
+    "defaultLanguage": "en-GB",
+    "contactEmail": "inbox@unisim.co.uk",
+    "contactWebsite": "https://www.unisim.co.uk"
+  },
+  "listing": {
+    "title": "Universal QR",
+    "shortDescription": "Telefonda markalı QR kodlar ve barkodlar tasarlayın. Reklam yok, izleme yok.",
+    "fullDescription": [
+      "Universal QR, tarzınızı yansıtan QR kodlar hazırlar: kendi renkleriniz, logonuz ve istediğiniz şekil. Kod, yazdıkça telefonda çizilir ve koda eklediğiniz hiçbir şey bize gönderilmez.",
+      "",
+      "TASARIM",
+      "• Kod ve arka planı için renkler, renk geçişleri ve üç köşe işareti için ayrı bir renk.",
+      "• Ortada logonuz; arkasındaki modüller temizlenir, böylece kod yine taranır.",
+      "• Başlamak için hazır stiller; ardından her şey değiştirilebilir.",
+      "• Kareden noktalara modül stilleri ve bunlara uyan köşe çerçeveleri ve köşe noktaları.",
+      "• Kod şekilleri: kare, yuvarlatılmış, daire, yuvarlak kare, altıgen veya yıldız; kenarına isteğe bağlı bir süsleme de eklenebilir.",
+      "• Boyut ve sessiz bölge ayarları; renkli yüzeylere baskı için saydam arka plan.",
+      "",
+      "BİR KOD NELER TAŞIYABİLİR",
+      "• Bir bağlantı veya herhangi bir metin; bağlantının yanıt verip vermediği de test edilir.",
+      "• Wi-Fi bilgileri: misafirler şifre yazmadan ağa bağlanır.",
+      "• E-posta, telefon numarası, SMS, kartvizit, harita konumu veya takvim etkinliği.",
+      "",
+      "BARKODLAR",
+      "• Code 128, EAN-13, UPC-A, Code 39 ve ITF-14. EAN-13 ve UPC-A kontrol basamağı otomatik eklenir.",
+      "",
+      "TARAMA",
+      "• Kamerayı bir QR koda veya 1D barkoda doğrultun. Kod çözme telefonda gerçekleşir.",
+      "",
+      "DİNAMİK KODLAR",
+      "• Kodu bir kez basın; yönlendirdiği adresi istediğiniz zaman değiştirin ve kaç kez tarandığını görün. Universal ID gerektirir.",
+      "",
+      "KAYDETME VE PAYLAŞMA",
+      "• PNG, SVG, JPEG veya WebP olarak indirin ya da fotoğraflarınıza kaydedin.",
+      "• Herhangi bir kodu tam ekran gösterin, karşınızdaki kişi doğrudan telefonunuzdan tarasın.",
+      "",
+      "GİZLİLİK ÖN PLANDA",
+      "• Reklam yok, izleme yok, üçüncü taraf analiz yok.",
+      "• Universal ID isteğe bağlıdır: giriş yaparak kodlarınızı çevrimiçi yedekleyebilir ve dinamik kodlar oluşturabilirsiniz. Hesap uygulamanın içinden silinebilir.",
+      "",
+      "Universal QR ücretsiz ve açık kaynaklıdır (AGPL-3.0). Kod GitHub’da: github.com/universal-simulation-ltd/Universal_QR",
+      "",
+      "James Markey MBE ve UNI·SIM ekibi tarafından geliştirildi."
+    ]
+  },
+  "images": {
+    "icon": "out/play/icon-512.png",
+    "featureGraphic": "out/tr-TR/play/feature-graphic.png",
+    "phoneScreenshots": [
+      "out/tr-TR/android/01-hero.png",
+      "out/tr-TR/android/02-hero.png",
+      "out/tr-TR/android/03-live.png",
+      "out/tr-TR/android/04-brand.png",
+      "out/tr-TR/android/05-shape.png",
+      "out/tr-TR/android/06-wifi.png",
+      "out/tr-TR/android/07-barcode.png"
+    ]
+  }
+}

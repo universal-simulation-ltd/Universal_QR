@@ -1,0 +1,62 @@
+{
+  "language": "pt-PT",
+  "details": {
+    "defaultLanguage": "en-GB",
+    "contactEmail": "inbox@unisim.co.uk",
+    "contactWebsite": "https://www.unisim.co.uk"
+  },
+  "listing": {
+    "title": "Universal QR",
+    "shortDescription": "Códigos QR e de barras com a sua marca, no telemóvel. Sem anúncios nem rastreio.",
+    "fullDescription": [
+      "O Universal QR cria códigos QR à sua imagem: as suas cores, o seu logótipo, a forma que quiser. São desenhados no telemóvel à medida que escreve, e nada do que coloca num código nos é enviado.",
+      "",
+      "DESIGN",
+      "• Cores para o código e para o fundo, gradientes e uma cor própria para os três cantos de posição.",
+      "• O seu logótipo ao centro, com os módulos por trás limpos para que o código continue a ser lido.",
+      "• Estilos predefinidos como ponto de partida, e depois é só mudar o que quiser.",
+      "• Estilos de módulos, do quadrado aos pontos, com molduras e centros dos cantos a condizer.",
+      "• Formas do código: quadrado, arredondado, círculo, quadrado arredondado, hexágono ou estrela, com uma decoração opcional à volta.",
+      "• Controlo do tamanho e da margem (zona de silêncio), e fundo transparente para imprimir sobre cor.",
+      "",
+      "O QUE UM CÓDIGO PODE CONTER",
+      "• Uma ligação ou qualquer texto, com uma verificação de que a ligação responde.",
+      "• Os dados do Wi-Fi, para que os convidados se liguem sem escrever a palavra-passe.",
+      "• Um email, número de telefone, SMS, contacto, localização no mapa ou evento de calendário.",
+      "",
+      "CÓDIGOS DE BARRAS",
+      "• Code 128, EAN-13, UPC-A, Code 39 e ITF-14. O dígito de controlo do EAN-13 e do UPC-A é acrescentado automaticamente.",
+      "",
+      "LER",
+      "• Aponte a câmara para um código QR ou um código de barras 1D. A descodificação é feita no telemóvel.",
+      "",
+      "CÓDIGOS DINÂMICOS",
+      "• Imprima um código uma única vez, mude o destino sempre que quiser e veja quantas vezes é lido. Requer um Universal ID.",
+      "",
+      "GUARDAR E PARTILHAR",
+      "• Transfira em PNG, SVG, JPEG ou WebP, ou guarde nas fotografias do telemóvel.",
+      "• Mostre qualquer código em ecrã inteiro para que outra pessoa o leia diretamente no seu telemóvel.",
+      "",
+      "PRIVADO DE RAIZ",
+      "• Sem anúncios, sem rastreio, sem análises de terceiros.",
+      "• O Universal ID é opcional: inicie sessão para fazer cópia de segurança online dos códigos e criar códigos dinâmicos. A conta pode ser eliminada a partir da própria app.",
+      "",
+      "O Universal QR é gratuito e de código aberto (AGPL-3.0). O código está no GitHub: github.com/universal-simulation-ltd/Universal_QR",
+      "",
+      "Criado por James Markey MBE e pela equipa UNI·SIM."
+    ]
+  },
+  "images": {
+    "icon": "out/play/icon-512.png",
+    "featureGraphic": "out/pt-PT/play/feature-graphic.png",
+    "phoneScreenshots": [
+      "out/pt-PT/android/01-hero.png",
+      "out/pt-PT/android/02-hero.png",
+      "out/pt-PT/android/03-live.png",
+      "out/pt-PT/android/04-brand.png",
+      "out/pt-PT/android/05-shape.png",
+      "out/pt-PT/android/06-wifi.png",
+      "out/pt-PT/android/07-barcode.png"
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "_about": "Play Data safety answers. Build the importable CSV with: node Docs_UNI_SIM/store-kit/data-safety.mjs Universal_Apps/Universal_QR/store-assets/data-safety.json Universal_Apps/Universal_QR/store-assets/out/play/data-safety.csv. Checked against the code 2026-09-30: designing, scanning and saving happen on the device and collect nothing; sign-in (@unisim/sdk) is optional (password, emailed code, or Apple/Google/Microsoft); a code backed up online, or a dynamic code's link, label and branding, is stored with the account. The suite user count (@unisim/sdk presence.js) sends a random install id the app makes itself and the platform when the app opens and every 45 s in use, signed in or not, plus the account id once signed in: App interactions + Device or other IDs, required, Analytics (as Ergo Assess, 2026-09-29). Mirrors ios/App/App/PrivacyInfo.xcprivacy.",
+  "accountCreation": [
+    "PSL_ACM_USER_ID_PASSWORD",
+    "PSL_ACM_USER_ID_OTHER_AUTH",
+    "PSL_ACM_OAUTH"
+  ],
+  "deletionUrl": "https://www.unisim.co.uk/privacy#retention",
+  "types": {
+    "PSL_EMAIL": {
+      "required": false,
+      "purposes": [
+        "PSL_APP_FUNCTIONALITY",
+        "PSL_ACCOUNT_MANAGEMENT"
+      ]
+    },
+    "PSL_USER_ACCOUNT": {
+      "required": false,
+      "purposes": [
+        "PSL_APP_FUNCTIONALITY",
+        "PSL_ACCOUNT_MANAGEMENT"
+      ]
+    },
+    "PSL_USER_GENERATED_CONTENT": {
+      "required": false,
+      "purposes": [
+        "PSL_APP_FUNCTIONALITY"
+      ]
+    },
+    "PSL_USER_INTERACTION": {
+      "required": true,
+      "purposes": [
+        "PSL_ANALYTICS"
+      ]
+    },
+    "PSL_DEVICE_ID": {
+      "required": true,
+      "purposes": [
+        "PSL_ANALYTICS"
+      ]
+    }
+  }
+}

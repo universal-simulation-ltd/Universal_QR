@@ -1,0 +1,62 @@
+{
+  "language": "es-ES",
+  "details": {
+    "defaultLanguage": "en-GB",
+    "contactEmail": "inbox@unisim.co.uk",
+    "contactWebsite": "https://www.unisim.co.uk"
+  },
+  "listing": {
+    "title": "Universal QR",
+    "shortDescription": "Códigos QR y de barras con tu marca, en tu móvil. Sin anuncios ni rastreo.",
+    "fullDescription": [
+      "Universal QR crea códigos QR con tu estilo: tus colores, tu logotipo, la forma que quieras. Los genera en tu móvil mientras escribes, y nada de lo que pones en un código se nos envía.",
+      "",
+      "DISEÑO",
+      "• Colores para el código y su fondo, degradados y un color aparte para los tres cuadrados de las esquinas.",
+      "• Tu logotipo en el centro, con los módulos de detrás despejados para que el código se siga escaneando.",
+      "• Estilos predefinidos como punto de partida; después, cambia lo que quieras.",
+      "• Estilos de módulo, del cuadrado a los puntos, con marcos y centros de esquina a juego.",
+      "• Formas del código: cuadrado, redondeado, círculo, supercírculo, hexágono o estrella, con una decoración opcional alrededor del borde.",
+      "• Control del tamaño y del margen (zona de silencio), y fondo transparente para imprimir sobre color.",
+      "",
+      "QUÉ PUEDE LLEVAR UN CÓDIGO",
+      "• Un enlace o cualquier texto, con una comprobación de que el enlace responde.",
+      "• Los datos de tu Wi-Fi, para que tus invitados se conecten sin escribir la contraseña.",
+      "• Un correo, un número de teléfono, un SMS, una tarjeta de contacto, una ubicación en el mapa o un evento de calendario.",
+      "",
+      "CÓDIGOS DE BARRAS",
+      "• Code 128, EAN-13, UPC-A, Code 39 e ITF-14. El dígito de control de EAN-13 y UPC-A se añade solo.",
+      "",
+      "ESCANEAR",
+      "• Apunta la cámara a un código QR o a un código de barras 1D. La descodificación se hace en tu móvil.",
+      "",
+      "CÓDIGOS DINÁMICOS",
+      "• Imprime un código una sola vez, cambia a dónde lleva siempre que quieras y mira cuántas veces se escanea. Requiere un Universal ID.",
+      "",
+      "GUARDA Y COMPARTE",
+      "• Descárgalo en PNG, SVG, JPEG o WebP, o guárdalo en tus fotos.",
+      "• Muestra cualquier código a pantalla completa para que otra persona lo escanee desde tu móvil.",
+      "",
+      "PRIVACIDAD DESDE EL DISEÑO",
+      "• Sin anuncios, sin rastreo, sin analíticas de terceros.",
+      "• El Universal ID es opcional: inicia sesión para hacer una copia de seguridad en línea de tus códigos y crear códigos dinámicos. Puedes eliminar la cuenta desde la propia app.",
+      "",
+      "Universal QR es gratuito y de código abierto (AGPL-3.0). El código está en GitHub: github.com/universal-simulation-ltd/Universal_QR",
+      "",
+      "Creado por James Markey MBE y el equipo de UNI·SIM."
+    ]
+  },
+  "images": {
+    "icon": "out/play/icon-512.png",
+    "featureGraphic": "out/es-ES/play/feature-graphic.png",
+    "phoneScreenshots": [
+      "out/es-ES/android/01-hero.png",
+      "out/es-ES/android/02-hero.png",
+      "out/es-ES/android/03-live.png",
+      "out/es-ES/android/04-brand.png",
+      "out/es-ES/android/05-shape.png",
+      "out/es-ES/android/06-wifi.png",
+      "out/es-ES/android/07-barcode.png"
+    ]
+  }
+}

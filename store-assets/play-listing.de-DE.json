@@ -1,0 +1,62 @@
+{
+  "language": "de-DE",
+  "details": {
+    "defaultLanguage": "en-GB",
+    "contactEmail": "inbox@unisim.co.uk",
+    "contactWebsite": "https://www.unisim.co.uk"
+  },
+  "listing": {
+    "title": "Universal QR",
+    "shortDescription": "QR-Codes und Barcodes mit Logo gestalten. Ohne Werbung, ohne Tracking.",
+    "fullDescription": [
+      "Universal QR erstellt QR-Codes in deinem Look: deine Farben, dein Logo, die Form, die du willst. Die App zeichnet sie direkt auf deinem Handy, während du tippst, und nichts, was du in einen Code eingibst, wird an uns gesendet.",
+      "",
+      "GESTALTEN",
+      "• Farben für den Code und seinen Hintergrund, Farbverläufe und eine eigene Farbe für die drei Eckmarken.",
+      "• Dein Logo in der Mitte. Die Module dahinter werden entfernt, damit sich der Code weiterhin scannen lässt.",
+      "• Stilvorlagen als Ausgangspunkt, danach kannst du alles ändern.",
+      "• Modulstile von Quadrat bis Punkte, dazu passende Eckrahmen und Eckpunkte.",
+      "• Codeformen: Quadrat, abgerundet, Kreis, Squircle, Sechseck oder Stern, auf Wunsch mit einer Verzierung am Rand.",
+      "• Größe und Ruhezone einstellbar, dazu ein transparenter Hintergrund für den Druck auf farbigem Untergrund.",
+      "",
+      "WAS IN EINEN CODE PASST",
+      "• Ein Link oder beliebiger Text, mit einer Prüfung, ob der Link antwortet.",
+      "• Wi-Fi-Zugangsdaten, damit Gäste sich verbinden können, ohne das Passwort einzutippen.",
+      "• Eine E-Mail, Telefonnummer, SMS, Kontaktkarte, ein Ort auf der Karte oder ein Termin.",
+      "",
+      "BARCODES",
+      "• Code 128, EAN-13, UPC-A, Code 39 und ITF-14. Die Prüfziffer für EAN-13 und UPC-A wird automatisch ergänzt.",
+      "",
+      "SCANNEN",
+      "• Richte die Kamera auf einen QR-Code oder einen 1D-Barcode. Die Auswertung erfolgt auf deinem Handy.",
+      "",
+      "DYNAMISCHE QR-CODES",
+      "• Drucke einen Code einmal und ändere sein Ziel, wann immer du willst, und sieh, wie oft er gescannt wird. Erfordert eine Universal ID.",
+      "",
+      "SPEICHERN UND TEILEN",
+      "• Herunterladen als PNG, SVG, JPEG oder WebP oder in deinen Fotos speichern.",
+      "• Zeige jeden Code im Vollbild, damit ihn jemand direkt von deinem Handy scannen kann.",
+      "",
+      "PRIVAT AUS PRINZIP",
+      "• Keine Werbung, kein Tracking, keine Analysedienste von Drittanbietern.",
+      "• Eine Universal ID ist optional: Melde dich an, um deine Codes online zu sichern und dynamische QR-Codes zu erstellen. Du kannst das Konto direkt in der App löschen.",
+      "",
+      "Universal QR ist kostenlos und Open Source (AGPL-3.0). Der Code ist auf GitHub: github.com/universal-simulation-ltd/Universal_QR",
+      "",
+      "Entwickelt von James Markey MBE und dem UNI·SIM-Team."
+    ]
+  },
+  "images": {
+    "icon": "out/play/icon-512.png",
+    "featureGraphic": "out/de-DE/play/feature-graphic.png",
+    "phoneScreenshots": [
+      "out/de-DE/android/01-hero.png",
+      "out/de-DE/android/02-hero.png",
+      "out/de-DE/android/03-live.png",
+      "out/de-DE/android/04-brand.png",
+      "out/de-DE/android/05-shape.png",
+      "out/de-DE/android/06-wifi.png",
+      "out/de-DE/android/07-barcode.png"
+    ]
+  }
+}

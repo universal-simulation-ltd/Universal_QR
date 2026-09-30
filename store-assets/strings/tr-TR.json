@@ -1,0 +1,103 @@
+{
+  "01-hero": {
+    "headline": [
+      "Kodunuz,",
+      "*tarzınız.*"
+    ],
+    "sub": {
+      "phone": "Renkleriniz, logonuz, şekliniz;\nyazdıkça telefonda çizilir.",
+      "ipad": "Renkleriniz, logonuz, şekliniz;\nyazdıkça iPad’de çizilir."
+    }
+  },
+  "02-hero": {
+    "headline": [
+      "Her şekil,",
+      "her renk"
+    ],
+    "badges": [
+      "Logonuz",
+      "Renk geçişleri",
+      "Daire, altıgen, yıldız",
+      "Wi-Fi kodları"
+    ],
+    "sub": "James Markey MBE ve UNI·SIM ekibi\ntarafından geliştirildi"
+  },
+  "03-live": {
+    "headline": [
+      "Yazdıkça",
+      "çizilir"
+    ],
+    "caption": "Bir bağlantı yapıştırın, yanıt verdiğini test edin",
+    "chips": [
+      "Bağlantı testi",
+      "PNG",
+      "SVG",
+      "JPEG",
+      "WebP"
+    ]
+  },
+  "04-brand": {
+    "headline": [
+      "Renkleriniz,",
+      "logonuz"
+    ],
+    "caption": "Logonun arkası temizlenir, kod yine taranır",
+    "chips": [
+      "Logo",
+      "Renkler",
+      "Renk geçişi",
+      "İki renkli köşeler",
+      "Saydam arka plan"
+    ]
+  },
+  "05-shape": {
+    "headline": [
+      "Şekil seçin"
+    ],
+    "caption": "Kareden yıldıza, uyumlu köşelerle",
+    "chips": [
+      "Daire",
+      "Yuvarlak kare",
+      "Altıgen",
+      "Yıldız",
+      "Noktalar",
+      "Yuvarlatılmış"
+    ]
+  },
+  "06-wifi": {
+    "headline": [
+      "Misafirlere",
+      "kolay Wi-Fi"
+    ],
+    "caption": "Tarayıp bağlanırlar, şifre yazmaya gerek yok",
+    "chips": [
+      "Wi-Fi",
+      "E-posta",
+      "Telefon",
+      "SMS",
+      "Kartvizit",
+      "Konum",
+      "Etkinlik"
+    ]
+  },
+  "07-barcode": {
+    "headline": [
+      "Barkodlar",
+      "da var"
+    ],
+    "caption": "Kontrol basamağı otomatik eklenir",
+    "chips": [
+      "EAN-13",
+      "UPC-A",
+      "Code 128",
+      "Code 39",
+      "ITF-14"
+    ]
+  },
+  "feature-graphic": {
+    "tagline": [
+      "Tarzınızı yansıtan QR kodlar.",
+      "Telefonda çizilir."
+    ]
+  }
+}

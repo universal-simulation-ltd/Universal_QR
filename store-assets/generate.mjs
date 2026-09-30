@@ -5,6 +5,7 @@
 //   node store-assets/generate.mjs        # every screen, every device
 //   node store-assets/generate.mjs 03     # only screens whose name starts 03
 //   DEVICE=iphone node store-assets/generate.mjs
+//   LOCALE=fr-FR node store-assets/generate.mjs   # raw/fr-FR/<device>/, the app in French
 //
 // Needs Playwright's Chromium. It is not a dependency of this repo, so either
 // `npm i --no-save playwright && npx playwright install chromium`, or point
@@ -43,6 +44,25 @@ const DEVICES = [
   { key: 'ipad', dir: 'raw/ipad', width: 1032, height: 1332, dpr: 2 },
   { key: 'android', dir: 'raw/android', width: 360, height: 724, dpr: 3 },
 ]
+// The store locale being captured, and the app language it shows. The app is
+// DRIVEN in English either way — every selector below is an English label — and
+// switched to LOCALE's language just before the capture (window.__qrSetLanguage,
+// see <I18nRoot>), as Universal PDF's generate.mjs does. en-GB keeps writing to
+// raw/<device>/.
+const LOCALE = process.env.LOCALE || 'en-GB'
+const APP_LANGUAGE = {
+  'en-GB': 'en-gb', 'fr-FR': 'fr', 'es-ES': 'es', 'it-IT': 'it', 'de-DE': 'de',
+  'pt-BR': 'pt-BR', 'pt-PT': 'pt-PT', 'tr-TR': 'tr',
+}[LOCALE]
+if (!APP_LANGUAGE) throw new Error(`No app language for LOCALE=${LOCALE}`)
+const rawDir = (dev) => (LOCALE === 'en-GB' ? dev.dir : dev.dir.replace(/^raw\//, `raw/${LOCALE}/`))
+// The one piece of typed content a picture shows as words: the Wi-Fi network,
+// named in the store locale's language ("Wi-Fi · …" in the preview). Invented.
+const GUEST_WIFI = {
+  'en-GB': 'Garden Room Guest', 'fr-FR': 'Jardin Invités', 'es-ES': 'Jardín Invitados',
+  'it-IT': 'Giardino Ospiti', 'de-DE': 'Gartenzimmer Gäste', 'pt-BR': 'Jardim Convidados',
+  'pt-PT': 'Jardim Convidados', 'tr-TR': 'Bahçe Misafir',
+}[LOCALE]
 const ORIGIN = 'https://app.test'
 const TYPES = {
   '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml',
@@ -72,8 +92,13 @@ async function svgToPng(browser, svg, w, h) {
 const MENU_URL = 'https://example.com/menu'
 
 async function tab(page, name) {
-  await page.getByText(name, { exact: true }).first().click()
+  await page.getByRole('tab', { name, exact: true }).first().click()
   await page.waitForTimeout(400)
+}
+/** Scroll a card's heading to just under the pinned preview. */
+async function scrollTo(page, heading, offset) {
+  await page.getByText(heading, { exact: true }).first().evaluate((el) => el.scrollIntoView({ block: 'start' }))
+  await page.evaluate((y) => window.scrollBy(0, y), -offset)
 }
 async function setUrl(page, url) {
   const box = page.locator('input[type=url]').first()
@@ -102,9 +127,10 @@ async function brand(page, logo) {
   await setHex(page, 'Modules', '#1F5135')
   await uploadLogo(page, logo)
   // With a logo of your own in, the UNI·SIM mark moves to a corner of the code.
-  // It is a switch in the app; this is the café's code, so it goes.
-  const mark = page.getByRole('switch', { name: /SIM mark/ }).first()
-  if ((await mark.getAttribute('aria-checked')) === 'true') await mark.click()
+  // "Remove UNI·SIM mark" is a switch in the app (off = the mark stays); this
+  // is the café's code, so it goes.
+  const remove = page.getByRole('switch', { name: /SIM mark/ }).first()
+  if ((await remove.getAttribute('aria-checked')) !== 'true') await remove.click()
   await page.waitForTimeout(800)
 }
 const top = (page) => page.evaluate(() => window.scrollTo(0, 0))
@@ -122,8 +148,7 @@ const SCREENS = {
   async '02-branding'(page, { logo }) {
     await brand(page, logo)
     // The colour and logo cards, under the preview that pins itself on scroll.
-    await page.getByText('Colours', { exact: true }).first().evaluate((el) => el.scrollIntoView({ block: 'start' }))
-    await page.evaluate(() => window.scrollBy(0, -290))
+    await scrollTo(page, 'Colours', 290)
     // The pinned copy of the preview redraws on scroll; give its corner mark
     // time to arrive, or it shows as a blank disc.
     await page.waitForTimeout(2500)
@@ -142,37 +167,37 @@ const SCREENS = {
     await page.getByRole('radio', { name: 'Circle' }).first().click().catch(() => page.getByText('Circle', { exact: true }).first().click())
     await page.getByRole('radio', { name: 'Dots' }).last().click().catch(() => page.getByText('Dots', { exact: true }).last().click())
     await page.waitForTimeout(700)
-    await page.getByText('Shape & size', { exact: true }).first().evaluate((el) => el.scrollIntoView({ block: 'start' }))
-    await page.evaluate(() => window.scrollBy(0, -260))
+    await scrollTo(page, 'Shape & size', 260)
     await page.waitForTimeout(500)
   },
-  // Wi-Fi: guests scan it and join without typing the password.
+  // Wi-Fi: guests scan it and join without typing the password. Wi-Fi is on
+  // the "What's it for?" card that heads every panel (2026-09-30).
   async '05-wifi'(page) {
-    await tab(page, 'Advanced')
-    await page.getByRole('radio', { name: 'Wi-Fi' }).first().click().catch(() => page.getByText('Wi-Fi', { exact: true }).first().click())
-    await page.getByPlaceholder('MyWiFi').fill('Garden Room Guest')
+    await page.getByRole('radio', { name: 'Wi-Fi', exact: true }).first().click()
+    await page.getByPlaceholder('MyWiFi').fill(GUEST_WIFI)
     await page.getByPlaceholder('leave blank if open').fill('sunflower-2026')
     await page.getByPlaceholder('leave blank if open').blur()
+    await tab(page, 'Branding')
     await preset(page, 'Sunset')
+    await tab(page, 'Simple')
     await page.waitForTimeout(700)
-    await page.getByText('Content', { exact: true }).first().evaluate((el) => el.scrollIntoView({ block: 'start' }))
-    await page.evaluate(() => window.scrollBy(0, -250))
+    await scrollTo(page, "What's it for?", 250)
     await page.waitForTimeout(500)
   },
-  // A 1D barcode: EAN-13, check digit worked out by the app.
+  // A 1D barcode: EAN-13, check digit worked out by the app. Under More.
   async '06-barcode'(page) {
-    await tab(page, 'Advanced')
-    await page.getByRole('radio', { name: 'Barcode' }).first().click().catch(() => page.getByText('Barcode', { exact: true }).first().click())
+    await page.getByRole('button', { name: 'More', exact: true }).first().click()
+    await page.getByRole('radio', { name: 'Barcode', exact: true }).first().click()
     await page.waitForTimeout(500)
-    await page.getByRole('radio', { name: 'EAN-13' }).first().click().catch(() => page.getByText('EAN-13', { exact: true }).first().click())
+    await page.getByRole('radio', { name: 'EAN-13' }).first().click()
     await page.waitForTimeout(300)
     const value = page.locator('input[aria-label$=" value"]').first()
     await value.fill('501234567890')
     await value.blur()
     await page.waitForTimeout(800)
-    // The whole barcode in frame, under its value.
-    await page.getByText('Value', { exact: true }).first().evaluate((el) => el.scrollIntoView({ block: 'start' }))
-    await page.evaluate(() => window.scrollBy(0, -40))
+    // The card from its heading — Barcode picked under More — down to the
+    // barcode itself.
+    await scrollTo(page, "What's it for?", 80)
     await page.waitForTimeout(500)
   },
 }
@@ -208,12 +233,16 @@ const browser = await chromium.launch()
 const logo = await svgToPng(browser, LOGO_SVG, 400, 400)
 let bad = 0
 for (const dev of devices) {
-  await mkdir(path.join(here, dev.dir), { recursive: true })
+  await mkdir(path.join(here, rawDir(dev)), { recursive: true })
   for (const [name, run] of Object.entries(SCREENS)) {
     if (only.length && !only.some((p) => name.startsWith(p))) continue
     const ctx = await browser.newContext({
       viewport: { width: dev.width, height: dev.height }, deviceScaleFactor: dev.dpr,
-      isMobile: true, hasTouch: true, colorScheme: 'light', locale: 'en-GB',
+      isMobile: true, hasTouch: true, colorScheme: 'light', locale: LOCALE,
+    })
+    // Start in English whatever the browser locale: the script's selectors are English.
+    await ctx.addInitScript(() => {
+      try { localStorage.setItem('universal:language', 'en-gb') } catch {}
     })
     await serve(ctx)
     const page = await ctx.newPage()
@@ -224,16 +253,20 @@ for (const dev of devices) {
     try {
       await run(page, { dev, logo })
     } catch (err) {
-      console.error(`FAIL ${dev.dir}/${name}: ${err.message.split('\n')[0]}`)
+      console.error(`FAIL ${rawDir(dev)}/${name}: ${err.message.split('\n')[0]}`)
       bad++
     }
-    const out = path.join(here, dev.dir, `${name}.png`)
+    if (APP_LANGUAGE !== 'en-gb') {
+      await page.evaluate((l) => window.__qrSetLanguage?.(l), APP_LANGUAGE)
+      await page.waitForTimeout(700)
+    }
+    const out = path.join(here, rawDir(dev), `${name}.png`)
     const buf = await page.screenshot()
     await writeFile(out, buf)
     const { w, h, colourType } = pngInfo(buf)
     const ok = w === dev.width * dev.dpr && h === dev.height * dev.dpr && colourType === 2
     if (!ok) bad++
-    console.log(`${ok ? 'OK ' : 'BAD'} ${dev.dir}/${name}.png ${w}x${h}${colourType === 2 ? '' : ' has alpha'}${errors.length ? ` (page errors: ${errors.length})` : ''}`)
+    console.log(`${ok ? 'OK ' : 'BAD'} ${rawDir(dev)}/${name}.png ${w}x${h}${colourType === 2 ? '' : ' has alpha'}${errors.length ? ` (page errors: ${errors.length})` : ''}`)
     await ctx.close()
   }
 }

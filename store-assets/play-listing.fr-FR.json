@@ -1,0 +1,62 @@
+{
+  "language": "fr-FR",
+  "details": {
+    "defaultLanguage": "en-GB",
+    "contactEmail": "inbox@unisim.co.uk",
+    "contactWebsite": "https://www.unisim.co.uk"
+  },
+  "listing": {
+    "title": "Universal QR",
+    "shortDescription": "Créez des QR codes et codes-barres personnalisés. Sans pub ni pistage.",
+    "fullDescription": [
+      "Universal QR crée des QR codes qui vous ressemblent : vos couleurs, votre logo, la forme de votre choix. Le code se dessine sur votre téléphone au fur et à mesure que vous tapez, et rien de ce que vous y mettez ne nous est envoyé.",
+      "",
+      "PERSONNALISATION",
+      "• Couleurs du code et du fond, dégradés, et une couleur à part pour les trois coins de repérage.",
+      "• Votre logo au centre, avec les modules effacés derrière lui pour que le code se scanne toujours.",
+      "• Partez d’un style prédéfini, puis modifiez tout ce que vous voulez.",
+      "• Style des modules, du carré aux points, avec cadre et centre des coins assortis.",
+      "• Formes du code : carré, arrondi, cercle, carré arrondi, hexagone ou étoile, avec une décoration facultative sur le pourtour.",
+      "• Réglage de la taille et de la zone de silence, et fond transparent pour imprimer sur un support coloré.",
+      "",
+      "CE QU’UN CODE PEUT CONTENIR",
+      "• Un lien ou un texte libre, avec un test qui vérifie que le lien répond.",
+      "• Les informations de votre Wi-Fi, pour que vos invités se connectent sans taper le mot de passe.",
+      "• Un e-mail, un numéro de téléphone, un SMS, une fiche contact, un lieu sur une carte ou un événement d’agenda.",
+      "",
+      "CODES-BARRES",
+      "• Code 128, EAN-13, UPC-A, Code 39 et ITF-14. Le chiffre de contrôle des EAN-13 et UPC-A est ajouté pour vous.",
+      "",
+      "SCANNER",
+      "• Pointez l’appareil photo vers un QR code ou un code-barres 1D. Le décodage se fait sur votre téléphone.",
+      "",
+      "QR CODES DYNAMIQUES",
+      "• Imprimez un code une seule fois, changez sa destination quand vous le souhaitez et voyez combien de fois il est scanné. Nécessite un Universal ID.",
+      "",
+      "ENREGISTRER ET PARTAGER",
+      "• Téléchargez en PNG, SVG, JPEG ou WebP, ou enregistrez dans votre photothèque.",
+      "• Affichez n’importe quel code en plein écran pour le faire scanner directement sur votre téléphone.",
+      "",
+      "RESPECT DE LA VIE PRIVÉE",
+      "• Aucune publicité, aucun pistage, aucun outil d’analyse tiers.",
+      "• L’Universal ID est facultatif : connectez-vous pour sauvegarder vos codes en ligne et créer des QR codes dynamiques. Vous pouvez supprimer le compte depuis l’application.",
+      "",
+      "Universal QR est gratuit et open source (AGPL-3.0). Le code est sur GitHub : github.com/universal-simulation-ltd/Universal_QR",
+      "",
+      "Conçu par James Markey MBE et l’équipe UNI·SIM."
+    ]
+  },
+  "images": {
+    "icon": "out/play/icon-512.png",
+    "featureGraphic": "out/fr-FR/play/feature-graphic.png",
+    "phoneScreenshots": [
+      "out/fr-FR/android/01-hero.png",
+      "out/fr-FR/android/02-hero.png",
+      "out/fr-FR/android/03-live.png",
+      "out/fr-FR/android/04-brand.png",
+      "out/fr-FR/android/05-shape.png",
+      "out/fr-FR/android/06-wifi.png",
+      "out/fr-FR/android/07-barcode.png"
+    ]
+  }
+}

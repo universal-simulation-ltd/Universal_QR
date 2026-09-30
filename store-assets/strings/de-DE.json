@@ -1,0 +1,103 @@
+{
+  "01-hero": {
+    "headline": [
+      "Dein Code,",
+      "*dein Look.*"
+    ],
+    "sub": {
+      "phone": "Deine Farben, dein Logo, deine Form –\nlive auf dem Handy, während du tippst.",
+      "ipad": "Deine Farben, dein Logo, deine Form –\nlive auf dem iPad, während du tippst."
+    }
+  },
+  "02-hero": {
+    "headline": [
+      "Jede Form,",
+      "jede Farbe"
+    ],
+    "badges": [
+      "Dein Logo",
+      "Farbverläufe",
+      "Kreis, Sechseck, Stern",
+      "Wi-Fi-Codes"
+    ],
+    "sub": "Entwickelt von James Markey MBE\nund dem UNI·SIM-Team"
+  },
+  "03-live": {
+    "headline": [
+      "Entsteht",
+      "beim Tippen"
+    ],
+    "caption": "Link einfügen und prüfen, ob er antwortet",
+    "chips": [
+      "Link testen",
+      "PNG",
+      "SVG",
+      "JPEG",
+      "WebP"
+    ]
+  },
+  "04-brand": {
+    "headline": [
+      "Deine Farben,",
+      "dein Logo"
+    ],
+    "caption": "Module hinter dem Logo entfernt – der Code bleibt scannbar",
+    "chips": [
+      "Logo",
+      "Farben",
+      "Farbverläufe",
+      "Zweifarbige Ecken",
+      "Transparenter Hintergrund"
+    ]
+  },
+  "05-shape": {
+    "headline": [
+      "Form wählen"
+    ],
+    "caption": "Von Quadrat bis Stern, mit passenden Ecken",
+    "chips": [
+      "Kreis",
+      "Squircle",
+      "Sechseck",
+      "Stern",
+      "Punkte",
+      "Abgerundet"
+    ]
+  },
+  "06-wifi": {
+    "headline": [
+      "Wi-Fi für",
+      "deine Gäste"
+    ],
+    "caption": "Scannen und verbinden, ohne Passwort einzutippen",
+    "chips": [
+      "Wi-Fi",
+      "E-Mail",
+      "Telefon",
+      "SMS",
+      "Kontakt",
+      "Ort",
+      "Termin"
+    ]
+  },
+  "07-barcode": {
+    "headline": [
+      "Auch",
+      "Barcodes"
+    ],
+    "caption": "Die Prüfziffer wird automatisch ergänzt",
+    "chips": [
+      "EAN-13",
+      "UPC-A",
+      "Code 128",
+      "Code 39",
+      "ITF-14"
+    ]
+  },
+  "feature-graphic": {
+    "tagline": [
+      "QR-Codes in deinem Look.",
+      "Erstellt auf deinem Handy."
+    ]
+  }
+}
