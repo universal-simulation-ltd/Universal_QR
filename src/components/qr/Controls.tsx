@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
-import { ChipToggle, useFileDrop } from '@unisim/sdk'
-import { useQrStore } from '../../stores/qrStore'
+import { ChipToggle, isNativeShell, useFileDrop } from '@unisim/sdk'
+import { useQrStore, type ContentKind } from '../../stores/qrStore'
 import {
   CORNER_DOT_TYPES,
   CORNER_SQUARE_TYPES,
@@ -30,11 +30,6 @@ export default function Controls() {
   const behind = starBehind(config)
   const contrast = qrContrastIssue(config)
   const codeType = useQrStore((s) => s.codeType)
-  const setCodeType = useQrStore((s) => s.setCodeType)
-  const symbology = useQrStore((s) => s.barcodeSymbology)
-  const setSymbology = useQrStore((s) => s.setBarcodeSymbology)
-  const barcodeValue = useQrStore((s) => s.barcodeValue)
-  const setBarcodeValue = useQrStore((s) => s.setBarcodeValue)
   const isBarcode = codeType === 'barcode'
 
   // Mechanics from the SDK, so the empty state below can take a dragged image
@@ -60,44 +55,22 @@ export default function Controls() {
     reader.readAsDataURL(file)
   }
 
+  // What the code holds — and whether it is a QR code or a barcode at all — is
+  // chosen on the "What's it for?" card above every panel (ContentCard), so
+  // this panel is style only. A barcode has no style to set: colours, shapes
+  // and logos are QR-only ideas, and showing them would imply otherwise.
+  if (isBarcode) return null
+
   return (
     <div className="space-y-5">
-      {/* ── Type ────────────────────────────────────────────────────────────
-          Two choices only: what you are making. WHICH kind of QR (link, Wi-Fi,
-          contact…) or WHICH barcode symbology is a content decision, so both
-          live one level down, in the Content section — the QR side already
-          worked that way, and the barcode side now matches it rather than
-          spraying seven unrelated options across one row.
-
-          1D barcodes had a top-level tab until 2026-08-09; that was more
-          prominence than the usage justified. Picking Barcode swaps the whole
-          panel below — colours, shapes and logos are QR-only ideas, and leaving
-          them on screen would imply a barcode could carry them. */}
-      <Section title="Type" desc="What you're making.">
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Code type">
-          <TypeChip label="QR Code" active={!isBarcode} onClick={() => setCodeType('qr')} />
-          <TypeChip label="Barcode" active={isBarcode} onClick={() => setCodeType('barcode')} />
-        </div>
-      </Section>
-
-      {isBarcode ? (
-        <BarcodeFields
-          symbology={symbology}
-          setSymbology={setSymbology}
-          value={barcodeValue}
-          onChange={setBarcodeValue}
-        />
-      ) : (
-      <>
-      {/* ── Content ─────────────────────────────────────────────────────── */}
-      <Section title="Content" desc="What the QR code points to.">
+      {/* ── Name ────────────────────────────────────────────────────────── */}
+      <Section title="Name" desc="Shown on this code in your online backups.">
         <TextField
           label="Name"
           value={config.name}
           onChange={(v) => update({ name: v })}
           placeholder="My QR code"
         />
-        <ContentBuilder data={config.data} update={update} />
       </Section>
 
       {/* ── Presets ─────────────────────────────────────────────────────── */}
@@ -424,7 +397,7 @@ export default function Controls() {
                 : 'border-slate-300 text-slate-600 hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-orange-500/10 dark:hover:text-orange-300'
             }`}
           >
-            <span aria-hidden="true">🖼</span> Drop a logo here, or click to choose (PNG, JPG, SVG)
+            <span aria-hidden="true">🖼</span> {logoPickerLabel()}
           </div>
         )}
 
@@ -457,21 +430,42 @@ export default function Controls() {
           onChange={(v) => update({ hideBackgroundDots: v })}
         />
 
-        <Toggle
-          label="Include UNI·SIM mark"
-          checked={config.unisimMark}
-          onChange={(v) => update({ unisimMark: v })}
-          hint={
-            config.logoDataUrl
-              ? 'Adds a small UNI·SIM badge in the bottom-right corner.'
-              : 'Shown in the centre until you add your own logo.'
-          }
-        />
+        <UnisimMarkToggle />
       </Section>
-      </>
-      )}
     </div>
   )
+}
+
+/**
+ * "Remove UNI·SIM mark" — worded as a removal on purpose (James, 2026-09-30).
+ * The mark is ON by default so a code nobody customised advertises UNI·SIM;
+ * the switch starts off, like every other one, and turning it on takes the
+ * mark away. `unisimMark` itself is unchanged, so saved designs and the
+ * renderer read it exactly as before. Shared by Branding and Advanced.
+ */
+export function UnisimMarkToggle() {
+  const unisimMark = useQrStore((s) => s.config.unisimMark)
+  const hasLogo = useQrStore((s) => !!s.config.logoDataUrl)
+  const update = useQrStore((s) => s.update)
+  return (
+    <Toggle
+      label="Remove UNI·SIM mark"
+      checked={!unisimMark}
+      onChange={(remove) => update({ unisimMark: !remove })}
+      hint={
+        hasLogo
+          ? 'Takes away the small UNI·SIM badge in the bottom-right corner.'
+          : 'Takes the UNI·SIM mark out of the centre.'
+      }
+    />
+  )
+}
+
+/** "Drop a logo here, or click to choose" is a desktop sentence: on a phone
+ *  there is nothing to drop and nobody clicks. Coarse pointer ⇒ touch. */
+export function logoPickerLabel(): string {
+  const touch = isNativeShell() || (typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches)
+  return touch ? 'Tap to choose a logo (PNG, JPG, SVG)' : 'Drop a logo here, or click to choose (PNG, JPG, SVG)'
 }
 
 /** A style-preset pill. Shows its SELECTED state, not just hover — a row where
@@ -481,15 +475,6 @@ function PresetPill({ name, active, onClick }: { name: string; active: boolean; 
   return (
     <ChipToggle selected={active} role="radio" onClick={onClick}>
       {name}
-    </ChipToggle>
-  )
-}
-
-/** One chip in the Type row. */
-function TypeChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return (
-    <ChipToggle selected={active} role="radio" onClick={onClick}>
-      {label}
     </ChipToggle>
   )
 }
@@ -515,9 +500,9 @@ function BarcodeFields({
   const trimmed = value.trim()
   const error = trimmed.length === 0 ? null : def.validate(trimmed)
   return (
-    <Section title="Content" desc="The barcode type your scanner or system expects, and its value.">
+    <div className="space-y-3">
       <OptionRow
-        label="Type"
+        label="Barcode type"
         value={symbology}
         options={SYMBOLOGIES.map((s) => ({ value: s.id, label: s.label }))}
         onChange={(v) => setSymbology(v as BarcodeSymbology)}
@@ -542,7 +527,7 @@ function BarcodeFields({
       <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
         {def.hint} Barcodes are static and unstyled — no colours, logo or shape.
       </p>
-    </Section>
+    </div>
   )
 }
 
@@ -749,17 +734,43 @@ function OptionRow({
 // The QR encodes a single string (config.data). For anything richer than a
 // link we compose the standard QR payload (Wi-Fi, mailto:, tel:, SMSTO:, vCard,
 // geo:, VEVENT) from a few fields and write the result into config.data.
-const CONTENT_KINDS = [
-  { id: 'text', label: 'Link / text' },
+// Link and Wi-Fi are what most people come for, so they are the row (James,
+// 2026-09-30: "just have link, wifi, more"); everything else waits behind More.
+// Barcode sits there too: a different kind of code altogether, and rarer than
+// any QR payload.
+const PRIMARY_KINDS: { id: ContentKind; label: string }[] = [
+  { id: 'text', label: 'Link' },
   { id: 'wifi', label: 'Wi-Fi' },
+]
+const MORE_KINDS: { id: ContentKind | 'barcode'; label: string }[] = [
+  { id: 'vcard', label: 'Contact' },
   { id: 'email', label: 'Email' },
   { id: 'phone', label: 'Phone' },
   { id: 'sms', label: 'SMS' },
-  { id: 'vcard', label: 'Contact' },
   { id: 'geo', label: 'Location' },
-  { id: 'event', label: 'Event' }
-] as const
-type ContentKind = (typeof CONTENT_KINDS)[number]['id']
+  { id: 'event', label: 'Event' },
+  { id: 'barcode', label: 'Barcode' },
+]
+
+/**
+ * What the preview card calls the code: "Wi-Fi · Cafe Guest" rather than the
+ * raw `WIFI:T:WPA;S:Cafe Guest;P:…` payload it used to print, which also put
+ * the network password on screen for anyone looking over a shoulder. A name
+ * the user typed (Advanced ▸ Name) still wins as the title.
+ */
+export function contentSummary(kind: ContentKind, f: Record<string, string>, data: string): { title: string | null; detail: string } {
+  const joined = (...parts: (string | undefined)[]) => parts.filter(Boolean).join(' ')
+  switch (kind) {
+    case 'wifi': return { title: 'Wi-Fi', detail: f.ssid || '' }
+    case 'vcard': return { title: 'Contact', detail: joined(f.firstName, f.lastName) || f.org || '' }
+    case 'email': return { title: 'Email', detail: f.to || '' }
+    case 'phone': return { title: 'Phone', detail: f.phone || '' }
+    case 'sms': return { title: 'SMS', detail: f.phone || '' }
+    case 'geo': return { title: 'Location', detail: f.lat && f.lng ? `${f.lat}, ${f.lng}` : '' }
+    case 'event': return { title: 'Event', detail: f.title || '' }
+    default: return { title: null, detail: data }
+  }
+}
 
 // Escape the Wi-Fi/vCard reserved characters: \ ; , : "
 const escMeca = (s: string) => (s || '').replace(/([\\;,:"])/g, '\\$1')
@@ -818,37 +829,127 @@ function composeContent(kind: ContentKind, f: Record<string, string>): string {
   }
 }
 
-function ContentBuilder({ data, update }: { data: string; update: (patch: { data: string }) => void }) {
-  const [kind, setKind] = useState<ContentKind>('text')
-  const [f, setF] = useState<Record<string, string>>({})
+/**
+ * "What's it for?" — the first card in every panel (Simple, Branding and
+ * Advanced alike), because what a code holds comes before how it looks.
+ *
+ * Until 2026-09-30 Simple offered only a website address, and Wi-Fi, contacts
+ * and barcodes sat three levels down under Advanced ▸ Type — while the store
+ * listing sold them as the headline features.
+ */
+export function ContentCard() {
+  const data = useQrStore((s) => s.config.data)
+  const update = useQrStore((s) => s.update)
+  const kind = useQrStore((s) => s.contentKind)
+  const f = useQrStore((s) => s.contentFields)
+  const setContent = useQrStore((s) => s.setContent)
+  const codeType = useQrStore((s) => s.codeType)
+  const setCodeType = useQrStore((s) => s.setCodeType)
+  const symbology = useQrStore((s) => s.barcodeSymbology)
+  const setSymbology = useQrStore((s) => s.setBarcodeSymbology)
+  const barcodeValue = useQrStore((s) => s.barcodeValue)
+  const setBarcodeValue = useQrStore((s) => s.setBarcodeValue)
+  const isBarcode = codeType === 'barcode'
+  const current: ContentKind | 'barcode' = isBarcode ? 'barcode' : kind
+  const inMore = MORE_KINDS.some((k) => k.id === current)
+  const [moreOpen, setMoreOpen] = useState(inMore)
 
   function setField(key: string, val: string) {
     const next = { ...f, [key]: val }
-    setF(next)
+    setContent(kind, next)
     update({ data: composeContent(kind, next) })
   }
-  function changeKind(k: ContentKind) {
-    setKind(k)
-    if (k !== 'text') update({ data: composeContent(k, f) })
+
+  function pick(next: ContentKind | 'barcode') {
+    if (next === 'barcode') {
+      setCodeType('barcode')
+      return
+    }
+    setCodeType('qr')
+    // A link is typed straight into config.data, so park it before another
+    // kind overwrites data with its payload, and hand it back on return —
+    // otherwise going Link → Wi-Fi → Link left the raw `WIFI:` string in the
+    // link box.
+    const fields = kind === 'text' && !isBarcode ? { ...f, text: data } : f
+    setContent(next, fields)
+    update({ data: next === 'text' ? (fields.text ?? '') : composeContent(next, fields) })
+  }
+
+  function Kind({ id, label }: { id: ContentKind | 'barcode'; label: string }) {
+    return (
+      <ChipToggle selected={current === id} role="radio" onClick={() => pick(id)}>
+        {label}
+      </ChipToggle>
+    )
   }
 
   return (
-    <div className="space-y-3">
-      <OptionRow
-        label="Type"
-        value={kind}
-        options={CONTENT_KINDS.map((k) => ({ value: k.id, label: k.label }))}
-        onChange={(v) => changeKind(v as ContentKind)}
-      />
+    <Section title="What's it for?">
+      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="What's it for?">
+        {PRIMARY_KINDS.map((k) => (
+          <Kind key={k.id} {...k} />
+        ))}
+        {/* More opens a row, it is not itself a choice, so it carries an arrow
+            that flips while the row is open rather than the tick a chosen chip
+            gets. When the choice lives in that row, More is highlighted (the
+            chip's own pressed look) so the answer is visible even with the
+            row shut; the tick stays on the real choice. Built from the SDK
+            chip's classes because ChipToggle swaps its icon for a tick. */}
+        <button
+          type="button"
+          className="u-chip u-chip--pick"
+          aria-pressed={inMore}
+          aria-expanded={moreOpen || inMore}
+          // A second tap closes the row AND drops a choice made inside it, back
+          // to Link (James, 2026-09-30) — the row can't hide a ticked chip, so
+          // shutting it means "none of these".
+          onClick={() => {
+            if (moreOpen || inMore) {
+              if (inMore) pick('text')
+              setMoreOpen(false)
+            } else {
+              setMoreOpen(true)
+            }
+          }}
+        >
+          More
+          <span className="u-chip__icon" aria-hidden="true">
+            <svg
+              viewBox="0 0 20 20"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`transition-transform ${moreOpen || inMore ? 'rotate-180' : ''}`}
+            >
+              <path d="M5 7.5l5 5 5-5" />
+            </svg>
+          </span>
+        </button>
+      </div>
+      {(moreOpen || inMore) && (
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="More kinds of code">
+          {MORE_KINDS.map((k) => (
+            <Kind key={k.id} {...k} />
+          ))}
+        </div>
+      )}
 
-      {kind === 'text' && (
+      {isBarcode && (
+        <BarcodeFields symbology={symbology} setSymbology={setSymbology} value={barcodeValue} onChange={setBarcodeValue} />
+      )}
+
+      {!isBarcode && kind === 'text' && (
         <div>
-          <TextField label="URL or text" value={data} onChange={(v) => update({ data: v })} placeholder="https://example.com" type="url" />
+          <TextField label="Website address or text" value={data} onChange={(v) => update({ data: v })} placeholder="https://example.com" type="url" />
           <LinkCheck value={data} onFix={(href) => update({ data: href })} />
         </div>
       )}
 
-      {kind === 'wifi' && (
+      {!isBarcode && kind === 'wifi' && (
         <>
           <TextField label="Network name (SSID)" value={f.ssid || ''} onChange={(v) => setField('ssid', v)} placeholder="MyWiFi" />
           <TextField label="Password" value={f.password || ''} onChange={(v) => setField('password', v)} placeholder="leave blank if open" />
@@ -859,7 +960,7 @@ function ContentBuilder({ data, update }: { data: string; update: (patch: { data
         </>
       )}
 
-      {kind === 'email' && (
+      {!isBarcode && kind === 'email' && (
         <>
           <TextField label="To" value={f.to || ''} onChange={(v) => setField('to', v)} placeholder="name@example.com" type="email" />
           <TextField label="Subject" value={f.subject || ''} onChange={(v) => setField('subject', v)} placeholder="Optional" />
@@ -867,18 +968,18 @@ function ContentBuilder({ data, update }: { data: string; update: (patch: { data
         </>
       )}
 
-      {kind === 'phone' && (
+      {!isBarcode && kind === 'phone' && (
         <TextField label="Phone number" value={f.phone || ''} onChange={(v) => setField('phone', v)} placeholder="+44 7700 900000" type="tel" />
       )}
 
-      {kind === 'sms' && (
+      {!isBarcode && kind === 'sms' && (
         <>
           <TextField label="Phone number" value={f.phone || ''} onChange={(v) => setField('phone', v)} placeholder="+44 7700 900000" type="tel" />
           <TextField label="Message" value={f.message || ''} onChange={(v) => setField('message', v)} placeholder="Optional pre-filled text" />
         </>
       )}
 
-      {kind === 'vcard' && (
+      {!isBarcode && kind === 'vcard' && (
         <>
           <div className="grid grid-cols-2 gap-3">
             <TextField label="First name" value={f.firstName || ''} onChange={(v) => setField('firstName', v)} placeholder="Jane" />
@@ -891,14 +992,14 @@ function ContentBuilder({ data, update }: { data: string; update: (patch: { data
         </>
       )}
 
-      {kind === 'geo' && (
+      {!isBarcode && kind === 'geo' && (
         <div className="grid grid-cols-2 gap-3">
           <TextField label="Latitude" value={f.lat || ''} onChange={(v) => setField('lat', v)} placeholder="51.5074" />
           <TextField label="Longitude" value={f.lng || ''} onChange={(v) => setField('lng', v)} placeholder="-0.1278" />
         </div>
       )}
 
-      {kind === 'event' && (
+      {!isBarcode && kind === 'event' && (
         <>
           <TextField label="Title" value={f.title || ''} onChange={(v) => setField('title', v)} placeholder="Team meeting" />
           <TextField label="Location" value={f.location || ''} onChange={(v) => setField('location', v)} placeholder="Optional" />
@@ -909,6 +1010,6 @@ function ContentBuilder({ data, update }: { data: string; update: (patch: { data
           <TextField label="Description" value={f.desc || ''} onChange={(v) => setField('desc', v)} placeholder="Optional" />
         </>
       )}
-    </div>
+    </Section>
   )
 }

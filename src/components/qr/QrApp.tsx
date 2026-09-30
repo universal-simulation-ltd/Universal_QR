@@ -9,8 +9,10 @@ import ScanStudio from './ScanStudio'
 //               it, under Advanced ▸ Type — they had a tab of their own until
 //               2026-08-09, which was more prominence than the usage justified.
 //  • Scan     — camera scanner for QR + 1D barcodes (ZXing), on-device.
-//  • Dynamic  — hosted, re-pointable QR codes with scan analytics (PRO). Last
-//               in the row: it is the only tab that isn't free/on-device.
+//  • Dynamic  — hosted, re-pointable QR codes with scan analytics. Free with a
+//               Universal ID (until an allowance is reached). Last in the row:
+//               it is the only tab that needs an account. Never labelled Pro or
+//               premium (James, 2026-09-30): it is free, it just needs an ID.
 export default function QrApp() {
   const view = useQrStore((s) => s.view)
   const setView = useQrStore((s) => s.setView)
@@ -27,7 +29,7 @@ export default function QrApp() {
         <div className={`${CONTAINER} flex items-center gap-0.5 pt-3 sm:gap-1`}>
           <TopTab id="static" current={view} onClick={setView} label="QR" hint="Free · on your device" />
           <TopTab id="scan" current={view} onClick={setView} label="Scan" hint="Camera · QR + barcodes" />
-          <TopTab id="dynamic" current={view} onClick={setView} label="Dynamic" hint="Editable · with analytics" pro />
+          <TopTab id="dynamic" current={view} onClick={setView} label="Dynamic" hint="Requires Universal ID" />
         </div>
       </div>
 
@@ -44,14 +46,12 @@ function TopTab({
   onClick,
   label,
   hint,
-  pro,
 }: {
   id: StudioView
   current: StudioView
   onClick: (v: StudioView) => void
   label: string
   hint: string
-  pro?: boolean
 }) {
   const active = current === id
   return (
@@ -64,10 +64,7 @@ function TopTab({
         active ? 'border-b-2 border-orange-600' : 'border-b-2 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800'
       }`}
     >
-      <span className="flex items-center gap-1 sm:gap-1.5">
-        <span className={`text-sm font-semibold ${active ? 'text-slate-900 dark:text-white' : 'text-slate-600 group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-white'}`}>{label}</span>
-        {pro && <span className="rounded bg-orange-100 px-1 py-0.5 text-[9px] font-bold uppercase tracking-wide text-orange-700 sm:px-1.5 dark:bg-orange-500/15 dark:text-orange-300">Pro</span>}
-      </span>
+      <span className={`text-sm font-semibold ${active ? 'text-slate-900 dark:text-white' : 'text-slate-600 group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-white'}`}>{label}</span>
       <span className="hidden text-[11px] text-slate-400 md:block">{hint}</span>
     </button>
   )

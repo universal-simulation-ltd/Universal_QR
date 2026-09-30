@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ChipToggle, useFileDrop, useUniversal } from '@unisim/sdk'
-import Controls from './Controls'
+import { ChipToggle, isNativeShell, useFileDrop } from '@unisim/sdk'
+import Controls, { ContentCard, UnisimMarkToggle, logoPickerLabel } from './Controls'
 import QrPreview from './QrPreview'
 import PinnedPreview from './PinnedPreview'
 import BarcodePreview from './BarcodePreview'
 import HostedStoreDialog from './HostedStoreDialog'
-import LinkCheck from './LinkCheck'
 import { useQrStore, type StudioMode } from '../../stores/qrStore'
 import { CONTAINER } from '../../lib/layout'
 import { copyQrToClipboard, downloadQr } from '../../lib/download'
@@ -66,6 +65,10 @@ function presetBaseline(presetName: string | null): QrConfig {
   return patch ? { ...DEFAULT_CONFIG, ...patch } : DEFAULT_CONFIG
 }
 
+// In the phone app the PNG goes to the share sheet (Save Image, Messages…),
+// not a Downloads folder, so "Download" was the wrong word there.
+const SAVE_LABEL = isNativeShell() ? 'Save or share' : 'Download PNG'
+
 const FORMATS: { value: ExportFormat; label: string }[] = [
   { value: 'png', label: 'PNG' },
   { value: 'svg', label: 'SVG' },
@@ -99,7 +102,6 @@ export default function QrStudio() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const codeType = useQrStore((s) => s.codeType)
-  const setCodeType = useQrStore((s) => s.setCodeType)
   const symbology = useQrStore((s) => s.barcodeSymbology)
   const barcodeValue = useQrStore((s) => s.barcodeValue)
   const [barcodeError, setBarcodeError] = useState<string | null>(null)
@@ -108,9 +110,6 @@ export default function QrStudio() {
   // Where the QR preview lives. One column ⇒ pinned under the nav bar; two
   // columns ⇒ the right-hand column, exactly as it always has been.
   const pinPreview = useSingleColumn() && !isBarcode
-
-  const { session } = useUniversal()
-  const signedIn = !!session?.user && session.user.is_anonymous !== true
 
   const trimmedBarcode = barcodeValue.trim()
   // "Is there something to export?" differs by type: a QR needs data, a barcode
@@ -123,9 +122,6 @@ export default function QrStudio() {
   const baseline = presetBaseline(presetName)
   const brandingChanged = hasChangedFrom(config, BRANDING_KEYS, baseline)
   const advancedChanged = hasChangedFrom(config, ADVANCED_KEYS, baseline)
-  // Nudge un-branded visitors towards the Branding tab. A signed-in user is
-  // treated as already having company branding, so they don't get nudged.
-  const brandingNudge = !brandingChanged && !signedIn
 
   async function onDownload(format: ExportFormat) {
     if (!hasData || busy) return
@@ -178,23 +174,22 @@ export default function QrStudio() {
     }
   }
 
-  // Simple and Branding are QR ideas — a URL box and a colour picker mean
-  // nothing for a barcode. Leaving one of those panels on screen over a barcode
-  // preview would be a lie about what the controls do, so changing mode comes
-  // back to QR. Type lives in Advanced, which is where it is changed back.
-  function onModeChange(next: StudioMode) {
-    if (next !== 'advanced' && isBarcode) setCodeType('qr')
-    setMode(next)
-  }
 
   return (
     <div>
       <div className={`${CONTAINER} py-6 lg:py-10`}>
+        {/* One line on a phone: the headline and its paragraph used to fill the
+            top third of the screen, pushing the code and the box you type into
+            below the fold on exactly the device the app ships on. */}
         <header className="max-w-2xl">
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-            QR Codes that <span className="text-orange-600 dark:text-orange-400">just. work. FOREVER.</span>
+          <h1 className="text-xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+            {/* The suite's headline shape — "PDFs that just work.", "Universal
+                Images, That just work." — with only "just work" in orange, plus
+                the promise a static code keeps: it never expires (James,
+                2026-09-30). It was "QR Codes that just. work. FOREVER.". */}
+            QR codes that <span className="text-orange-600 dark:text-orange-400">just work</span>. Forever.
           </h1>
-          <p className="mt-2 text-slate-600 dark:text-slate-300">
+          <p className="mt-2 hidden text-slate-600 sm:block dark:text-slate-300">
             Pick your colours, shape the modules, drop in a logo — it renders live, on your
             device. Download as PNG, SVG, JPEG or WebP.
           </p>
@@ -212,13 +207,16 @@ export default function QrStudio() {
             sideways. See the note in DynamicStudio. */}
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-6 lg:gap-10 items-start">
           {/* Controls */}
+          {/* What the code holds comes first, then how much styling you want,
+              then the style itself (2026-09-30). The Simple / Branding /
+              Advanced switch used to sit above everything, with Regenerate
+              above the link box, so the first thing on the page was style
+              before you had said what the code was for. */}
           <div className="order-1 lg:order-1 space-y-4">
-            <div className="flex items-center gap-3 flex-wrap">
-              <ModeToggle
-                mode={mode}
-                setMode={onModeChange}
-                brandingNudge={brandingNudge}
-              />
+            <ContentCard />
+            {/* A barcode has no style to choose, so no style switch either. */}
+            {!isBarcode && <div className="flex items-center gap-3 flex-wrap">
+              <ModeToggle mode={mode} setMode={setMode} />
               {(brandingChanged || advancedChanged) && (
                 <button
                   type="button"
@@ -228,19 +226,8 @@ export default function QrStudio() {
                   Reset all
                 </button>
               )}
-            </div>
-            {/* Regenerate — the same roll of the dice a page reload does, minus
-                the reload. Moved out of the preview column on 2026-08-12 (owner
-                ask): it is a control, and the right-hand column is the code
-                itself plus what you do with it. Above the panel rather than
-                below it because Advanced is tall — under it, the one styling
-                control Simple has would sit off the bottom of a scrolled page.
-                Rendered in every mode: the preset row only exists in two of the
-                three, and in Simple this is the whole styling UI. */}
-            {!isBarcode && <RegenerateStyle />}
-
-            {mode === 'simple' && <SimplePanel />}
-            {mode === 'branding' && <BrandingPanel />}
+            </div>}
+            {mode === 'branding' && !isBarcode && <BrandingPanel />}
             {mode === 'advanced' && <Controls />}
           </div>
 
@@ -365,7 +352,7 @@ function ExportButton({
           <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 16h12" />
           </svg>
-          {busy ? 'Preparing…' : 'Download PNG'}
+          {busy ? 'Preparing…' : SAVE_LABEL}
         </button>
         <button
           type="button"
@@ -466,48 +453,13 @@ function MenuItem({
   )
 }
 
-// "Give me a different look" — one press, one new style, no reload.
-function RegenerateStyle() {
-  const shufflePreset = useQrStore((s) => s.shufflePreset)
-  const presetName = useQrStore((s) => s.presetName)
-  // Sized to its content, not the column: the controls column is the wide one,
-  // and a full-width button there reads as the page's primary action — which is
-  // Download, over in the preview column.
-  return (
-    <div className="flex items-center gap-3 flex-wrap">
-      <button
-        type="button"
-        onClick={shufflePreset}
-        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-orange-500/60 dark:hover:bg-orange-500/10"
-      >
-        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M21 12a9 9 0 1 1-2.64-6.36" />
-          <path d="M21 4v5h-5" />
-        </svg>
-        Regenerate style
-      </button>
-      <p className="text-xs text-slate-500 dark:text-slate-400">
-        {presetName ? `${presetName} — pick` : 'Pick'} another at random. Your link and logo stay put.
-      </p>
-    </div>
-  )
-}
-
-// Three-tab Simple / Branding / Advanced switcher.
-// The Branding tab shows a small orange dot to nudge un-branded, signed-out
-// visitors towards customising their code (see brandingNudge in QrStudio).
-function ModeToggle({
-  mode,
-  setMode,
-  brandingNudge,
-}: {
-  mode: StudioMode
-  setMode: (m: StudioMode) => void
-  brandingNudge: boolean
-}) {
-  const tabs: { id: StudioMode; label: string; nudge?: boolean }[] = [
+// Three-tab Simple / Branding / Advanced switcher: how much styling to show.
+// The Branding tab had an unlabelled orange dot nudging signed-out visitors
+// towards it; nobody could tell what it meant, so it went on 2026-09-30.
+function ModeToggle({ mode, setMode }: { mode: StudioMode; setMode: (m: StudioMode) => void }) {
+  const tabs: { id: StudioMode; label: string }[] = [
     { id: 'simple', label: 'Simple' },
-    { id: 'branding', label: 'Branding', nudge: brandingNudge },
+    { id: 'branding', label: 'Branding' },
     { id: 'advanced', label: 'Advanced' },
   ]
   return (
@@ -526,38 +478,9 @@ function ModeToggle({
           }`}
         >
           {t.label}
-          {t.nudge && (
-            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-orange-500" aria-hidden="true" />
-          )}
         </button>
       ))}
     </div>
-  )
-}
-
-// Simple mode: just paste a URL and go.
-function SimplePanel() {
-  const data = useQrStore((s) => s.config.data)
-  const update = useQrStore((s) => s.update)
-  return (
-    <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-      <label htmlFor="simple-url" className="block font-semibold text-slate-900 dark:text-slate-100">
-        Website address
-      </label>
-      <p className="mt-0.5 mb-3 text-sm text-slate-500 dark:text-slate-400">
-        Paste the link your QR code should open.
-      </p>
-      <input
-        id="simple-url"
-        type="url"
-        inputMode="url"
-        value={data}
-        onChange={(e) => update({ data: e.target.value })}
-        placeholder="https://example.com"
-        className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-100"
-      />
-      <LinkCheck value={data} onFix={(href) => update({ data: href })} />
-    </section>
   )
 }
 
@@ -593,21 +516,6 @@ function BrandingPanel() {
 
   return (
     <div className="space-y-5">
-      {/* URL input so users don't have to switch back to Simple */}
-      <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-        <label htmlFor="branding-url" className="block font-semibold text-slate-900 dark:text-slate-100">Website address</label>
-        <p className="mt-0.5 mb-3 text-sm text-slate-500 dark:text-slate-400">The link your QR code opens.</p>
-        <input
-          id="branding-url"
-          type="url"
-          inputMode="url"
-          value={config.data}
-          onChange={(e) => update({ data: e.target.value })}
-          placeholder="https://example.com"
-          className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-100"
-        />
-      </section>
-
       {/* Style presets */}
       <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
         <h2 className="font-semibold text-slate-900 dark:text-slate-100">Style presets</h2>
@@ -675,7 +583,7 @@ function BrandingPanel() {
                   : 'border-slate-300 text-slate-600 hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-orange-500/10 dark:hover:text-orange-300'
               }`}
             >
-              <span aria-hidden="true">🖼</span> Drop a logo here, or click to choose (PNG, JPG, SVG)
+              <span aria-hidden="true">🖼</span> {logoPickerLabel()}
             </div>
           )}
           {config.logoDataUrl && (
@@ -685,12 +593,7 @@ function BrandingPanel() {
             </>
           )}
           <BrandToggle label="Clear modules behind logo" checked={config.hideBackgroundDots} onChange={(v) => update({ hideBackgroundDots: v })} />
-          <BrandToggle
-            label="Include UNI·SIM mark"
-            checked={config.unisimMark}
-            onChange={(v) => update({ unisimMark: v })}
-            hint={config.logoDataUrl ? 'Adds a small UNI·SIM badge in the bottom-right corner.' : 'Shown in the centre until you add your own logo.'}
-          />
+          <UnisimMarkToggle />
         </div>
       </section>
     </div>

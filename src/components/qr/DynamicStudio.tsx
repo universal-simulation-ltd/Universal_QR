@@ -32,7 +32,7 @@ const SHOW_TOKEN_PURCHASE = !isNativeShell()
 const AT_LIMIT = "You've used your free dynamic codes."
 const MAKE_ROOM = SHOW_TOKEN_PURCHASE ? 'Delete one to make room, or get more.' : 'Delete one to make room.'
 
-// The "Dynamic" tab — a hosted/PRO feature. A dynamic code encodes a short
+// The "Dynamic" tab — a hosted feature that needs a Universal ID. A dynamic code encodes a short
 // redirect the owner can re-point later, and every scan is counted. Each live
 // code holds one token (the org's free "Everyday" token first, then a purchased
 // credit), returned when the code is deleted — but the UI only talks about that
@@ -224,11 +224,11 @@ export default function DynamicStudio() {
   return (
     <div className={`${CONTAINER} py-6 lg:py-10`}>
       <header className="max-w-2xl">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
             Dynamic QR codes
           </h1>
-          <Chip size="sm">Hosted</Chip>
+          <Chip size="sm">Requires Universal ID</Chip>
         </div>
         {/* `break-words` on the example link: it is one unbreakable token, so at
             ~320px it is wider than its column and used to poke a couple of
@@ -246,7 +246,7 @@ export default function DynamicStudio() {
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Create a Universal ID to make dynamic QR codes for FREE.</h2>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             Dynamic codes are hosted against your <strong>Universal ID</strong> so they can redirect and
-            record scans. The plain <button type="button" className="font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300" onClick={() => setView('static')}>Static</button> designer stays 100% free and on-device.
+            record scans. The plain <button type="button" className="font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300" onClick={() => setView('static')}>QR</button> tab stays 100% free and on your device.
           </p>
           <a href={SIGNIN_URL} className="mt-4 inline-flex rounded-lg bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800">
             Create / sign in with Universal ID →

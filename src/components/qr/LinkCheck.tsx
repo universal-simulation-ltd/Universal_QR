@@ -75,7 +75,7 @@ export default function LinkCheck({
             <path d="M16 4l-7 7" />
             <path d="M15 12v3.5A1.5 1.5 0 0 1 13.5 17h-9A1.5 1.5 0 0 1 3 15.5v-9A1.5 1.5 0 0 1 4.5 5H8" />
           </svg>
-          Test link is working
+          Test link
         </a>
         <Status status={status} shape={shape.kind} />
       </div>

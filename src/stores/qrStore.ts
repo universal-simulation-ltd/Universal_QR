@@ -5,6 +5,10 @@ import type { BarcodeSymbology } from '../lib/barcode'
 
 export type StudioMode = 'simple' | 'branding' | 'advanced'
 
+/** The QR payloads the "What's it for?" card can build. 'text' is a link or
+ *  plain text; the rest compose a standard payload (see composeContent). */
+export type ContentKind = 'text' | 'wifi' | 'vcard' | 'email' | 'phone' | 'sms' | 'geo' | 'event'
+
 /** What the studio is currently making. A 1D barcode is a "Type" inside the
  *  Advanced controls rather than a tab of its own (changed 2026-08-09). It sits
  *  in the store, not in QrConfig: QrConfig is the QR *design* — it gets
@@ -122,9 +126,20 @@ interface QrState {
   /** "Hosted by UNI·SIM" cloud-store dialog open state (not persisted). */
   hostedStoreOpen: boolean
   setHostedStoreOpen: (open: boolean) => void
-  /** QR or 1D barcode. Chosen under Advanced ▸ Type. */
+  /** QR or 1D barcode. Chosen on the "What's it for?" card (More ▸ Barcode). */
   codeType: CodeType
   setCodeType: (type: CodeType) => void
+  /**
+   * Which QR payload the "What's it for?" card is building (link, Wi-Fi, a
+   * contact…) and the fields it was built from. In the store, not in the card,
+   * because the card is shared by all three panels: kept in component state it
+   * forgot a half-typed Wi-Fi network every time you switched panel. Persisted
+   * with the content, so a Wi-Fi code comes back as the Wi-Fi form rather
+   * than its raw `WIFI:` string in a link box.
+   */
+  contentKind: ContentKind
+  contentFields: Record<string, string>
+  setContent: (kind: ContentKind, fields: Record<string, string>) => void
   /** Chosen 1D symbology + value (persisted). */
   barcodeSymbology: BarcodeSymbology
   barcodeValue: string
@@ -154,7 +169,11 @@ export const useQrStore = create<QrState>()(
         set((s) => (s.config.data.trim() ? {} : { config: { ...s.config, data: DEFAULT_CONFIG.data } })),
       setLogo: (dataUrl) => set((s) => ({ config: { ...s.config, logoDataUrl: dataUrl } })),
       clearLogo: () => set((s) => ({ config: { ...s.config, logoDataUrl: null } })),
-      reset: () => set((s) => ({ config: DEFAULT_CONFIG, mode: s.mode, presetName: null })),
+      // The content kind goes back with the config: DEFAULT_CONFIG.data is a
+      // link, and leaving the Wi-Fi form up over it would show fields that no
+      // longer describe the code.
+      reset: () =>
+        set((s) => ({ config: DEFAULT_CONFIG, mode: s.mode, presetName: null, contentKind: 'text', contentFields: {} })),
       dynamicBrand: DEFAULT_DYNAMIC_BRAND,
       setDynamicBrand: (patch) => set((s) => ({ dynamicBrand: { ...s.dynamicBrand, ...patch } })),
       patchDynamicDesign: (patch) =>
@@ -164,6 +183,9 @@ export const useQrStore = create<QrState>()(
       setHostedStoreOpen: (hostedStoreOpen) => set({ hostedStoreOpen }),
       codeType: 'qr',
       setCodeType: (codeType) => set({ codeType }),
+      contentKind: 'text',
+      contentFields: {},
+      setContent: (contentKind, contentFields) => set({ contentKind, contentFields }),
       barcodeSymbology: 'code128',
       barcodeValue: '',
       setBarcodeSymbology: (barcodeSymbology) => set({ barcodeSymbology }),
@@ -186,7 +208,9 @@ export const useQrStore = create<QrState>()(
         presetName: s.presetName,
         dynamicBrand: s.dynamicBrand,
         barcodeSymbology: s.barcodeSymbology,
-        barcodeValue: s.barcodeValue
+        barcodeValue: s.barcodeValue,
+        contentKind: s.contentKind,
+        contentFields: s.contentFields
       }),
       // v2 widened DynamicBrand (bg / gradient / two-tone / dot style) — backfill
       // the new fields for anyone with a v1 record so brandConfig is never partial.

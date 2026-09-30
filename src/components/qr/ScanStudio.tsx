@@ -105,7 +105,11 @@ export default function ScanStudio() {
       } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
         setError('No camera was found on this device.')
       } else {
-        setError(err instanceof Error ? err.message : 'Could not start the camera.')
+        // The raw message ("Not supported", "Could not start video source")
+        // means nothing to anyone, and it sat in a red box under an overlay
+        // that already said the camera could not start. One sentence instead.
+        console.error(err)
+        setError('The camera could not start. Close any other app that is using it, then try again.')
       }
     } finally {
       if (token === startToken.current) setStarting(false)
@@ -171,7 +175,7 @@ export default function ScanStudio() {
         </h1>
         <p className="mt-2 text-slate-600 dark:text-slate-300">
           Point your camera at any QR code or 1D barcode (EAN, UPC, Code 128, Code 39…). Decoding
-          happens on your device — the camera feed never leaves your browser.
+          happens on your device — the camera feed never leaves it.
         </p>
       </header>
 
@@ -190,9 +194,7 @@ export default function ScanStudio() {
                   ? 'Waiting for camera access…'
                   : result
                     ? 'Scan another code when you’re ready.'
-                    : error
-                      ? 'The camera could not start.'
-                      : 'The camera is off.'}
+                    : error ?? 'The camera is off.'}
               </p>
               <button
                 type="button"
@@ -239,12 +241,6 @@ export default function ScanStudio() {
 
         {permission === 'granted' && (
           <p className="px-1 text-xs text-slate-500 dark:text-slate-400">{grantedHint()}</p>
-        )}
-
-        {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
-            {error}
-          </div>
         )}
 
         {result && (

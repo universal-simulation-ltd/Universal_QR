@@ -5,6 +5,8 @@ import { buildQrOptions, cornerStampGeometry, qrDisplayName, showsCornerMark } f
 import { composeShapedCanvas, fillsWholeImage } from '@unisim/qr'
 import { UNISIM_MARK } from '@unisim/qr'
 import EnlargeModal, { placeholderFromPreview, prewarmEnlarged } from './EnlargeModal'
+import { contentSummary } from './Controls'
+import RegenerateButton from './RegenerateButton'
 
 /** `compact` lays the same preview out as a short row instead of a column — the
  *  code small on the left, its name and address beside it. Nothing about how the
@@ -14,6 +16,10 @@ import EnlargeModal, { placeholderFromPreview, prewarmEnlarged } from './Enlarge
  *  a preview that came from a different code path is a preview that can lie. */
 export default function QrPreview({ compact = false }: { compact?: boolean } = {}) {
   const config = useQrStore((s) => s.config)
+  const contentKind = useQrStore((s) => s.contentKind)
+  const contentFields = useQrStore((s) => s.contentFields)
+  const summary = contentSummary(contentKind, contentFields, config.data)
+  const title = config.name.trim() || summary.title || qrDisplayName(config)
   const holderRef = useRef<HTMLDivElement>(null)
   const qrRef = useRef<QRCodeStyling | null>(null)
   const [enlarged, setEnlarged] = useState(false)
@@ -212,15 +218,22 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
 
       <div className={compact ? 'min-w-0 flex-1 text-left' : 'text-center min-w-0 max-w-[360px]'}>
         <div className={`font-semibold text-slate-900 dark:text-slate-100 truncate ${compact ? 'text-sm' : ''}`}>
-          {qrDisplayName(config)}
+          {title}
         </div>
-        {hasData && (
-          <div className="text-xs text-slate-500 truncate dark:text-slate-400" title={config.data}>
-            {config.data}
+        {hasData && summary.detail && (
+          <div className="text-xs text-slate-500 truncate dark:text-slate-400" title={summary.detail}>
+            {summary.detail}
           </div>
         )}
         {compact && hasData && (
           <div className="mt-1 text-[11px] font-medium text-orange-700 dark:text-orange-400">Tap the code to enlarge</div>
+        )}
+        {/* The compact (phone) layout has no room beside the code, so the
+            pinned card puts it on its own full-width row instead. */}
+        {!compact && (
+          <div className="mt-3">
+            <RegenerateButton />
+          </div>
         )}
       </div>
 

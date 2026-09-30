@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import QrPreview from './QrPreview'
+import RegenerateButton from './RegenerateButton'
 
 /** How far down the page the pinned bar comes to rest.
  *
@@ -83,6 +84,7 @@ export default function PinnedPreview() {
     >
       <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-md shadow-slate-900/5 dark:border-slate-800 dark:bg-slate-900">
         {open ? (
+          <>
           <div className="flex items-start gap-3">
             {/* `min-w-0` is load-bearing: a flex item's default `min-width:auto`
                 refuses to shrink below its content, so without it the address
@@ -101,6 +103,12 @@ export default function PinnedPreview() {
               <Chevron open />
             </button>
           </div>
+          {/* Full width under the code: beside it, in the text column, the
+              label wrapped to two lines on a phone. */}
+          <div className="mt-3">
+            <RegenerateButton full />
+          </div>
+          </>
         ) : (
           // Collapsed, the bar stays — it is the only way back. Dropping it
           // entirely would leave a phone with no preview anywhere on the page
