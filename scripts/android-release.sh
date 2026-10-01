@@ -20,6 +20,11 @@
 # app-signing key so they can share the Android sign-in, and Play then expects
 # PDF's upload key too: Ergo tried its own and the upload was refused as
 # "signed with the wrong key" (2026-09-15). Never make another key.
+# ⚠️ Except that QR itself did NOT end up with PDF's app-signing key: Play gave
+# it a Google-generated one (FA:57:01…), and 1.0.0 went live before anyone
+# noticed. Since 1.0.1 QR is out of the shared sign-in on Android (see the top
+# of android/app/src/main/AndroidManifest.xml). The upload key above is still
+# the one Play expects.
 #
 # The upload key lives outside the repo, in ~/.unisim-keys (backed up to the
 # ProtonDrive vault, "0. VAULT/Key Stores/"). Google re-signs what reaches users

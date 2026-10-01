@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ⚠️ Universal QR is OUT of the Android shared sign-in, on purpose.
+         Play signs QR with its own Google-generated key (SHA-256 FA:57:01…),
+         not the suite key the other apps share (Universal PDF's, 6B:1E:F2:0F…).
+         The choice was missed when the Play app was created, and 1.0.0 went
+         live before anyone noticed, so the key can't be changed now.
+         The SDK's manifest declares SUITE_AUTH at protectionLevel="signature",
+         and Android refuses to install a second app that declares that
+         permission under a different key (INSTALL_FAILED_DUPLICATE_PERMISSION).
+         So QR 1.0.0 could not be installed next to any other suite app from
+         Play, and the other way round.
+         These lines strip the permission and the session provider that is
+         guarded by it out of the merged manifest. QR then installs next to
+         everything and keeps its own session. Its calls to peers fail with a
+         SecurityException, which SuiteAuthStore.callPeer already swallows.
+         The switcher (<queries>) and the OAuth callback activity are kept.
+         Don't remove these lines unless QR moves to a new package name
+         signed with the suite key. -->
+    <permission
+        android:name="uk.co.unisim.suite.permission.SUITE_AUTH"
+        tools:node="remove" />
+    <uses-permission
+        android:name="uk.co.unisim.suite.permission.SUITE_AUTH"
+        tools:node="remove" />
 
     <application
         android:allowBackup="true"
@@ -33,6 +58,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <provider
+            android:name="uk.co.unisim.sdk.SuiteAuthProvider"
+            tools:node="remove" />
     </application>
 
     <!-- Permissions -->
