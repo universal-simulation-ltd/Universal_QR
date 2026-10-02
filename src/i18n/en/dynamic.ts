@@ -54,7 +54,8 @@ export default {
 
   // Dynamic tab — errors
   'error_branding_too_large': 'That branding is too big to save — try a smaller centre logo.',
-  'error_no_org': 'Your Universal ID has no organisation yet — open the hub once to finish setup.', // "the hub" = the UNI·SIM account website
+  'error_no_org': 'Online codes are kept with your company, and your Universal ID doesn’t have one yet. Setting one up is free.', // since 2026-10-02 the hub no longer creates a company for you
+  'setup_company_button': 'Set up a company →',
   'error_could_not_create': 'Could not create this dynamic code.',
   'error_could_not_delete': 'Could not delete this code.',
   'confirm_delete': 'Delete "{name}"? Anyone who scans it will hit a "not active" page.', // confirmation box; name = the code's label or short code

@@ -48,7 +48,8 @@ const dynamic: Messages['dynamic'] = {
 
   // Dynamic tab — errors
   'error_branding_too_large': 'Bu marka ayarı kaydedilemeyecek kadar büyük — daha küçük bir orta logo deneyin.',
-  'error_no_org': 'Universal ID’nizin henüz bir kurumu yok — kurulumu tamamlamak için UNI·SIM hesap sayfasını bir kez açın.',
+  'error_no_org': 'Çevrimiçi kodlar şirketinizle birlikte saklanır ve Universal ID’nizin henüz bir şirketi yok. Şirket oluşturmak ücretsizdir.',
+  'setup_company_button': 'Şirket oluştur →',
   'error_could_not_create': 'Bu dinamik kod oluşturulamadı.',
   'error_could_not_delete': 'Bu kod silinemedi.',
   'confirm_delete': '“{name}” silinsin mi? Onu tarayan herkes “etkin değil” sayfasıyla karşılaşır.',

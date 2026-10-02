@@ -48,7 +48,8 @@ const dynamic: Messages['dynamic'] = {
 
   // Dynamic tab — errors
   'error_branding_too_large': 'Cette image de marque est trop volumineuse pour être enregistrée — essayez un logo central plus petit.',
-  'error_no_org': 'Votre Universal ID n’a pas encore d’organisation — ouvrez une fois le hub UNI·SIM pour terminer la configuration.',
+  'error_no_org': 'Les codes en ligne sont enregistrés avec votre entreprise, et votre Universal ID n’en a pas encore. La créer est gratuit.',
+  'setup_company_button': 'Créer une entreprise →',
   'error_could_not_create': 'Impossible de créer ce code dynamique.',
   'error_could_not_delete': 'Impossible de supprimer ce code.',
   'confirm_delete': 'Supprimer « {name} » ? Toute personne qui le scannera tombera sur une page « non actif ».',

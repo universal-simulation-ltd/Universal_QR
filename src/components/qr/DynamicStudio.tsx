@@ -16,6 +16,9 @@ import DynamicCodeCard from './DynamicCodeCard'
 import { getT, useT } from '../../i18n'
 
 const SIGNIN_URL = 'https://app.unisim.co.uk/login'
+// The hub's create-a-company form (app.unisim.co.uk no longer makes every new
+// Universal ID create one at sign-in, 2026-10-02).
+const SET_UP_COMPANY_URL = 'https://app.unisim.co.uk/branding'
 // Was /subscription.html until 2026-09-07, when the marketing site split its
 // one pricing page in two. The token card moved to /everyday; /subscription is
 // now the Assess Suite's seats and licences and sells no tokens at all — so a
@@ -399,6 +402,11 @@ export default function DynamicStudio() {
               </p>
             )}
             {error && <p className="mt-3 text-sm text-rose-600 dark:text-rose-400">{error}</p>}
+            {error && error === t('dynamic.error_no_org') && (
+              <a href={SET_UP_COMPANY_URL} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
+                {t('dynamic.setup_company_button')}
+              </a>
+            )}
           </section>
 
           {/* Codes list */}

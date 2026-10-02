@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useUniversal, useUser, useHostedUploads, isNativeShell, type HostedUpload } from '@unisim/sdk'
+import { useUniversal, useUser, useOrg, useHostedUploads, isNativeShell, type HostedUpload } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { useFreeAllowance, isNearLimit } from '../../lib/useFreeAllowance'
 import { storeCurrentQr, deleteHostedQr, openHostedQr, HostedObjectMissingError } from '../../lib/hostedStore'
@@ -8,6 +8,7 @@ import SavePanel from './SavePanel'
 import { intlLocale, useT } from '../../i18n'
 
 const SIGNIN_URL = 'https://app.unisim.co.uk/login'
+const SET_UP_COMPANY_URL = 'https://app.unisim.co.uk/branding'
 // Was /subscription.html until 2026-09-07, when the marketing site split its
 // one pricing page in two. The token card moved to /everyday; /subscription is
 // now the Assess Suite's seats and licences and sells no tokens at all — so a
@@ -34,6 +35,10 @@ export default function HostedStoreDialog() {
   const config = useQrStore((s) => s.config)
 
   const { supabase, session, activeOrgId } = useUniversal()
+  // A signed-in ID with no company has nowhere to store a code (hosted_uploads
+  // needs an org). Only a SUCCESSFUL empty read counts — an error is "unknown".
+  const { orgs, loading: orgsLoading, error: orgsError } = useOrg()
+  const noCompany = !orgsLoading && !orgsError && orgs.length === 0
   const { user } = useUser()
   const { uploads, loading: listLoading, refresh: refreshList } = useHostedUploads('qr')
   // Fetched only while the dialog is open — it is mounted on every page.
@@ -175,7 +180,14 @@ export default function HostedStoreDialog() {
               <div>
                 <div className="rounded-lg bg-orange-50/60 px-3 py-2 text-sm text-slate-600 dark:bg-orange-500/10 dark:text-slate-300">{user?.email}</div>
 
-                {hasData ? (
+                {noCompany ? (
+                  <div className="mt-3">
+                    <p className="text-sm text-slate-600 dark:text-slate-300">{t('dynamic.error_no_org')}</p>
+                    <a href={SET_UP_COMPANY_URL} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
+                      {t('dynamic.setup_company_button')}
+                    </a>
+                  </div>
+                ) : hasData ? (
                   <button
                     onClick={onStore}
                     disabled={busy}

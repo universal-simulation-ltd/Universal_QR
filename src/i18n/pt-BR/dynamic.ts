@@ -49,7 +49,8 @@ const dynamic: Messages['dynamic'] = {
 
   // Dynamic tab — errors
   'error_branding_too_large': 'Essa marca é grande demais para salvar — tente um logotipo central menor.',
-  'error_no_org': 'Seu Universal ID ainda não tem uma organização — abra o hub uma vez para concluir a configuração.',
+  'error_no_org': 'Os códigos online ficam salvos com a sua empresa, e seu Universal ID ainda não tem uma. Criar é grátis.',
+  'setup_company_button': 'Criar uma empresa →',
   'error_could_not_create': 'Não foi possível criar este código dinâmico.',
   'error_could_not_delete': 'Não foi possível excluir este código.',
   'confirm_delete': 'Excluir “{name}”? Quem ler o código vai ver uma página dizendo que ele não está ativo.',
