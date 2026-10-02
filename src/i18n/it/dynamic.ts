@@ -7,7 +7,7 @@ const dynamic: Messages['dynamic'] = {
   'cancel': 'Annulla',
   'delete': 'Elimina',
   'saving': 'Salvataggio…',
-  'get_more': 'Ottieni di più →',
+  'need_more': 'Ti serve di più? Faccelo sapere',
   'signin_button': 'Crea un Universal ID o accedi →',
 
   // Dynamic tab — header
@@ -44,8 +44,7 @@ const dynamic: Messages['dynamic'] = {
   // Dynamic tab — reaching the limit
   'near_limit': 'Hai usato {used} dei tuoi {limit} codici dinamici gratuiti.',
   'at_limit': 'Hai usato tutti i tuoi codici dinamici gratuiti.',
-  'at_limit_make_room': 'Hai usato tutti i tuoi codici dinamici gratuiti. Eliminane uno per fare spazio, oppure ottienine altri.',
-  'at_limit_make_room_native': 'Hai usato tutti i tuoi codici dinamici gratuiti. Eliminane uno per fare spazio.',
+  'at_limit_make_room': 'Hai usato tutti i tuoi codici dinamici gratuiti. Eliminane uno per fare spazio.',
 
   // Dynamic tab — errors
   'error_branding_too_large': 'Questo branding è troppo grande per essere salvato: prova un logo centrale più piccolo.',
@@ -100,8 +99,7 @@ const dynamic: Messages['dynamic'] = {
   'backup_back_up_online': 'Fai il backup online di questo QR',
   'backup_needs_data': 'Inserisci un URL o del testo per fare il backup del tuo codice QR.',
   'backup_near_limit': 'Hai usato {used} dei tuoi {limit} backup online gratuiti.',
-  'backup_used_up': 'Hai usato tutti i tuoi backup online gratuiti. Eliminane uno qui sotto per fare spazio, oppure ottienine altri.',
-  'backup_used_up_native': 'Hai usato tutti i tuoi backup online gratuiti. Eliminane uno qui sotto per fare spazio.',
+  'backup_used_up': 'Hai usato tutti i tuoi backup online gratuiti. Eliminane uno qui sotto per fare spazio.',
   'backup_your_backups': 'I tuoi backup',
   'backup_none_yet': 'Ancora nessuno.',
   'backup_open': 'Apri',

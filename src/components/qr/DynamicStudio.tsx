@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useState } from 'react'
-import { Chip, useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding, isNativeShell } from '@unisim/sdk'
+import { Chip, useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding } from '@unisim/sdk'
 import { CONTAINER } from '../../lib/layout'
 import { DEFAULT_CONFIG, type QrDesign } from '@unisim/qr'
 import { useQrStore } from '../../stores/qrStore'
@@ -19,17 +19,11 @@ const SIGNIN_URL = 'https://app.unisim.co.uk/login'
 // The hub's create-a-company form (app.unisim.co.uk no longer makes every new
 // Universal ID create one at sign-in, 2026-10-02).
 const SET_UP_COMPANY_URL = 'https://app.unisim.co.uk/branding'
-// Was /subscription.html until 2026-09-07, when the marketing site split its
-// one pricing page in two. The token card moved to /everyday; /subscription is
-// now the Assess Suite's seats and licences and sells no tokens at all — so a
-// link left pointing there sends someone who wants one upload to a £5,000/year
-// enterprise plan. Not a 404: it renders fine, which is why it needed finding.
-const GET_TOKENS_URL = 'https://www.unisim.co.uk/everyday'
-// App Review 3.1.1 / 3.1.3: inside the iOS/Android app nothing may send people
-// to buy tokens outside the store — no link, no "get more" nudge. The phone
-// app still spends tokens bought elsewhere; it just never points at the shop.
-// The web and desktop builds keep the link.
-const SHOW_TOKEN_PURCHASE = !isNativeShell()
+// Nothing is for sale for the everyday apps (2026-10-03): at the free limit the
+// note says how to make room, and one quiet link asks people who need more to
+// tell us — that is the signal for when a paid tier is worth building. It is a
+// support link, not a purchase link, so the phone apps show it too.
+const NEED_MORE_URL = 'https://www.unisim.co.uk/support'
 
 // Limits are only mentioned once someone comes close to one — never before
 // sign-up, never below 80% used (see near_limit, whose numbers come from the
@@ -38,7 +32,7 @@ const SHOW_TOKEN_PURCHASE = !isNativeShell()
 // Read at call time, not at module load, so they follow the active language.
 const atLimit = () => getT()('dynamic.at_limit')
 const atLimitMakeRoom = () =>
-  getT()(SHOW_TOKEN_PURCHASE ? 'dynamic.at_limit_make_room' : 'dynamic.at_limit_make_room_native')
+  getT()('dynamic.at_limit_make_room')
 
 // The "Dynamic" tab — a hosted feature that needs a Universal ID. A dynamic code encodes a short
 // redirect the owner can re-point later, and every scan is counted. Each live
@@ -386,11 +380,9 @@ export default function DynamicStudio() {
                     ? atLimitMakeRoom()
                     : atLimit()}
                 </p>
-                {SHOW_TOKEN_PURCHASE && (
-                <a href={GET_TOKENS_URL} target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-lg bg-orange-700 px-3.5 py-2 text-sm font-semibold text-white hover:bg-orange-800">
-                  {t('dynamic.get_more')}
+                <a href={NEED_MORE_URL} target="_blank" rel="noreferrer" className="mt-1.5 inline-block text-xs text-amber-800 underline underline-offset-2 hover:text-amber-950 dark:text-amber-200 dark:hover:text-amber-50">
+                  {t('dynamic.need_more')}
                 </a>
-                )}
               </div>
             )}
             {/* The one exception to "no limit talk while there is room": once

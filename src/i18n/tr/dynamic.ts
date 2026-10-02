@@ -6,7 +6,7 @@ const dynamic: Messages['dynamic'] = {
   'cancel': 'İptal',
   'delete': 'Sil',
   'saving': 'Kaydediliyor…',
-  'get_more': 'Daha fazlasını alın →',
+  'need_more': 'Daha fazlası mı gerekiyor? Bize söyleyin',
   'signin_button': 'Universal ID oluşturun / giriş yapın →',
 
   // Dynamic tab — header
@@ -43,8 +43,7 @@ const dynamic: Messages['dynamic'] = {
   // Dynamic tab — reaching the limit
   'near_limit': '{limit} ücretsiz dinamik kodunuzun {used} tanesini kullandınız.',
   'at_limit': 'Ücretsiz dinamik kodlarınızı kullandınız.',
-  'at_limit_make_room': 'Ücretsiz dinamik kodlarınızı kullandınız. Yer açmak için birini silin veya daha fazlasını alın.',
-  'at_limit_make_room_native': 'Ücretsiz dinamik kodlarınızı kullandınız. Yer açmak için birini silin.',
+  'at_limit_make_room': 'Ücretsiz dinamik kodlarınızı kullandınız. Yer açmak için birini silin.',
 
   // Dynamic tab — errors
   'error_branding_too_large': 'Bu marka ayarı kaydedilemeyecek kadar büyük — daha küçük bir orta logo deneyin.',
@@ -99,8 +98,7 @@ const dynamic: Messages['dynamic'] = {
   'backup_back_up_online': 'Bu QR kodu çevrimiçi yedekle',
   'backup_needs_data': 'QR kodunuzu yedeklemek için bir URL veya metin girin.',
   'backup_near_limit': '{limit} ücretsiz çevrimiçi yedeğinizin {used} tanesini kullandınız.',
-  'backup_used_up': 'Ücretsiz çevrimiçi yedeklerinizi kullandınız. Yer açmak için aşağıdan birini silin veya daha fazlasını alın.',
-  'backup_used_up_native': 'Ücretsiz çevrimiçi yedeklerinizi kullandınız. Yer açmak için aşağıdan birini silin.',
+  'backup_used_up': 'Ücretsiz çevrimiçi yedeklerinizi kullandınız. Yer açmak için aşağıdan birini silin.',
   'backup_your_backups': 'Yedekleriniz',
   'backup_none_yet': 'Henüz yok.',
   'backup_open': 'Aç',
