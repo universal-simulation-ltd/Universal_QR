@@ -1,7 +1,8 @@
 import {
-  consumeHostedUpload,
-  refundHostedUpload,
-  HOSTED_BUCKET,
+  storeHostedFile,
+  putHostedObject,
+  deleteHostedUpload,
+  downloadHostedObject,
   type HostedUpload,
 } from '@unisim/sdk'
 import { renderQrBlob } from './download'
@@ -16,8 +17,14 @@ import { getT } from '../i18n'
 // surfaced). Alongside the PNG we store the full design as a `.json` sidecar
 // so Universal PDF's QR dialog can list account saves as editable designs, not
 // just flat images. Backend: 0041 + 0127 + the @unisim/sdk hosted helpers.
+//
+// Where the bytes live is the ROW's call, not this app's (migration 0226):
+// new saves offer Cloudflare R2 and the server picks, and every row says which
+// in `storage_backend`. Older saves — and anything an older native build makes
+// — are on Supabase Storage and stay there, so every read, write and delete
+// goes through the SDK helpers with the row's own backend.
 
-type Supabase = Parameters<typeof consumeHostedUpload>[0]
+type Supabase = Parameters<typeof storeHostedFile>[0]
 
 export interface StoreResult {
   ok: boolean
@@ -48,23 +55,17 @@ export async function storeCurrentQr(supabase: Supabase, orgId: string, config: 
   // `hosted_consume_and_record` (0127), which only ever receives a path.
   const path = hostedQrPath(orgId, newObjectId(), fileName)
 
-  const consumed = await consumeHostedUpload(supabase, {
+  // Reserve the slot, then upload the PNG to whichever backend the server
+  // chose; storeHostedFile frees the slot itself if the upload fails.
+  const stored = await storeHostedFile(supabase, {
     product: 'qr',
     storagePath: path,
     fileName,
-    sizeBytes: blob.size,
+    body: blob,
+    contentType: 'image/png',
   })
-  if (!consumed.ok || !consumed.upload_id) {
-    return { ok: false, error: consumed.error ?? getT()('dynamic.backup_could_not_save_now') }
-  }
-
-  const { error: upErr } = await supabase.storage
-    .from(HOSTED_BUCKET)
-    .upload(path, blob, { contentType: 'image/png', upsert: true })
-
-  if (upErr) {
-    await refundHostedUpload(supabase, consumed.upload_id)
-    return { ok: false, error: upErr.message }
+  if (!stored.ok || !stored.upload_id) {
+    return { ok: false, error: stored.error ?? getT()('dynamic.backup_could_not_save_now') }
   }
 
   // The design sidecar, best-effort: Universal PDF's QR dialog reads it to
@@ -78,13 +79,16 @@ export async function storeCurrentQr(supabase: Supabase, orgId: string, config: 
   // sidecar ever written while the save still reported success — so every
   // account save was PNG-only and landed in Universal PDF as a flat picture.
   // Fixed by migration 0128; this warning is what would have said so.
+  //
+  // The sidecar goes on the same backend as its PNG — R2 signs `<png>.json`
+  // against the PNG's row, so it never needs a row of its own.
   try {
-    const { error: sideErr } = await supabase.storage
-      .from(HOSTED_BUCKET)
-      .upload(sidecarPath(path), new Blob([JSON.stringify(config)], { type: 'application/json' }), {
-        contentType: 'application/json',
-        upsert: true,
-      })
+    const { error: sideErr } = await putHostedObject(supabase, {
+      backend: stored.storage_backend,
+      path: sidecarPath(path),
+      body: new Blob([JSON.stringify(config)], { type: 'application/json' }),
+      contentType: 'application/json',
+    })
     if (sideErr) {
       console.warn(
         `[qr] design sidecar not stored for ${path} — this save will open in Universal PDF ` +
@@ -95,7 +99,7 @@ export async function storeCurrentQr(supabase: Supabase, orgId: string, config: 
     console.warn('[qr] design sidecar not stored:', err)
   }
 
-  return { ok: true, creditsRemaining: consumed.credits }
+  return { ok: true, creditsRemaining: stored.credits }
 }
 
 /** Delete a hosted QR (storage objects first — PNG plus any design sidecar —
@@ -106,8 +110,9 @@ export async function storeCurrentQr(supabase: Supabase, orgId: string, config: 
  *  would free the slot and leave the real PNG orphaned in the bucket forever,
  *  with the row that pointed at it gone. */
 export async function deleteHostedQr(supabase: Supabase, upload: HostedUpload): Promise<StoreResult> {
-  await supabase.storage.from(HOSTED_BUCKET).remove(hostedQrRemovalPaths(upload))
-  const res = await refundHostedUpload(supabase, upload.id)
+  // An R2 row is removed (PNG and sidecar) and refunded in one call to the
+  // hosted-files function; the removal paths only matter on Supabase.
+  const res = await deleteHostedUpload(supabase, upload, hostedQrRemovalPaths(upload))
   if (!res.ok) return { ok: false, error: res.error ?? getT()('dynamic.backup_could_not_delete_now') }
   return { ok: true, creditsRemaining: res.credits }
 }
@@ -142,7 +147,7 @@ export async function openHostedQr(supabase: Supabase, upload: HostedUpload): Pr
   let lastError: string | null = null
 
   for (const path of hostedQrPathCandidates(upload)) {
-    const { data, error } = await supabase.storage.from(HOSTED_BUCKET).download(path)
+    const { data, error } = await downloadHostedObject(supabase, { backend: upload.storage_backend, path })
     if (data && !error) {
       const url = URL.createObjectURL(data)
       window.open(url, '_blank', 'noopener')

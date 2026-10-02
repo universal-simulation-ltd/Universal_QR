@@ -130,6 +130,23 @@ eq(
   'both candidates and both sidecars when the row has moved',
 )
 
+console.log('\nR2 rows (migration 0226 -- storage_backend says where the bytes live):')
+eq(
+  hostedQrPathCandidates({ id: UPLOAD, org_id: ORG, storage_path: `${ORG}/qr/moved-elsewhere.png`, file_name: 'my-site-qr.png', storage_backend: 'r2' }),
+  [`${ORG}/qr/moved-elsewhere.png`],
+  'an R2 row is its recorded path only -- no legacy guess the R2 signer would refuse',
+)
+eq(
+  hostedQrPathCandidates({ id: UPLOAD, org_id: ORG, storage_path: `${ORG}/qr/moved-elsewhere.png`, file_name: 'my-site-qr.png', storage_backend: 'supabase' }),
+  [`${ORG}/qr/moved-elsewhere.png`, `${ORG}/qr/${UPLOAD}-my-site-qr.png`],
+  "a 'supabase' row keeps the legacy fallback exactly as before",
+)
+eq(
+  hostedQrRemovalPaths({ id: UPLOAD, org_id: ORG, storage_path: `${ORG}/qr/${UPLOAD}-my-site-qr.png`, file_name: 'my-site-qr.png', storage_backend: 'r2' }),
+  [`${ORG}/qr/${UPLOAD}-my-site-qr.png`, `${ORG}/qr/${UPLOAD}-my-site-qr.png.json`],
+  'an R2 row still names its PNG and sidecar together',
+)
+
 console.log('\nnewObjectId (no secure-context dependency — the desktop app is file://):')
 const idA = newObjectId()
 const idB = newObjectId()
