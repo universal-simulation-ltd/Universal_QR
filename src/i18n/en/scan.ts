@@ -30,6 +30,32 @@ export default {
   'copy': 'Copy', // button: copies the scanned text; keep short
   'copied': '✓ Copied', // replaces "Copy" for a moment after copying; keep short
   'open_link': 'Open link ↗', // button: opens the scanned web address; keep the ↗ arrow
+  'open_link_anyway': 'Open anyway ↗', // replaces "Open link ↗" when a warning is shown above it; keep the ↗ arrow
+  'goes_to': 'Goes to', // label before the website name a scanned link really opens, e.g. "Goes to example.com"
+
+  // Warnings about a scanned web link, shown above the open button. {host} is
+  // the website name exactly as the browser will show it — never translated.
+  'warn_insecure': 'Not encrypted (http://): anyone on the same network can see or change the page.',
+  'warn_lookalike': 'This address uses letters from another alphabet, which can imitate a familiar name. Your browser will show it as {host}.',
+  'warn_credentials': 'The part before “@” is not where this link goes. It really opens {host}.',
+  'warn_ip': 'It points at a number (an IP address) instead of a named website.',
+  'warn_shortener': 'It’s a shortened link, so you can’t see where it really goes until you open it.',
+  'blocked': 'This code holds a “{scheme}:” address, which could run code or open files on your device. Universal QR won’t open it.', // {scheme} is e.g. javascript or data, never translated
+
+  // Other kinds of code
+  'wifi_network': 'Wi-Fi network', // label above the network name read from a Wi-Fi QR code
+  'wifi_password': 'Password', // label above the Wi-Fi password
+  'wifi_open': 'No password (open network)', // shown instead of a password for an open network
+  'wifi_join_hint': 'To join, open your Wi-Fi settings, choose this network and paste the password.',
+  'copy_password': 'Copy password', // button; keep short
+  'call': 'Call {number}', // button for a phone-number code; {number} is the number
+  'write_email': 'Email {address}', // button for an email code; {address} is the email address
+  'send_text': 'Text {number}', // button for an SMS code; {number} is the phone number
+
+  // Scanning a picture instead of the camera
+  'scan_image': 'Scan an image', // button: pick a photo or screenshot that has a code in it; keep short
+  'reading_image': 'Reading image…',
+  'image_no_code': 'No QR code or barcode was found in that image. Try a sharper, closer picture.',
 
   // Camera permission help (lib/cameraAccess.ts). The native-app (iOS/Android)
   // and browser versions differ on purpose: a phone app has no address bar.
