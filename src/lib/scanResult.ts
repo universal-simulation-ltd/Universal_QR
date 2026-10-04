@@ -13,23 +13,22 @@
 //      an email address, a text message, or just text.
 //   2. For a web link: what should a careful person notice before opening it?
 //
-// ⚠️ This file imports NOTHING, so scripts/scanResult.test.mjs can load it
-// under Node's type-stripping (same rule as linkCheck.ts).
+// The link half — the scheme block-list, the user-info / lookalike / IP /
+// shortener checks and the host a link REALLY opens — moved into the SDK as
+// `classifyLink` (@unisim/sdk 0.179.0), so Universal Family's chat and
+// Universal BlackBook's notes warn about the same links this tab does. What
+// stays here is what only a scanned code needs: Wi-Fi, phone, email and text
+// payloads.
+//
+// ⚠️ Imports only `@unisim/sdk/link-safety` — the SDK's pure entry point, which
+// itself imports nothing — so scripts/scanResult.test.mjs can still load this
+// file under Node's type-stripping, without React.
 
-/** Things worth saying about a web link before somebody taps it. */
-export type UrlWarning =
-  /** `http://` — not encrypted. */
-  | 'insecure'
-  /** The host has an IDN (punycode) label: letters from another alphabet that
-   *  can impersonate a familiar name (`раураl.com`, Cyrillic). */
-  | 'lookalike'
-  /** `https://trusted.com@evil.example` — everything before `@` is a user name,
-   *  and the link really goes to the host after it. */
-  | 'credentials'
-  /** A bare IP address rather than a name. */
-  | 'ip'
-  /** A link shortener: the real destination is hidden until it is opened. */
-  | 'shortener'
+import { classifyLink, dangerousScheme, type LinkReason } from '@unisim/sdk/link-safety'
+
+/** Things worth saying about a web link before somebody taps it — the SDK's
+ *  reasons, minus `dangerous-scheme` (such a code is `blocked`, never `web`). */
+export type UrlWarning = Exclude<LinkReason, 'dangerous-scheme'>
 
 export type ScanContent =
   /** A web address we will offer to open. `host` is what the browser's address
@@ -45,26 +44,6 @@ export type ScanContent =
   | { kind: 'sms'; href: string; number: string }
   /** Plain text, a vCard, a product barcode number — nothing to open. */
   | { kind: 'text' }
-
-/** Schemes that execute script, read local files or launch other apps with
- *  arbitrary arguments. Matched case-insensitively and after stripping the
- *  whitespace and control characters browsers themselves ignore, so
- *  `JaVa\tScRiPt:` is caught the same way the browser would run it. */
-const BLOCKED_SCHEMES = [
-  'javascript', 'vbscript', 'data', 'file', 'blob', 'intent', 'about',
-  'chrome', 'chrome-extension', 'content', 'ms-msdt', 'search-ms', 'filesystem',
-]
-
-/** The common public shorteners. Not exhaustive and not meant to be: the
- *  warning is "you can't see where this goes", which is true of these, and
- *  missing one costs a missing hint, never a wrong one. */
-const SHORTENERS = new Set([
-  'bit.ly', 'bitly.com', 'tinyurl.com', 't.co', 'goo.gl', 'ow.ly', 'is.gd',
-  'buff.ly', 'rebrand.ly', 'cutt.ly', 'shorturl.at', 'tiny.cc', 'rb.gy',
-  't.ly', 'v.gd', 'bl.ink', 'short.io', 's.id', 'qrco.de', 'lnkd.in',
-])
-
-const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/
 
 /** `WIFI:` field values escape `\ ; , : "` with a backslash. */
 function wifiFields(body: string): Record<string, string> {
@@ -106,27 +85,15 @@ function safeDecode(s: string): string {
   }
 }
 
-/** Warnings for a parsed http(s) URL. Exported for the tests. */
-export function urlWarnings(url: URL): UrlWarning[] {
-  const warnings: UrlWarning[] = []
-  const host = url.hostname.toLowerCase()
-  if (url.protocol === 'http:') warnings.push('insecure')
-  if (url.username || url.password) warnings.push('credentials')
-  if (host.split('.').some((label) => label.startsWith('xn--'))) warnings.push('lookalike')
-  if (IPV4.test(host) || host.startsWith('[')) warnings.push('ip')
-  if (SHORTENERS.has(host.replace(/^www\./, ''))) warnings.push('shortener')
-  return warnings
-}
-
 export function classifyScan(raw: string): ScanContent {
   const text = raw.trim()
   if (!text) return { kind: 'text' }
 
-  // Browsers strip ASCII tab/newline anywhere in a URL and leading C0 controls
-  // and spaces before reading the scheme, so do the same before judging it.
-  const squashed = text.replace(/[\u0000- ]/g, '').toLowerCase()
-  const scheme = /^([a-z][a-z0-9+.-]*):/.exec(squashed)?.[1]
-  if (scheme && BLOCKED_SCHEMES.includes(scheme)) return { kind: 'blocked', scheme }
+  // Read the scheme the way a browser would (casing, tabs, control characters
+  // and all) — the SDK's job. Free text, so only the known-bad schemes count:
+  // `Note: back at 10:30` is a note.
+  const scheme = dangerousScheme(text)
+  if (scheme) return { kind: 'blocked', scheme }
 
   const lower = text.toLowerCase()
 
@@ -168,13 +135,10 @@ export function classifyScan(raw: string): ScanContent {
   // CONTAINS a URL is text: offering to open "the link" in it would mean
   // guessing which part the author meant.
   if (/^https?:\/\/\S+$/i.test(text)) {
-    try {
-      const url = new URL(text)
-      if (url.protocol === 'http:' || url.protocol === 'https:') {
-        return { kind: 'web', href: url.href, host: url.host, warnings: urlWarnings(url) }
-      }
-    } catch {
-      /* not a parseable URL — fall through to text */
+    const link = classifyLink(text)
+    if (link.kind === 'web' && link.href) {
+      const warnings = link.reasons.filter((r): r is UrlWarning => r !== 'dangerous-scheme')
+      return { kind: 'web', href: link.href, host: link.host, warnings }
     }
   }
 
