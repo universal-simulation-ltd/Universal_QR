@@ -342,9 +342,9 @@ export default function ScanStudio() {
 }
 
 const WARNING_KEYS: Record<UrlWarning, 'scan.warn_insecure' | 'scan.warn_lookalike' | 'scan.warn_credentials' | 'scan.warn_ip' | 'scan.warn_shortener'> = {
-  insecure: 'scan.warn_insecure',
+  http: 'scan.warn_insecure',
+  userinfo: 'scan.warn_credentials',
   lookalike: 'scan.warn_lookalike',
-  credentials: 'scan.warn_credentials',
   ip: 'scan.warn_ip',
   shortener: 'scan.warn_shortener',
 }

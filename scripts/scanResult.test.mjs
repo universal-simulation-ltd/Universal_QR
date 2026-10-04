@@ -3,7 +3,9 @@
 //   npm run test:scan-result
 //
 // Runs under Node's type-stripping, so `scanResult.ts` is imported directly —
-// which is why that module imports nothing.
+// which is why that module imports nothing but `@unisim/sdk/link-safety` (the
+// SDK's pure entry point; the link checks themselves are tested in the SDK,
+// packages/sdk/tests/link-safety.mjs — these cases stay as the Scan tab's own).
 //
 // The cases that matter most are the ones that must NOT become a tappable
 // link: a `javascript:` or `data:` payload (with the casing and whitespace
@@ -34,14 +36,14 @@ check('plain https link, no warnings', () => {
 check('http link warns it is not encrypted', () => {
   const r = classifyScan('http://example.com')
   assert.equal(r.kind, 'web')
-  assert.deepEqual(r.warnings, ['insecure'])
+  assert.deepEqual(r.warnings, ['http'])
 })
 
 check('user-info trick: real host is after the @', () => {
   const r = classifyScan('https://paypal.com@evil.example/login')
   assert.equal(r.kind, 'web')
   assert.equal(r.host, 'evil.example')
-  assert.ok(r.warnings.includes('credentials'))
+  assert.ok(r.warnings.includes('userinfo'))
 })
 
 check('IDN lookalike host is flagged and shown as punycode', () => {
@@ -101,6 +103,17 @@ check('tel, mailto and SMSTO', () => {
   const sms = classifyScan('SMSTO:+447700900123:See you at 6')
   assert.equal(sms.kind, 'sms')
   assert.equal(sms.number, '+447700900123')
+})
+
+check('codes the SDK blocks only as hrefs stay text here (free text, not a link)', () => {
+  // classifyLink blocks every unknown scheme; a scanned "Note:" or "WIFI:" is
+  // free text, so only the known-bad list makes a code `blocked`.
+  assert.equal(classifyScan('zoommtg://zoom.us/join?confno=1').kind, 'text')
+  assert.equal(classifyScan('ms-settings:privacy').kind, 'blocked')
+})
+
+check('a lookalike shortener over http gets every warning, in order', () => {
+  assert.deepEqual(classifyScan('http://user@bit.ly/x').warnings, ['http', 'userinfo', 'shortener'])
 })
 
 check('text stays text: sentences, bare hosts, barcodes, vCards, "Note:"', () => {
