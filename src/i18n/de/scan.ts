@@ -20,7 +20,7 @@ const scan: Messages['scan'] = {
   'error_camera_start': 'Die Kamera konnte nicht gestartet werden. Schließe alle anderen Apps, die sie gerade verwenden, und versuche es erneut.',
 
   // Ask-on-open checkbox — only shown while camera access has not been answered
-  'ask_on_open': 'Beim Öffnen von „Scannen“ nach Kamerazugriff fragen',
+  'dont_ask_on_open': 'Beim Öffnen von „Scannen“ nicht nach Kamerazugriff fragen',
 
   // Result card
   'format_unknown': 'Unbekannt',

@@ -265,13 +265,15 @@ export default function ScanStudio() {
           <label className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <input
               type="checkbox"
-              checked={askOnOpen}
-              onChange={(e) => onToggleAskOnOpen(e.target.checked)}
+              // Worded as the opt-out so the box starts unticked (suite rule:
+              // every tick box defaults unticked); the stored setting is unchanged.
+              checked={!askOnOpen}
+              onChange={(e) => onToggleAskOnOpen(!e.target.checked)}
               className="mt-0.5 h-4 w-4 shrink-0 accent-orange-600"
             />
             <span className="text-sm">
               <span className="font-medium text-slate-800 dark:text-slate-100">
-                {t('scan.ask_on_open')}
+                {t('scan.dont_ask_on_open')}
               </span>
               <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{rememberedByHint()}</span>
             </span>

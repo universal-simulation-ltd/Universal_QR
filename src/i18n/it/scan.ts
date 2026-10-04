@@ -21,7 +21,7 @@ const scan: Messages['scan'] = {
   'error_camera_start': 'Impossibile avviare la fotocamera. Chiudi le altre app che la stanno usando, poi riprova.',
 
   // Ask-on-open checkbox
-  'ask_on_open': 'Chiedi l’accesso alla fotocamera quando apro Scansiona',
+  'dont_ask_on_open': 'Non chiedere l’accesso alla fotocamera quando apro Scansiona',
 
   // Result card
   'format_unknown': 'Sconosciuto',

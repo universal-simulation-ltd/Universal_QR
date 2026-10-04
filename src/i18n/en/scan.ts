@@ -23,7 +23,7 @@ export default {
   'error_camera_start': 'The camera could not start. Close any other app that is using it, then try again.',
 
   // Ask-on-open checkbox — only shown while camera access has not been answered
-  'ask_on_open': 'Ask for camera access when I open Scan', // "Scan" is the tab name (app.tab_scan): use the same word
+  'dont_ask_on_open': "Don't ask for camera access when I open Scan", // "Scan" is the tab name (app.tab_scan): use the same word
 
   // Result card
   'format_unknown': 'Unknown', // barcode type label when the type cannot be told; shown in capitals

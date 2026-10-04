@@ -20,7 +20,7 @@ const scan: Messages['scan'] = {
   'error_camera_start': 'Kamera başlatılamadı. Kamerayı kullanan diğer uygulamaları kapatıp yeniden deneyin.',
 
   // Ask-on-open checkbox — only shown while camera access has not been answered
-  'ask_on_open': 'Tara sekmesini açtığımda kamera erişimi iste',
+  'dont_ask_on_open': 'Tara sekmesini açtığımda kamera erişimi isteme',
 
   // Result card
   'format_unknown': 'Bilinmiyor',
