@@ -6,10 +6,10 @@
     "contactWebsite": "https://www.unisim.co.uk"
   },
   "listing": {
-    "title": "Universal QR",
+    "title": "Universal QR: Gerador",
     "shortDescription": "Códigos QR e de barras com a sua marca, no telemóvel. Sem anúncios nem rastreio.",
     "fullDescription": [
-      "O Universal QR cria códigos QR à sua imagem: as suas cores, o seu logótipo, a forma que quiser. São desenhados no telemóvel à medida que escreve, e nada do que coloca num código nos é enviado.",
+      "Um gerador de códigos QR e de códigos de barras. O Universal QR cria códigos QR à sua imagem: as suas cores, o seu logótipo, a forma que quiser. São desenhados no telemóvel à medida que escreve, e nada do que coloca num código nos é enviado.",
       "",
       "DESIGN",
       "• Cores para o código e para o fundo, gradientes e uma cor própria para os três cantos de posição.",
@@ -40,6 +40,13 @@
       "PRIVADO DE RAIZ",
       "• Sem anúncios, sem rastreio, sem análises de terceiros.",
       "• O Universal ID é opcional: inicie sessão para fazer cópia de segurança online dos códigos e criar códigos dinâmicos. A conta pode ser eliminada a partir da própria app.",
+      "",
+      "IDEAL PARA",
+      "• Um menu, cartaz ou folheto que abre o seu site.",
+      "• O Wi-Fi para convidados, num cartão junto à porta.",
+      "• Um cartão de visita que guarda os seus contactos.",
+      "• Etiquetas de produto com códigos de barras EAN, UPC ou Code 128.",
+      "• Um convite que adiciona a data ao calendário.",
       "",
       "O Universal QR é gratuito e de código aberto (AGPL-3.0). O código está no GitHub: github.com/universal-simulation-ltd/Universal_QR",
       "",

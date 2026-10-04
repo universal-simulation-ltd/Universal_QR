@@ -6,10 +6,10 @@
     "contactWebsite": "https://www.unisim.co.uk"
   },
   "listing": {
-    "title": "Universal QR",
+    "title": "Universal QR: Code-Generator",
     "shortDescription": "QR-Codes und Barcodes mit Logo gestalten. Ohne Werbung, ohne Tracking.",
     "fullDescription": [
-      "Universal QR erstellt QR-Codes in deinem Look: deine Farben, dein Logo, die Form, die du willst. Die App zeichnet sie direkt auf deinem Handy, während du tippst, und nichts, was du in einen Code eingibst, wird an uns gesendet.",
+      "Ein QR-Code-Generator und Barcode-Ersteller. Universal QR erstellt QR-Codes in deinem Look: deine Farben, dein Logo, die Form, die du willst. Die App zeichnet sie direkt auf deinem Handy, während du tippst, und nichts, was du in einen Code eingibst, wird an uns gesendet.",
       "",
       "GESTALTEN",
       "• Farben für den Code und seinen Hintergrund, Farbverläufe und eine eigene Farbe für die drei Eckmarken.",
@@ -40,6 +40,13 @@
       "PRIVAT AUS PRINZIP",
       "• Keine Werbung, kein Tracking, keine Analysedienste von Drittanbietern.",
       "• Eine Universal ID ist optional: Melde dich an, um deine Codes online zu sichern und dynamische QR-Codes zu erstellen. Du kannst das Konto direkt in der App löschen.",
+      "",
+      "GUT FÜR",
+      "• Speisekarten, Plakate oder Flyer, die deine Website öffnen.",
+      "• WLAN für Gäste, auf einer Karte an der Tür.",
+      "• Visitenkarten, die deine Kontaktdaten speichern.",
+      "• Produktetiketten mit EAN-, UPC- oder Code-128-Barcodes.",
+      "• Einladungen, die den Termin in den Kalender eintragen.",
       "",
       "Universal QR ist kostenlos und Open Source (AGPL-3.0). Der Code ist auf GitHub: github.com/universal-simulation-ltd/Universal_QR",
       "",

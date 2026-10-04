@@ -6,10 +6,10 @@
     "contactWebsite": "https://www.unisim.co.uk"
   },
   "listing": {
-    "title": "Universal QR",
+    "title": "Universal QR: Generatore",
     "shortDescription": "Codici QR e a barre col tuo logo sul telefono. Senza pubblicità né tracciamento.",
     "fullDescription": [
-      "Universal QR crea codici QR con il tuo stile: i tuoi colori, il tuo logo, la forma che preferisci. Li disegna sul tuo telefono mentre scrivi, e nulla di ciò che inserisci in un codice viene inviato a noi.",
+      "Un generatore di codici QR e codici a barre. Universal QR crea codici QR con il tuo stile: i tuoi colori, il tuo logo, la forma che preferisci. Li disegna sul tuo telefono mentre scrivi, e nulla di ciò che inserisci in un codice viene inviato a noi.",
       "",
       "PERSONALIZZA",
       "• Colori per il codice e per lo sfondo, sfumature e un colore a parte per i tre angoli di posizione.",
@@ -40,6 +40,13 @@
       "PRIVACY FIN DALLA PROGETTAZIONE",
       "• Niente pubblicità, niente tracciamento, niente analisi di terze parti.",
       "• L’Universal ID è facoltativo: accedi per fare il backup online dei tuoi codici e creare codici dinamici. Puoi eliminare l’account direttamente dall’app.",
+      "",
+      "PERFETTO PER",
+      "• Un menu, un poster o un volantino che apre il tuo sito.",
+      "• Il Wi-Fi per gli ospiti, su un cartoncino vicino alla porta.",
+      "• Un biglietto da visita che salva i tuoi contatti.",
+      "• Etichette prodotto con codici a barre EAN, UPC o Code 128.",
+      "• Un invito che aggiunge la data al calendario.",
       "",
       "Universal QR è gratuito e open source (AGPL-3.0). Il codice è su GitHub: github.com/universal-simulation-ltd/Universal_QR",
       "",

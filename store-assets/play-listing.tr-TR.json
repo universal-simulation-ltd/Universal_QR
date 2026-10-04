@@ -6,10 +6,10 @@
     "contactWebsite": "https://www.unisim.co.uk"
   },
   "listing": {
-    "title": "Universal QR",
+    "title": "Universal QR: Kod Oluşturucu",
     "shortDescription": "Telefonda markalı QR kodlar ve barkodlar tasarlayın. Reklam yok, izleme yok.",
     "fullDescription": [
-      "Universal QR, tarzınızı yansıtan QR kodlar hazırlar: kendi renkleriniz, logonuz ve istediğiniz şekil. Kod, yazdıkça telefonda çizilir ve koda eklediğiniz hiçbir şey bize gönderilmez.",
+      "Bir QR kod oluşturucu ve barkod hazırlayıcı. Universal QR, tarzınızı yansıtan QR kodlar hazırlar: kendi renkleriniz, logonuz ve istediğiniz şekil. Kod, yazdıkça telefonda çizilir ve koda eklediğiniz hiçbir şey bize gönderilmez.",
       "",
       "TASARIM",
       "• Kod ve arka planı için renkler, renk geçişleri ve üç köşe işareti için ayrı bir renk.",
@@ -40,6 +40,13 @@
       "GİZLİLİK ÖN PLANDA",
       "• Reklam yok, izleme yok, üçüncü taraf analiz yok.",
       "• Universal ID isteğe bağlıdır: giriş yaparak kodlarınızı çevrimiçi yedekleyebilir ve dinamik kodlar oluşturabilirsiniz. Hesap uygulamanın içinden silinebilir.",
+      "",
+      "ŞUNLAR İÇİN İDEAL",
+      "• Web sitenizi açan bir menü, afiş veya broşür.",
+      "• Kapının yanındaki bir kartta misafirler için Wi-Fi.",
+      "• İletişim bilgilerinizi kaydeden bir kartvizit.",
+      "• EAN, UPC veya Code 128 barkodlu ürün etiketleri.",
+      "• Tarihi takvime ekleyen bir davetiye.",
       "",
       "Universal QR ücretsiz ve açık kaynaklıdır (AGPL-3.0). Kod GitHub’da: github.com/universal-simulation-ltd/Universal_QR",
       "",
