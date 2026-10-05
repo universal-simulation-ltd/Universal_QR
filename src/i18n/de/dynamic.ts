@@ -16,7 +16,7 @@ const dynamic: Messages['dynamic'] = {
 
   // Dynamic tab — signed out
   'signin_title': 'Leg dir eine Universal ID an und erstelle dynamische QR-Codes KOSTENLOS.',
-  'signin_body': 'Dynamische Codes werden über deine {id} gehostet, damit sie weiterleiten und Scans erfassen können. Der normale Tab {qr} bleibt zu 100 % kostenlos und auf deinem Gerät.',
+  'signin_body': 'Ein dynamischer QR-Code enthält einen Kurzlink, den wir für dich unter deiner {id} verwalten – so kannst du nach dem Drucken ändern, wohin er führt, und sehen, wie oft er gescannt wird. Der normale Tab {qr} bleibt zu 100 % kostenlos und auf deinem Gerät.',
   'signin_body_qr_tab': 'QR',
 
   // Dynamic tab — branding for new codes
@@ -90,9 +90,9 @@ const dynamic: Messages['dynamic'] = {
   'error_design_too_large': 'Dieses Design ist zu groß zum Speichern – versuch es mit einem kleineren Logo in der Mitte.',
 
   // "Back up this QR code" dialog
-  'backup_title': 'Diesen QR-Code sichern',
+  'backup_title': 'Diesen QR-Code speichern',
   'backup_close': 'Schließen',
-  'backup_sign_in': 'Leg dir eine {id} an, um deine QR-Codes KOSTENLOS online zu sichern.',
+  'backup_sign_in': 'Leg dir eine {id} an, um deine QR-Codes KOSTENLOS online zu sichern – und öffne sie auf jedem Gerät.',
   'backup_backing_up': 'Wird gesichert…',
   'backup_backed_up': '✓ Gesichert',
   'backup_back_up_online': 'Diesen QR-Code online sichern',

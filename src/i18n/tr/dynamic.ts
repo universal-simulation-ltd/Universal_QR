@@ -16,7 +16,7 @@ const dynamic: Messages['dynamic'] = {
 
   // Dynamic tab — signed out
   'signin_title': 'ÜCRETSİZ dinamik QR kodlar hazırlamak için bir Universal ID oluşturun.',
-  'signin_body': 'Dinamik kodlar, yönlendirme yapabilmeleri ve taramaları kaydedebilmeleri için {id} hesabınızda barındırılır. Sade {qr} sekmesi %100 ücretsiz kalır ve cihazınızda çalışır.',
+  'signin_body': 'Dinamik kod, {id} hesabınızda sizin için tuttuğumuz kısa bir bağlantı içerir — böylece basıldıktan sonra nereye gittiğini değiştirebilir ve kaç kez tarandığını görebilirsiniz. Sade {qr} sekmesi %100 ücretsiz kalır ve cihazınızda çalışır.',
   'signin_body_qr_tab': 'QR',
 
   // Dynamic tab — branding for new codes
@@ -90,9 +90,9 @@ const dynamic: Messages['dynamic'] = {
   'error_design_too_large': 'Bu tasarım kaydedilemeyecek kadar büyük — daha küçük bir orta logo deneyin.',
 
   // "Back up this QR code" dialog
-  'backup_title': 'Bu QR kodu yedekle',
+  'backup_title': 'Bu QR kodu kaydet',
   'backup_close': 'Kapat',
-  'backup_sign_in': 'QR kodlarınızı ÜCRETSİZ olarak çevrimiçi yedeklemek için bir {id} oluşturun.',
+  'backup_sign_in': 'QR kodlarınızı ÜCRETSİZ olarak çevrimiçi yedeklemek ve her cihazda açmak için bir {id} oluşturun.',
   'backup_backing_up': 'Yedekleniyor…',
   'backup_backed_up': '✓ Yedeklendi',
   'backup_back_up_online': 'Bu QR kodu çevrimiçi yedekle',

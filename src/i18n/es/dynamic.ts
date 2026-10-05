@@ -16,7 +16,7 @@ const dynamic: Messages['dynamic'] = {
 
   // Dynamic tab — signed out
   'signin_title': 'Crea un Universal ID para hacer códigos QR dinámicos GRATIS.',
-  'signin_body': 'Los códigos dinámicos se alojan vinculados a tu {id} para poder redirigir y registrar los escaneos. La pestaña {qr} normal sigue siendo 100 % gratuita y en tu dispositivo.',
+  'signin_body': 'Un código QR dinámico contiene un enlace corto que guardamos para ti con tu {id}: así puedes cambiar adónde lleva después de imprimirlo y ver cuántas veces se escanea. La pestaña {qr} normal sigue siendo 100 % gratuita y en tu dispositivo.',
   'signin_body_qr_tab': 'QR',
 
   // Dynamic tab — branding for new codes
@@ -90,9 +90,9 @@ const dynamic: Messages['dynamic'] = {
   'error_design_too_large': 'Ese diseño es demasiado grande para guardarlo: prueba con un logotipo central más pequeño.',
 
   // "Back up this QR code" dialog
-  'backup_title': 'Hacer una copia de seguridad de este código QR',
+  'backup_title': 'Guardar este código QR',
   'backup_close': 'Cerrar',
-  'backup_sign_in': 'Crea un {id} para hacer copias de seguridad de tus códigos QR en línea GRATIS.',
+  'backup_sign_in': 'Crea un {id} para hacer copias de seguridad de tus códigos QR en línea GRATIS y ábrelos en cualquier dispositivo.',
   'backup_backing_up': 'Haciendo copia de seguridad…',
   'backup_backed_up': '✓ Copia de seguridad hecha',
   'backup_back_up_online': 'Hacer copia de seguridad en línea de este QR',

@@ -25,7 +25,7 @@ const studio: Messages['studio'] = {
   'more_options': 'Weitere Optionen',
   'download_as': 'Herunterladen als',
   'copy_png': 'PNG in die Zwischenablage kopieren',
-  'back_up_online': 'Online auf unisim.co.uk sichern',
+  'back_up_online': 'Zum späteren Öffnen speichern',
   'copied': '✓ In die Zwischenablage kopiert',
   'copy_unsupported': 'Kopieren nicht unterstützt – lade die Datei herunter',
   'scan_test_hint': 'Teste den Code immer per Scan, bevor du ihn klein druckst.',

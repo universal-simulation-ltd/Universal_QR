@@ -31,7 +31,7 @@ export default {
   'more_options': 'More options', // tooltip of the ▾ beside the export button
   'download_as': 'Download as', // small uppercase heading over the list of formats (PNG, SVG…)
   'copy_png': 'Copy PNG to clipboard', // menu item
-  'back_up_online': 'Back up online to unisim.co.uk', // menu item; keep unisim.co.uk as is
+  'back_up_online': 'Save to reopen later', // menu item: opens the dialog that saves the code on this device (no account) or backs it up online (Universal ID). It used to say "Back up online to unisim.co.uk", which hid the free on-device save behind an account-sounding label
   'copied': '✓ Copied to clipboard', // line under the export button after copying
   'copy_unsupported': 'Copy not supported — use Download', // line under the export button when copying failed
   'scan_test_hint': 'Always scan-test before printing at small sizes.', // line under the export button

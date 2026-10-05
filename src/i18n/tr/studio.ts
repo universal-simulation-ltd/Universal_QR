@@ -25,7 +25,7 @@ const studio: Messages['studio'] = {
   'more_options': 'Diğer seçenekler',
   'download_as': 'Şu biçimde indir',
   'copy_png': 'PNG’yi panoya kopyala',
-  'back_up_online': 'unisim.co.uk sitesine çevrimiçi yedekle',
+  'back_up_online': 'Daha sonra açmak için kaydet',
   'copied': '✓ Panoya kopyalandı',
   'copy_unsupported': 'Kopyalama desteklenmiyor — İndir’i kullanın',
   'scan_test_hint': 'Küçük boyutlarda basmadan önce mutlaka tarayarak test edin.',
