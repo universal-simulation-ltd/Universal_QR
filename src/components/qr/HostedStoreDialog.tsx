@@ -1,12 +1,16 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useUniversal, useUser, useOrg, useHostedUploads, type HostedUpload } from '@unisim/sdk'
+import { SignInDialog, useUniversal, useUser, useOrg, useHostedUploads, type HostedUpload } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { useFreeAllowance, isNearLimit } from '../../lib/useFreeAllowance'
 import { storeCurrentQr, deleteHostedQr, openHostedQr, HostedObjectMissingError } from '../../lib/hostedStore'
 import SavePanel from './SavePanel'
 import { intlLocale, useT } from '../../i18n'
 
+// Only its origin is used, by the in-app sign-in's "manage your account" link.
+// Sign-in itself happens in <SignInDialog /> right here: linking to the hub's
+// /login navigated away from the code being worked on, and the hub then sent a
+// newcomer on to the Assess portal, not back here.
 const SIGNIN_URL = 'https://app.unisim.co.uk/login'
 const SET_UP_COMPANY_URL = 'https://app.unisim.co.uk/branding'
 // Nothing is for sale for the everyday apps (2026-10-03): at the free limit the
@@ -49,6 +53,7 @@ export default function HostedStoreDialog() {
   // The one listed save that turned out to have no file behind it, if any.
   const [missingId, setMissingId] = useState<string | null>(null)
   const [justStored, setJustStored] = useState(false)
+  const [signInOpen, setSignInOpen] = useState(false)
 
   if (!open) return null
 
@@ -57,6 +62,7 @@ export default function HostedStoreDialog() {
 
   function close() {
     setOpen(false)
+    setSignInOpen(false)
     setError(null)
     setOutOfTokens(false)
     setMissingId(null)
@@ -166,9 +172,10 @@ export default function HostedStoreDialog() {
             {!signedIn ? (
               <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
                 <p className="text-sm text-slate-700 dark:text-slate-200">{t.rich('dynamic.backup_sign_in', { id: <strong>Universal ID</strong> })}</p>
-                <a href={SIGNIN_URL} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
+                <button type="button" onClick={() => setSignInOpen(true)} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
                   {t('dynamic.signin_button')}
-                </a>
+                </button>
+                <SignInDialog open={signInOpen} onClose={() => setSignInOpen(false)} hubLoginHref={SIGNIN_URL} initialMode="signup" />
               </div>
             ) : (
               <div>

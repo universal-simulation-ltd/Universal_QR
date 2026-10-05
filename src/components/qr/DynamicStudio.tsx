@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useState } from 'react'
-import { Chip, useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding } from '@unisim/sdk'
+import { Chip, SignInDialog, useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding } from '@unisim/sdk'
 import { CONTAINER } from '../../lib/layout'
 import { DEFAULT_CONFIG, type QrDesign } from '@unisim/qr'
 import { useQrStore } from '../../stores/qrStore'
@@ -15,6 +15,10 @@ import BrandingControls, { type LogoMode } from './BrandingControls'
 import DynamicCodeCard from './DynamicCodeCard'
 import { getT, useT } from '../../i18n'
 
+// Only its origin is used, by the in-app sign-in's "manage your account" link.
+// Sign-in itself happens in <SignInDialog /> right here: linking to the hub's
+// /login navigated away from the code being worked on, and the hub then sent a
+// newcomer on to the Assess portal, not back here.
 const SIGNIN_URL = 'https://app.unisim.co.uk/login'
 // The hub's create-a-company form (app.unisim.co.uk no longer makes every new
 // Universal ID create one at sign-in, 2026-10-02).
@@ -50,6 +54,7 @@ export default function DynamicStudio() {
   const { status: allowance, refresh: refreshAllowance } = useFreeAllowance('qr')
   const { icon_url: orgIconUrl, brand_color: orgColor } = useOrgBranding()
   const setView = useQrStore((s) => s.setView)
+  const [signInOpen, setSignInOpen] = useState(false)
   const dynamicBrand = useQrStore((s) => s.dynamicBrand)
   const setDynamicBrand = useQrStore((s) => s.setDynamicBrand)
   const patchDynamicDesign = useQrStore((s) => s.patchDynamicDesign)
@@ -256,9 +261,10 @@ export default function DynamicStudio() {
               qr: <button type="button" className="font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300" onClick={() => setView('static')}>{t('dynamic.signin_body_qr_tab')}</button>,
             })}
           </p>
-          <a href={SIGNIN_URL} className="mt-4 inline-flex rounded-lg bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800">
+          <button type="button" onClick={() => setSignInOpen(true)} className="mt-4 inline-flex rounded-lg bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800">
             {t('dynamic.signin_button')}
-          </a>
+          </button>
+          <SignInDialog open={signInOpen} onClose={() => setSignInOpen(false)} hubLoginHref={SIGNIN_URL} initialMode="signup" />
         </div>
       ) : (
         <>
