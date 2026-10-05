@@ -27,7 +27,7 @@ if (import.meta.env.DEV) {
 // dead project when the build lacked VITE_SUPABASE_* env, so the suite session
 // never resolved and the navbar showed no profile/avatar. Env vars override.
 // `?mockauth=1` swaps the SDK's Supabase client for its offline fixture world
-// (james@unisim.co.uk / KyJam91, org "UNI·SIM Demo"), so the signed-in half of
+// (demo@example.invalid / offline-demo, org "UNI·SIM Demo"), so the signed-in half of
 // this app — the whole Dynamic tab — can be opened and driven with no network
 // and no real account. Without it a local dev session only ever sees the
 // "Sign in to create dynamic codes" curtain, because sign-in happens on the hub
