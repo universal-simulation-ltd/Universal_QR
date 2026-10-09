@@ -18,8 +18,8 @@ export default {
   // Top tabs (QrApp). Tab names sit side by side on the narrowest phone: keep
   // them to one short word. The hints show under them from tablet width only,
   // in small type on one line: keep them short too.
-  'tab_qr': 'QR', // the free QR code designer; keep short
-  'tab_qr_hint': 'Free · on your device', // under the QR tab; keep short
+  'tab_qr': 'Design', // the free QR code designer (key stays tab_qr); a tab name, same style as the Scan tab (noun or verb); keep short
+  'tab_qr_hint': 'Free · on your device', // under the Design tab; keep short
   'tab_scan': 'Scan', // the camera scanner (noun or verb — a tab name); keep short
   'tab_scan_hint': 'Camera · QR + barcodes', // under the Scan tab; keep short
   'tab_dynamic': 'Dynamic', // dynamic (hosted, editable) QR codes; never "Pro" or "Premium"; keep short
@@ -27,7 +27,7 @@ export default {
 
   // Tune this app rows (App.tsx): the twins of double-tapping a top tab
   // or a designer mode to make it the one the app opens on.
-  'pref_opens_on': 'Opens on', // Tune this app row: which top tab (QR / Scan / Dynamic) the app opens on
+  'pref_opens_on': 'Opens on', // Tune this app row: which top tab (Design / Scan / Dynamic) the app opens on
   'pref_designer_opens_in': 'Designer opens in', // Tune this app row: which mode (Simple / Branding / Advanced) the QR designer opens in
 
   // Profile menu rows (AppMenu)

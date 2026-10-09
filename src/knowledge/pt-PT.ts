@@ -103,7 +103,7 @@ No Universal QR, os códigos de barras não têm logótipo, cores nem decoraçã
 
 ## Códigos estáticos
 
-Um código criado no separador QR é estático. O seu endereço web, ou o texto que tiver escrito, fica gravado diretamente no padrão de quadrados. Quando alguém o lê, o telemóvel lê o endereço a partir do código e vai diretamente para lá. Não há nada pelo meio.
+Um código criado no separador Criar é estático. O seu endereço web, ou o texto que tiver escrito, fica gravado diretamente no padrão de quadrados. Quando alguém o lê, o telemóvel lê o endereço a partir do código e vai diretamente para lá. Não há nada pelo meio.
 
 Isso tem algumas vantagens claras:
 
@@ -230,7 +230,7 @@ Enquanto a aplicação está aberta, envia ao nosso servidor um pequeno sinal de
 
 ## Os códigos estáticos são privados por natureza
 
-Um código criado no separador QR contém diretamente o seu destino. Lê-lo nunca passa pela UNI·SIM, por isso não há nada que possamos ver ou contar.`,
+Um código criado no separador Criar contém diretamente o seu destino. Lê-lo nunca passa pela UNI·SIM, por isso não há nada que possamos ver ou contar.`,
   },
 ]
 

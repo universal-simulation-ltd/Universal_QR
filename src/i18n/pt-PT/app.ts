@@ -8,7 +8,7 @@ const app: Messages['app'] = {
   'github_title': 'Ver código-fonte no GitHub',
 
   // Top tabs (QrApp)
-  'tab_qr': 'QR',
+  'tab_qr': 'Criar',
   'tab_qr_hint': 'Gratuito · no seu dispositivo',
   'tab_scan': 'Ler',
   'tab_scan_hint': 'Câmara · QR + códigos de barras',

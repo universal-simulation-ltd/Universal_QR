@@ -21,8 +21,8 @@ export default {
 
   // Dynamic tab — signed out
   'signin_title': 'Create a Universal ID to make dynamic QR codes for FREE.', // heading of the sign-in card; FREE is deliberately in capitals
-  'signin_body': 'A dynamic code holds a short link we keep for you under your {id} — that’s how you can change where it goes after it’s printed, and see how often it’s scanned. The plain {qr} tab stays 100% free and on your device.', // id = "Universal ID" in bold; qr = the QR tab's name, as a link
-  'signin_body_qr_tab': 'QR', // the name of the plain QR tab, inside signin_body — must match the tab's own label
+  'signin_body': 'A dynamic code holds a short link we keep for you under your {id} — that’s how you can change where it goes after it’s printed, and see how often it’s scanned. The {qr} tab stays 100% free and on your device.', // id = "Universal ID" in bold; qr = the Design tab's name (app.tab_qr), as a link
+  'signin_body_qr_tab': 'Design', // the name of the Design tab, inside signin_body — must match the tab's own label
 
   // Dynamic tab — branding for new codes
   'branding_title': 'Branding for new codes', // collapsible section heading

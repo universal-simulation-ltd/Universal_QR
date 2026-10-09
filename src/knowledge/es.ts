@@ -103,7 +103,7 @@ Los códigos de barras de Universal QR no llevan logotipo, colores ni decoració
 
 ## Códigos estáticos
 
-Un código creado en la pestaña QR es estático. Su dirección web, o el texto que haya escrito, se escribe directamente en el patrón de cuadrados. Cuando alguien lo escanea, su teléfono lee la dirección del código y va directamente a ella. No hay nada en medio.
+Un código creado en la pestaña Diseñar es estático. Su dirección web, o el texto que haya escrito, se escribe directamente en el patrón de cuadrados. Cuando alguien lo escanea, su teléfono lee la dirección del código y va directamente a ella. No hay nada en medio.
 
 Eso tiene algunas ventajas claras:
 
@@ -230,7 +230,7 @@ Mientras la aplicación está abierta, envía a nuestro servidor una pequeña se
 
 ## Los códigos estáticos son privados por naturaleza
 
-Un código creado en la pestaña QR contiene su destino directamente. Al escanearlo nunca se pasa por UNI·SIM, así que no hay nada que podamos ver ni contar.`,
+Un código creado en la pestaña Diseñar contiene su destino directamente. Al escanearlo nunca se pasa por UNI·SIM, así que no hay nada que podamos ver ni contar.`,
   },
 ]
 

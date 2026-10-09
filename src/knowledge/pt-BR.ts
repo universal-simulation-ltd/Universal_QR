@@ -103,7 +103,7 @@ Os códigos de barras no Universal QR não têm logotipo, cores nem enfeites. Um
 
 ## Códigos estáticos
 
-Um código criado na aba QR é estático. Seu endereço da web, ou qualquer texto que você digitou, é gravado diretamente no padrão de quadrados. Quando alguém o lê, o celular lê o endereço no próprio código e vai direto para lá. Não há nada no meio do caminho.
+Um código criado na aba Criar é estático. Seu endereço da web, ou qualquer texto que você digitou, é gravado diretamente no padrão de quadrados. Quando alguém o lê, o celular lê o endereço no próprio código e vai direto para lá. Não há nada no meio do caminho.
 
 Isso tem algumas vantagens claras:
 
@@ -230,7 +230,7 @@ Enquanto o app está aberto, ele envia ao nosso servidor um pequeno sinal de que
 
 ## Códigos estáticos são privados por natureza
 
-Um código criado na aba QR contém o seu destino diretamente. Lê-lo nunca passa pela UNI·SIM, então não há nada para vermos ou contarmos.`,
+Um código criado na aba Criar contém o seu destino diretamente. Lê-lo nunca passa pela UNI·SIM, então não há nada para vermos ou contarmos.`,
   },
 ]
 

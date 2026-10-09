@@ -24,12 +24,14 @@ your last design is remembered locally.
 
 MIT licensed — free and open source, like all Universal Apps.
 
-## Two tabs: Static (free/local) and Dynamic (hosted/PRO)
+## Three tabs: Design (free/local), Scan, and Dynamic (hosted/PRO)
 
-A top-level **Static | Dynamic** switch sits above the studio (`components/qr/QrApp.tsx`,
-top-level `view` in `stores/qrStore.ts`).
+A top-level **Design | Scan | Dynamic** switch sits above the studio (`components/qr/QrApp.tsx`,
+top-level `view` in `stores/qrStore.ts`). The first tab was labelled **QR** until
+2026-10-09; only the label changed — its view id is still `static` and its string
+key still `app.tab_qr`, so saved "Opens on" defaults and links keep working.
 
-- **Static** — the original designer (`QrStudio.tsx`), **completely unchanged**:
+- **Design** (view id `static`) — the original designer (`QrStudio.tsx`), **completely unchanged**:
   100% on-device, no tracking, the URL is baked into the pixels.
 - **Dynamic (hosted/PRO)** — a signed-in user mints a code that encodes a fixed
   short redirect **`opensource.unisim.co.uk/qr/r/<code>`**. They can re-point the

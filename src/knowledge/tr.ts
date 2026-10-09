@@ -103,7 +103,7 @@ Universal QR'daki barkodlarda logo, renk ya da süsleme yoktur. Bir 1D kodun ço
 
 ## Statik kodlar
 
-QR sekmesinde oluşturulan bir kod statiktir. Web adresiniz ya da yazdığınız metin ne ise doğrudan kare desenine yazılır. Birisi kodu taradığında telefonu adresi koddan okur ve doğrudan oraya gider. Arada hiçbir şey yoktur.
+Tasarla sekmesinde oluşturulan bir kod statiktir. Web adresiniz ya da yazdığınız metin ne ise doğrudan kare desenine yazılır. Birisi kodu taradığında telefonu adresi koddan okur ve doğrudan oraya gider. Arada hiçbir şey yoktur.
 
 Bunun bazı belirgin güçlü yanları vardır:
 
@@ -230,7 +230,7 @@ Uygulama açıkken, menünün onu kaç kişinin kullandığını gösterebilmesi
 
 ## Statik kodlar doğaları gereği gizlidir
 
-QR sekmesinde oluşturulan bir kod hedefinizi doğrudan içerir. Onu taramak UNI·SIM'e hiç dokunmaz; dolayısıyla görebileceğimiz ya da sayabileceğimiz hiçbir şey yoktur.`,
+Tasarla sekmesinde oluşturulan bir kod hedefinizi doğrudan içerir. Onu taramak UNI·SIM'e hiç dokunmaz; dolayısıyla görebileceğimiz ya da sayabileceğimiz hiçbir şey yoktur.`,
   },
 ]
 

@@ -8,7 +8,7 @@ const app: Messages['app'] = {
   'github_title': 'Kaynak kodu GitHub’da görüntüle',
 
   // Top tabs (QrApp)
-  'tab_qr': 'QR',
+  'tab_qr': 'Tasarla',
   'tab_qr_hint': 'Ücretsiz · cihazınızda',
   'tab_scan': 'Tara',
   'tab_scan_hint': 'Kamera · QR + barkod',

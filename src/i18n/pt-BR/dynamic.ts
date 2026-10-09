@@ -16,8 +16,8 @@ const dynamic: Messages['dynamic'] = {
 
   // Dynamic tab — signed out
   'signin_title': 'Crie um Universal ID para fazer QR codes dinâmicos GRÁTIS.',
-  'signin_body': 'Um QR code dinâmico contém um link curto que guardamos para você no seu {id} — é assim que dá para mudar o destino depois de imprimir e ver quantas leituras ele teve. A aba {qr} comum continua 100% gratuita e no seu dispositivo.',
-  'signin_body_qr_tab': 'QR',
+  'signin_body': 'Um QR code dinâmico contém um link curto que guardamos para você no seu {id} — é assim que dá para mudar o destino depois de imprimir e ver quantas leituras ele teve. A aba {qr} continua 100% gratuita e no seu dispositivo.',
+  'signin_body_qr_tab': 'Criar',
 
   // Dynamic tab — branding for new codes
   'branding_title': 'Marca dos novos códigos',

@@ -103,7 +103,7 @@ I codici a barre in Universal QR non hanno logo, colori o decorazioni. Un codice
 
 ## Codici statici
 
-Un codice creato nella scheda QR è statico. Il tuo indirizzo web, o qualunque testo tu abbia digitato, è scritto direttamente nello schema di quadratini. Quando qualcuno lo scansiona, il suo telefono legge l'indirizzo dal codice e ci va direttamente. Non c'è nulla nel mezzo.
+Un codice creato nella scheda Progetta è statico. Il tuo indirizzo web, o qualunque testo tu abbia digitato, è scritto direttamente nello schema di quadratini. Quando qualcuno lo scansiona, il suo telefono legge l'indirizzo dal codice e ci va direttamente. Non c'è nulla nel mezzo.
 
 Questo ha alcuni punti di forza evidenti:
 
@@ -230,7 +230,7 @@ Mentre l'app è aperta, invia al nostro server un piccolo segnale per indicare c
 
 ## I codici statici sono privati per natura
 
-Un codice creato nella scheda QR contiene direttamente la tua destinazione. Scansionarlo non coinvolge mai UNI·SIM, quindi non c'è nulla che possiamo vedere o contare.`,
+Un codice creato nella scheda Progetta contiene direttamente la tua destinazione. Scansionarlo non coinvolge mai UNI·SIM, quindi non c'è nulla che possiamo vedere o contare.`,
   },
 ]
 

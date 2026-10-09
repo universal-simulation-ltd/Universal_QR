@@ -103,7 +103,7 @@ Les codes-barres d'Universal QR n'ont ni logo, ni couleurs, ni décoration. Un c
 
 ## Les codes statiques
 
-Un code créé dans l'onglet QR est statique. Votre adresse web, ou le texte que vous avez saisi, est inscrit directement dans le motif de carrés. Quand quelqu'un le scanne, son téléphone lit l'adresse dans le code et s'y rend directement. Rien ne s'intercale entre les deux.
+Un code créé dans l'onglet Concevoir est statique. Votre adresse web, ou le texte que vous avez saisi, est inscrit directement dans le motif de carrés. Quand quelqu'un le scanne, son téléphone lit l'adresse dans le code et s'y rend directement. Rien ne s'intercale entre les deux.
 
 Cela présente des avantages nets :
 
@@ -230,7 +230,7 @@ Pendant que l'application est ouverte, elle envoie à notre serveur un petit sig
 
 ## Les codes statiques sont privés par nature
 
-Un code créé dans l'onglet QR contient directement votre destination. Le scanner ne passe jamais par UNI·SIM : nous n'avons donc rien à voir ni à compter.`,
+Un code créé dans l'onglet Concevoir contient directement votre destination. Le scanner ne passe jamais par UNI·SIM : nous n'avons donc rien à voir ni à compter.`,
   },
 ]
 

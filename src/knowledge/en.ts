@@ -103,7 +103,7 @@ Barcodes in Universal QR have no logo, colours or decoration. A 1D code often ha
 
 ## Static codes
 
-A code made on the QR tab is static. Your web address, or whatever text you typed, is written directly into the pattern of squares. When someone scans it, their phone reads the address from the code and goes straight there. Nothing sits in between.
+A code made on the Design tab is static. Your web address, or whatever text you typed, is written directly into the pattern of squares. When someone scans it, their phone reads the address from the code and goes straight there. Nothing sits in between.
 
 That has some clear strengths:
 
@@ -230,7 +230,7 @@ While the app is open, it sends our server a small signal that it is in use, so 
 
 ## Static codes are private by nature
 
-A code made on the QR tab contains your destination directly. Scanning it never touches UNI·SIM, so there is nothing for us to see or count.`,
+A code made on the Design tab contains your destination directly. Scanning it never touches UNI·SIM, so there is nothing for us to see or count.`,
   },
 ]
 

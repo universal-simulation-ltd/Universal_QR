@@ -103,7 +103,7 @@ Barcodes in Universal QR haben kein Logo, keine Farben und keine Verzierungen. E
 
 ## Statische Codes
 
-Ein Code aus dem Tab QR ist statisch. Ihre Webadresse oder der Text, den Sie eingegeben haben, steht direkt im Muster der Quadrate. Wenn jemand ihn scannt, liest das Telefon die Adresse aus dem Code und ruft sie direkt auf. Nichts steht dazwischen.
+Ein Code aus dem Tab Gestalten ist statisch. Ihre Webadresse oder der Text, den Sie eingegeben haben, steht direkt im Muster der Quadrate. Wenn jemand ihn scannt, liest das Telefon die Adresse aus dem Code und ruft sie direkt auf. Nichts steht dazwischen.
 
 Das hat klare Vorteile:
 
@@ -230,7 +230,7 @@ Solange die App geöffnet ist, sendet sie unserem Server ein kleines Signal, das
 
 ## Statische Codes sind von Natur aus privat
 
-Ein Code aus dem Tab QR enthält Ihr Ziel direkt. Beim Scannen wird UNI·SIM nie berührt, es gibt für uns also nichts zu sehen oder zu zählen.`,
+Ein Code aus dem Tab Gestalten enthält Ihr Ziel direkt. Beim Scannen wird UNI·SIM nie berührt, es gibt für uns also nichts zu sehen oder zu zählen.`,
   },
 ]
 

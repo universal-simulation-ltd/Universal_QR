@@ -37,6 +37,7 @@ Code 39, ITF-14, and every QR payload (`WIFI:`, `mailto:`, `BEGIN:VCARD`…).
 | quiet zone / margin | zone de silence | zona de silencio | zona di silenzio | Ruhezone | zona de silêncio | zona de silêncio | sessiz bölge |
 | logo | logo | logotipo | logo | Logo | logotipo | logótipo | logo |
 | branding | image de marque | marca | branding | Branding | marca | marca | marka |
+| Design / Scan / Dynamic (the three top tabs; "Design" was "QR" until 2026-10-09 — key `app.tab_qr`, view id `static`, both unchanged; same word wherever an article or sentence names the tab) | Concevoir / Scanner / Dynamique | Diseñar / Escanear / Dinámico | Progetta / Scansiona / Dinamico | Gestalten / Scannen / Dynamisch | Criar / Ler / Dinâmico | Criar / Ler / Dinâmico | Tasarla / Tara / Dinamik |
 | Simple / Branding / Advanced (panel switch) | Simple / Marque / Avancé | Sencillo / Marca / Avanzado | Semplice / Branding / Avanzate | Einfach / Branding / Erweitert | Simples / Marca / Avançado | Simples / Marca / Avançado | Basit / Marka / Gelişmiş |
 | Fine-tune (adjust one item; "Tune this app" stays for the app-wide dialog) | peaufiner | afinar | perfezionare | feinjustieren | afinar | afinar | ince ayar yap |
 | What's it for? | À quoi sert-il ? | ¿Para qué es? | A cosa serve? | Wofür ist er? | Para que serve? | Para que serve? | Ne için? |

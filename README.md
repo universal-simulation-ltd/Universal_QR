@@ -14,7 +14,7 @@ There are three tabs:
 
 | Tab | What it does | |
 |---|---|---|
-| **QR** | Design and export branded, styled QR codes — and 1D barcodes, via Advanced ▸ Type | free · on your device |
+| **Design** | Design and export branded, styled QR codes — and 1D barcodes, via Advanced ▸ Type | free · on your device |
 | **Scan** | Read QR codes and barcodes with your camera | free · on your device |
 | **Dynamic** | One printed code, a destination you can change, with scan counts | hosted · sign-in |
 
@@ -116,7 +116,7 @@ they need somewhere to live in order to redirect and to count scans.
 
 ### Across the app
 
-- **Local-first** — the QR and Scan tabs never upload anything; your last
+- **Local-first** — the Design and Scan tabs never upload anything; your last
   design is remembered in the browser
 - **Built to actually scan** — the default design and every preset are checked by
   rendering them through this app's own pipeline and decoding the result with its
@@ -142,7 +142,7 @@ they need somewhere to live in order to redirect and to count scans.
 4. **Choose a format** and hit **Download** — or **Copy** the PNG to paste
    elsewhere
 
-**To generate a barcode:** in the QR tab, switch to **Advanced**, set **Type** to
+**To generate a barcode:** in the Design tab, switch to **Advanced**, set **Type** to
 **Barcode**, then pick the symbology your scanner or system expects under
 **Content**, enter the value, and download the PNG or SVG.
 

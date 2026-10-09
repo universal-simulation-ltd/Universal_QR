@@ -16,8 +16,8 @@ const dynamic: Messages['dynamic'] = {
 
   // Dynamic tab — signed out
   'signin_title': 'ÜCRETSİZ dinamik QR kodlar hazırlamak için bir Universal ID oluşturun.',
-  'signin_body': 'Dinamik kod, {id} hesabınızda sizin için tuttuğumuz kısa bir bağlantı içerir — böylece basıldıktan sonra nereye gittiğini değiştirebilir ve kaç kez tarandığını görebilirsiniz. Sade {qr} sekmesi %100 ücretsiz kalır ve cihazınızda çalışır.',
-  'signin_body_qr_tab': 'QR',
+  'signin_body': 'Dinamik kod, {id} hesabınızda sizin için tuttuğumuz kısa bir bağlantı içerir — böylece basıldıktan sonra nereye gittiğini değiştirebilir ve kaç kez tarandığını görebilirsiniz. {qr} sekmesi %100 ücretsiz kalır ve cihazınızda çalışır.',
+  'signin_body_qr_tab': 'Tasarla',
 
   // Dynamic tab — branding for new codes
   'branding_title': 'Yeni kodlar için marka',
