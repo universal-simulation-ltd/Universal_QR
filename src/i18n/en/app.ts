@@ -25,6 +25,11 @@ export default {
   'tab_dynamic': 'Dynamic', // dynamic (hosted, editable) QR codes; never "Pro" or "Premium"; keep short
   'tab_dynamic_hint': 'Requires Universal ID', // under the Dynamic tab; "Universal ID" is a product name, never translated; keep short
 
+  // Tune this app rows (App.tsx): the twins of double-tapping a top tab
+  // or a designer mode to make it the one the app opens on.
+  'pref_opens_on': 'Opens on', // Tune this app row: which top tab (QR / Scan / Dynamic) the app opens on
+  'pref_designer_opens_in': 'Designer opens in', // Tune this app row: which mode (Simple / Branding / Advanced) the QR designer opens in
+
   // Profile menu rows (AppMenu)
   'menu_remove_logo': 'Remove logo', // menu row that clears the logo uploaded into the QR code
 

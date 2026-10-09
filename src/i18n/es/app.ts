@@ -15,6 +15,10 @@ const app: Messages['app'] = {
   'tab_dynamic': 'Dinámico',
   'tab_dynamic_hint': 'Requiere un Universal ID',
 
+  // Tune this app rows (App.tsx)
+  'pref_opens_on': 'Se abre en',
+  'pref_designer_opens_in': 'El diseñador se abre en',
+
   // Profile menu rows (AppMenu)
   'menu_remove_logo': 'Quitar logotipo',
 

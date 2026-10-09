@@ -1,4 +1,4 @@
-import { UniversalAppsNavBar, UpdateNotice, type AboutAppConfig } from '@unisim/sdk'
+import { DefaultViewSelect, UniversalAppsNavBar, UpdateNotice, type AboutAppConfig } from '@unisim/sdk'
 // Generated — `npm run credits` after any dependency change. Never edit it by
 // hand: it is read off the installed tree, so a hand-kept list drifts from the
 // lockfile the first time anyone upgrades anything, and a credits list naming a
@@ -70,8 +70,36 @@ export default function App() {
         // articles, bundled from ./knowledge so they read offline.
         knowledgeBase={KNOWLEDGE_BASE}
         about={ABOUT}
+        // Where the app opens, and which editor mode — the twins of
+        // double-tapping a tab or a mode, for anybody who cannot double-tap
+        // (James, 2026-09-30).
+        appPreferences={
+          <>
+            <DefaultViewSelect
+              id="view"
+              label={t('app.pref_opens_on')}
+              fallback="static"
+              views={[
+                { value: 'static', label: t('app.tab_qr') },
+                { value: 'scan', label: t('app.tab_scan') },
+                { value: 'dynamic', label: t('app.tab_dynamic') },
+              ]}
+            />
+            <DefaultViewSelect
+              id="mode"
+              label={t('app.pref_designer_opens_in')}
+              fallback="simple"
+              views={[
+                { value: 'simple', label: t('studio.mode_simple') },
+                { value: 'branding', label: t('studio.mode_branding') },
+                { value: 'advanced', label: t('studio.mode_advanced') },
+              ]}
+            />
+          </>
+        }
         // "Reset to defaults" at the foot of Tune this app. The SDK asks in
-        // place first, so no confirm() of our own any more.
+        // place first, so no confirm() of our own any more. The SDK's half
+        // forgets the two "opens on" choices above by itself.
         onResetDefaults={useQrStore.getState().reset}
       />
 
