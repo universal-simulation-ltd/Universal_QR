@@ -21,8 +21,8 @@ const dynamic: Messages['dynamic'] = {
 
   // Dynamic tab — branding for new codes
   'branding_title': 'Image de marque des nouveaux codes',
-  'branding_hint_org': 'Par défaut, l’icône et la couleur de votre organisation. Chaque code conserve l’apparence qu’il avait à sa création — pour en modifier un existant, utilisez Régler l’image de marque sur sa carte.',
-  'branding_hint_no_org': 'Chaque code conserve l’apparence qu’il avait à sa création — pour en modifier un existant, utilisez Régler l’image de marque sur sa carte. Ajoutez un logo et une couleur de marque à votre organisation : ils s’afficheront ici automatiquement.',
+  'branding_hint_org': 'Par défaut, l’icône et la couleur de votre organisation. Chaque code conserve l’apparence qu’il avait à sa création — pour en modifier un existant, utilisez Peaufiner l’image de marque sur sa carte.',
+  'branding_hint_no_org': 'Chaque code conserve l’apparence qu’il avait à sa création — pour en modifier un existant, utilisez Peaufiner l’image de marque sur sa carte. Ajoutez un logo et une couleur de marque à votre organisation : ils s’afficheront ici automatiquement.',
   'branding_reset': 'Réinitialiser',
   'branding_preview_caption': 'Exemple · unisim.co.uk',
   'branding_preview_label': 'Exemple de QR code dynamique avec votre image de marque',
@@ -61,7 +61,7 @@ const dynamic: Messages['dynamic'] = {
   'tap_to_enlarge': 'Touchez pour agrandir',
   'enlarge_label': 'Agrandir le QR code pour {target}',
   'qr_label': 'QR code dynamique pour {target}',
-  'edit_branding': '✏️ Régler l’image de marque',
+  'edit_branding': '✏️ Peaufiner l’image de marque',
   'close_branding': 'Fermer l’image de marque',
   'copy': 'Copier',
   'copy_link_label': 'Copier le lien dynamique',

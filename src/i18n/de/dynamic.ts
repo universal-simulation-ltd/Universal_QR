@@ -21,8 +21,8 @@ const dynamic: Messages['dynamic'] = {
 
   // Dynamic tab — branding for new codes
   'branding_title': 'Branding für neue Codes',
-  'branding_hint_org': 'Standardmäßig mit dem Logo und der Farbe deiner Organisation. Jeder Code behält das Aussehen, mit dem er erstellt wurde – ändere einen bestehenden über „Branding anpassen“ auf seiner Karte.',
-  'branding_hint_no_org': 'Jeder Code behält das Aussehen, mit dem er erstellt wurde – ändere einen bestehenden über „Branding anpassen“ auf seiner Karte. Füge deiner Organisation ein Logo und eine Markenfarbe hinzu, dann erscheinen sie hier automatisch.',
+  'branding_hint_org': 'Standardmäßig mit dem Logo und der Farbe deiner Organisation. Jeder Code behält das Aussehen, mit dem er erstellt wurde – ändere einen bestehenden über „Branding feinjustieren“ auf seiner Karte.',
+  'branding_hint_no_org': 'Jeder Code behält das Aussehen, mit dem er erstellt wurde – ändere einen bestehenden über „Branding feinjustieren“ auf seiner Karte. Füge deiner Organisation ein Logo und eine Markenfarbe hinzu, dann erscheinen sie hier automatisch.',
   'branding_reset': 'Zurücksetzen',
   'branding_preview_caption': 'Beispiel · unisim.co.uk',
   'branding_preview_label': 'Beispiel für einen dynamischen QR-Code mit deinem Branding',
@@ -61,7 +61,7 @@ const dynamic: Messages['dynamic'] = {
   'tap_to_enlarge': 'Zum Vergrößern tippen',
   'enlarge_label': 'QR-Code für {target} vergrößern',
   'qr_label': 'Dynamischer QR-Code für {target}',
-  'edit_branding': '✏️ Branding anpassen',
+  'edit_branding': '✏️ Branding feinjustieren',
   'close_branding': 'Branding schließen',
   'copy': 'Kopieren',
   'copy_link_label': 'Dynamischen Link kopieren',

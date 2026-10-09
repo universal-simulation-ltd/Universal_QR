@@ -26,8 +26,8 @@ export default {
 
   // Dynamic tab — branding for new codes
   'branding_title': 'Branding for new codes', // collapsible section heading
-  'branding_hint_org': 'Defaults to your organisation’s icon and colour. Each code keeps the look it was created with — change an existing one with Tune branding on its card.', // "Tune branding" = the edit_branding button on each code's card
-  'branding_hint_no_org': 'Each code keeps the look it was created with — change an existing one with Tune branding on its card. Add a logo and brand colour to your organisation and they’ll fill in here automatically.',
+  'branding_hint_org': 'Defaults to your organisation’s icon and colour. Each code keeps the look it was created with — change an existing one with Fine-tune branding on its card.', // "Fine-tune branding" = the edit_branding button on each code's card
+  'branding_hint_no_org': 'Each code keeps the look it was created with — change an existing one with Fine-tune branding on its card. Add a logo and brand colour to your organisation and they’ll fill in here automatically.',
   'branding_reset': 'Reset', // small button, puts the branding back to the defaults
   'branding_preview_caption': 'Example · unisim.co.uk', // caption under the example QR; keep the web address as it is
   'branding_preview_label': 'Example dynamic QR with your branding', // screen-reader description of the example QR
@@ -67,7 +67,7 @@ export default {
   'tap_to_enlarge': 'Tap to enlarge', // tooltip on the small QR
   'enlarge_label': 'Enlarge QR code for {target}', // screen-reader label; target = the destination's website name
   'qr_label': 'Dynamic QR code for {target}', // screen-reader description of the QR; target = the destination's website name
-  'edit_branding': '✏️ Tune branding', // small link under the QR
+  'edit_branding': '✏️ Fine-tune branding', // small link under the QR
   'close_branding': 'Close branding',
   'copy': 'Copy', // tiny uppercase button beside the link; keep very short
   'copy_link_label': 'Copy dynamic link', // screen-reader label of the Copy button

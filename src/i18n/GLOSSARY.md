@@ -38,6 +38,7 @@ Code 39, ITF-14, and every QR payload (`WIFI:`, `mailto:`, `BEGIN:VCARD`…).
 | logo | logo | logotipo | logo | Logo | logotipo | logótipo | logo |
 | branding | image de marque | marca | branding | Branding | marca | marca | marka |
 | Simple / Branding / Advanced (panel switch) | Simple / Marque / Avancé | Sencillo / Marca / Avanzado | Semplice / Branding / Avanzate | Einfach / Branding / Erweitert | Simples / Marca / Avançado | Simples / Marca / Avançado | Basit / Marka / Gelişmiş |
+| Fine-tune (adjust one item; "Tune this app" stays for the app-wide dialog) | peaufiner | afinar | perfezionare | feinjustieren | afinar | afinar | ince ayar yap |
 | What's it for? | À quoi sert-il ? | ¿Para qué es? | A cosa serve? | Wofür ist er? | Para que serve? | Para que serve? | Ne için? |
 | More (opens more kinds) | Plus | Más | Altro | Mehr | Mais | Mais | Diğer |
 | back up online | sauvegarder en ligne | copia de seguridad en línea | backup online | online sichern | fazer backup online | cópia de segurança online | çevrimiçi yedekle |
