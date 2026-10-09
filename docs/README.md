@@ -53,7 +53,7 @@ because that store is per-browser localStorage.
 
 - The panel (**"Branding for new codes"**) sets what the NEXT code is born
   wearing. It cannot reach a code that already exists.
-- Every card carries **✏️ Edit branding** — the same control set seeded from that
+- Every card carries **✏️ Tune branding** — the same control set seeded from that
   code's own design, plus a **"Match branding for new codes"** shortcut. Saving
   calls `qr_dynamic_set_design` and re-draws that code and nothing else.
 - `design = null` means "made before 0129": those still follow the panel, exactly

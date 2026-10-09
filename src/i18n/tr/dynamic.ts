@@ -21,8 +21,8 @@ const dynamic: Messages['dynamic'] = {
 
   // Dynamic tab — branding for new codes
   'branding_title': 'Yeni kodlar için marka',
-  'branding_hint_org': 'Varsayılan olarak kurumunuzun simgesi ve rengi kullanılır. Her kod oluşturulduğu görünümü korur — mevcut bir kodu değiştirmek için kartındaki Markayı düzenle bağlantısını kullanın.',
-  'branding_hint_no_org': 'Her kod oluşturulduğu görünümü korur — mevcut bir kodu değiştirmek için kartındaki Markayı düzenle bağlantısını kullanın. Kurumunuza bir logo ve marka rengi eklerseniz burası otomatik olarak dolar.',
+  'branding_hint_org': 'Varsayılan olarak kurumunuzun simgesi ve rengi kullanılır. Her kod oluşturulduğu görünümü korur — mevcut bir kodu değiştirmek için kartındaki Markayı ayarla bağlantısını kullanın.',
+  'branding_hint_no_org': 'Her kod oluşturulduğu görünümü korur — mevcut bir kodu değiştirmek için kartındaki Markayı ayarla bağlantısını kullanın. Kurumunuza bir logo ve marka rengi eklerseniz burası otomatik olarak dolar.',
   'branding_reset': 'Sıfırla',
   'branding_preview_caption': 'Örnek · unisim.co.uk',
   'branding_preview_label': 'Markanızı taşıyan örnek dinamik QR',
@@ -61,7 +61,7 @@ const dynamic: Messages['dynamic'] = {
   'tap_to_enlarge': 'Büyütmek için dokunun',
   'enlarge_label': '{target} için QR kodu büyüt',
   'qr_label': '{target} için dinamik QR kod',
-  'edit_branding': '✏️ Markayı düzenle',
+  'edit_branding': '✏️ Markayı ayarla',
   'close_branding': 'Marka düzenlemeyi kapat',
   'copy': 'Kopyala',
   'copy_link_label': 'Dinamik bağlantıyı kopyala',

@@ -21,8 +21,8 @@ const dynamic: Messages['dynamic'] = {
 
   // Dynamic tab — branding for new codes
   'branding_title': 'Marca dos novos códigos',
-  'branding_hint_org': 'Por padrão, usa o ícone e a cor da sua organização. Cada código mantém o visual com que foi criado — para mudar um que já existe, use Editar marca no cartão dele.',
-  'branding_hint_no_org': 'Cada código mantém o visual com que foi criado — para mudar um que já existe, use Editar marca no cartão dele. Adicione um logotipo e uma cor de marca à sua organização e eles aparecem aqui automaticamente.',
+  'branding_hint_org': 'Por padrão, usa o ícone e a cor da sua organização. Cada código mantém o visual com que foi criado — para mudar um que já existe, use Ajustar marca no cartão dele.',
+  'branding_hint_no_org': 'Cada código mantém o visual com que foi criado — para mudar um que já existe, use Ajustar marca no cartão dele. Adicione um logotipo e uma cor de marca à sua organização e eles aparecem aqui automaticamente.',
   'branding_reset': 'Redefinir',
   'branding_preview_caption': 'Exemplo · unisim.co.uk',
   'branding_preview_label': 'Exemplo de QR code dinâmico com a sua marca',
@@ -62,7 +62,7 @@ const dynamic: Messages['dynamic'] = {
   'tap_to_enlarge': 'Toque para ampliar',
   'enlarge_label': 'Ampliar o QR code de {target}',
   'qr_label': 'QR code dinâmico de {target}',
-  'edit_branding': '✏️ Editar marca',
+  'edit_branding': '✏️ Ajustar marca',
   'close_branding': 'Fechar marca',
   'copy': 'Copiar',
   'copy_link_label': 'Copiar link dinâmico',
