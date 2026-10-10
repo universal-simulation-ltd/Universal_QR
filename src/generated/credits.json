@@ -1,7 +1,7 @@
 {
   "app": "universal-qr",
-  "appVersion": "0.1.0",
-  "generated": "2026-09-28",
+  "appVersion": "1.0.1",
+  "generated": "2026-10-10",
   "noticesCount": 20,
   "ships": [
     {
@@ -20,7 +20,9 @@
       "version": "0.2.1",
       "licence": "MIT",
       "repo": "https://github.com/zxing-js/browser",
-      "authors": [],
+      "authors": [
+        "ZXing for JS"
+      ],
       "source": "node_modules"
     },
     {

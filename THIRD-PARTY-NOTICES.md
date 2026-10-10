@@ -201,7 +201,7 @@ Licence: MIT
 
 _Licence text not found in the published package._
 
-## @unisim/sdk 0.164.0
+## @unisim/sdk 0.183.2
 
 Universal Simulation Ltd et al.
 <https://github.com/universal-simulation-ltd/universal-platform>
@@ -233,7 +233,7 @@ SOFTWARE.
 
 ## @zxing/browser 0.2.1
 
-
+ZXing for JS et al.
 <https://github.com/zxing-js/browser>
 Licence: MIT
 
