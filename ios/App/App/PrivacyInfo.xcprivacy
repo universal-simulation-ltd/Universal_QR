@@ -19,6 +19,15 @@
     account (the SDK's <UsageTracker />). Nothing about the code. Declared as
     product interaction, for analytics, because that is what it is.
 
+  The one exception to "only when the user asks": the suite user count
+  (@unisim/sdk presence.js, started by <UniversalProvider>). From the moment
+  the app opens, signed in OR NOT, and every 45 s while it is in front, it
+  sends a random install id this app makes itself (kept in the WebView's
+  localStorage), the platform and the product name, with the account id once
+  signed in, so "N users" can be counted. Declared as Device ID and Product
+  Interaction, analytics, linked (a signed-in beat names the account), not
+  tracking — the same answers as Universal PDF and Ergo Assess.
+
   The link check asks the linked site itself whether anything answers (a
   direct request from the phone, like opening it); nothing goes to our servers.
 
@@ -91,6 +100,7 @@
 			</array>
 		</dict>
 		<dict>
+			<!-- The user count's random install id, sent signed in or not. -->
 			<key>NSPrivacyCollectedDataType</key>
 			<string>NSPrivacyCollectedDataTypeDeviceID</string>
 			<key>NSPrivacyCollectedDataTypeLinked</key>
@@ -103,7 +113,8 @@
 			</array>
 		</dict>
 		<dict>
-			<!-- One "session.opened" event per launch while signed in. -->
+			<!-- The user-count beat (signed in or not) and, while signed in, one
+			     "session.opened" event per launch. -->
 			<key>NSPrivacyCollectedDataType</key>
 			<string>NSPrivacyCollectedDataTypeProductInteraction</string>
 			<key>NSPrivacyCollectedDataTypeLinked</key>
