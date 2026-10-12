@@ -90,6 +90,8 @@ export default {
 
   // Link test (under the address box)
   'test_link': 'Test link', // button: opens the address in a new tab, keep short
+  'check_link': 'Check link', // button beside Test link: asks the address whether anything answers, keep short
+  'check_link_title': 'Asks the address whether anything answers. The request goes straight from this device to that site — not through UNI·SIM.', // tooltip of check_link
   'no_scheme': 'No {https} in front — some scanners will open this, others will read it as plain text.', // {https} is "https://" in code type
   'add_https': 'Add https://', // small button; keep https:// as is
   'insecure': 'An {http} address. It will open, but phones show it as “Not secure” — and it can’t be checked from this page.', // {http} is "http://" in code type; “Not secure” is what phone browsers show

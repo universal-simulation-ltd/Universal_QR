@@ -162,7 +162,7 @@ Bir kodu daire, altıgen ya da yıldız üzerine yerleştirmek veya etrafına s�
 2. Gerçek boyutta ve gerçek malzeme üzerine bir kopya basın, ardından kullanılacağı ışıkta yeniden tarayın.
 3. Açılan sayfanın kastettiğiniz sayfa olduğunu kontrol edin.
 
-Universal QR, siz yazarken web adresinin kullanılabilir bir biçimde olup olmadığını kontrol eder ve o adreste bir şeyin yanıt verip vermediğini sessizce sorar. Yeşil onay işareti bir şeyin yanıt verdiği anlamına gelir, doğru sayfa olduğu anlamına gelmez; bu yüzden bağlantıyı her zaman kendiniz de açın.`,
+Universal QR, siz yazarken web adresinin kullanılabilir bir biçimde olup olmadığını kontrol eder. Bağlantıyı kontrol et düğmesine dokunduğunuzda o adreste bir şeyin yanıt verip vermediğini de sorar. Yeşil onay işareti bir şeyin yanıt verdiği anlamına gelir, doğru sayfa olduğu anlamına gelmez; bu yüzden bağlantıyı her zaman kendiniz de açın.`,
   },
   {
     id: 'scanning-safely',
@@ -203,9 +203,9 @@ Artık şüphelendiğiniz bir sayfaya bilgi girdiyseniz orada kullandığınız 
 - **Bu cihaza kaydet**, aynı yerel depolamada küçük bir tasarım galerisi tutar. Hesap gerektirmez. Uygulamanın verilerini ya da tarayıcınızın site verilerini temizlemek onu kaldırır.
 - **Tarama.** Kamera görüntüsü cihazınızda çözülür ve hiçbir zaman yüklenmez.
 
-## Tek bir otomatik kontrol
+## Tek bir kontrol, siz istediğinizde
 
-https ile başlayan bir web adresi yazdığınızda uygulama, bir şeyin yanıt verip vermediğini görmek için kendi cihazınızdan o adrese bağlanmasını ister. Bu, UNI·SIM üzerinden değil, doğrudan cihazınızdan o web sitesine gider ve bununla ilgili hiçbir şey tarafımızdan kaydedilmez. Yazdığınız web sitesi, onu ziyaret etseydiniz göreceği gibi bağlantınızdan gelen sıradan bir istek görür.
+https ile başlayan bir web adresinin yanındaki Bağlantıyı kontrol et düğmesine dokunduğunuzda uygulama, bir şeyin yanıt verip vermediğini görmek için kendi cihazınızdan o adrese bağlanmasını ister. Siz dokunana kadar hiçbir yere bağlanılmaz. İstek UNI·SIM üzerinden değil, doğrudan cihazınızdan o web sitesine gider ve bununla ilgili hiçbir şey tarafımızdan kaydedilmez. Web sitesi, onu ziyaret etseydiniz göreceği gibi bağlantınızdan gelen sıradan bir istek görür.
 
 ## Yalnızca siz seçtiğinizde
 
@@ -226,7 +226,7 @@ Sunucumuz telefonu hedefinize yönlendirirken tarayıcıdan, o siteye kısa bağ
 
 ## Her Universal uygulamasının gönderdikleri
 
-Uygulama açıkken, menünün onu kaç kişinin kullandığını gösterebilmesi için sunucumuza kullanımda olduğunu belirten küçük bir sinyal gönderir. Bu sinyal uygulamanın adını, cihaz türünü (web, telefon ya da masaüstü), bu cihazda oluşturulan rastgele bir kimliği ve oturum açtıysanız hesabınızı içerir. Oturum açtıysanız uygulama, hesabınızın etkinlik sayfası için uygulamayı açtığınızı da kaydeder. Bunların hiçbiri oluşturduğunuz ya da taradığınız kodlarla ilgili bir şey içermez. Üçüncü taraf analiz ya da reklam yoktur.
+Web sitesinde uygulama açıkken, menünün onu kaç kişinin kullandığını gösterebilmesi için sunucumuza kullanımda olduğunu belirten küçük bir sinyal gönderir. Bu sinyal uygulamanın adını, tarayıcınızda oluşturulan rastgele bir kimliği ve oturum açtıysanız hesabınızı içerir. Telefon ve masaüstü uygulamaları bu sinyali göndermez ve böyle bir kimlik tutmaz. Oturum açtıysanız uygulama, hesabınızın etkinlik sayfası için uygulamayı açtığınızı da kaydeder. Bunların hiçbiri oluşturduğunuz ya da taradığınız kodlarla ilgili bir şey içermez. Üçüncü taraf analiz ya da reklam yoktur.
 
 ## Statik kodlar doğaları gereği gizlidir
 

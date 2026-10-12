@@ -162,7 +162,7 @@ Placing a code on a circle, hexagon or star, or adding decoration around it, mak
 2. Print one copy at the real size and on the real material, then scan it again in the lighting where it will be used.
 3. Check that the page it opens is the one you meant.
 
-Universal QR checks that a web address is in a usable form as you type, and quietly asks whether anything answers at it. A green tick means something responded, not that it is the right page, so always open the link yourself too.`,
+Universal QR checks that a web address is in a usable form as you type. Press Check link and it also asks whether anything answers at that address. A green tick means something responded, not that it is the right page, so always open the link yourself too.`,
   },
   {
     id: 'scanning-safely',
@@ -203,9 +203,9 @@ If you entered details on a page you now doubt, change the password you used the
 - **Save to this device** keeps a small gallery of designs in the same local storage. It needs no account. Clearing the app's data, or your browser's site data, removes it.
 - **Scanning.** The camera picture is decoded on your device and never uploaded.
 
-## One automatic check
+## One check, when you ask
 
-When you type a web address starting with https, the app asks your own device to contact that address to see whether anything answers. This goes directly from your device to that website, not through UNI·SIM, and nothing about it is recorded by us. The website you typed will see an ordinary request from your connection, as it would if you visited it.
+When you press Check link beside a web address starting with https, the app asks your own device to contact that address to see whether anything answers. Nothing is contacted until you press it. The request goes directly from your device to that website, not through UNI·SIM, and nothing about it is recorded by us. The website will see an ordinary request from your connection, as it would if you visited it.
 
 ## Only when you choose
 
@@ -226,7 +226,7 @@ When our server sends the phone on to your destination, it asks the browser not 
 
 ## What every Universal app sends
 
-While the app is open, it sends our server a small signal that it is in use, so the menu can show how many people use it. That signal holds the app's name, the kind of device (web, phone or desktop), a random ID created on this device and, if you are signed in, your account. If you are signed in, the app also records that you opened it, for your account's activity page. Neither includes anything about the codes you make or scan. There is no third-party analytics or advertising.
+On the website, while the app is open, it sends our server a small signal that it is in use, so the menu can show how many people use it. That signal holds the app's name, a random ID created in your browser and, if you are signed in, your account. The phone and desktop apps do not send this signal and keep no such ID. If you are signed in, the app also records that you opened it, for your account's activity page. Neither includes anything about the codes you make or scan. There is no third-party analytics or advertising.
 
 ## Static codes are private by nature
 

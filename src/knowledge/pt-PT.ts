@@ -162,7 +162,7 @@ Colocar um código dentro de um círculo, hexágono ou estrela, ou acrescentar d
 2. Imprima uma cópia no tamanho real e no material real e volte a lê-la com a iluminação do local onde vai ser usada.
 3. Confirme que a página que abre é a que pretendia.
 
-O Universal QR verifica, à medida que escreve, se um endereço web tem um formato utilizável e pergunta discretamente se alguma coisa responde nesse endereço. Um visto verde significa que algo respondeu, não que seja a página certa, por isso abra sempre também a ligação pessoalmente.`,
+O Universal QR verifica, à medida que escreve, se um endereço web tem um formato utilizável. Toque em Verificar ligação e pergunta também se alguma coisa responde nesse endereço. Um visto verde significa que algo respondeu, não que seja a página certa, por isso abra sempre também a ligação pessoalmente.`,
   },
   {
     id: 'scanning-safely',
@@ -203,9 +203,9 @@ Se introduziu dados numa página de que agora desconfia, altere a palavra-passe 
 - **Guardar neste dispositivo** mantém uma pequena galeria de designs no mesmo armazenamento local. Não precisa de conta. Limpar os dados da aplicação, ou os dados do site no seu navegador, apaga-a.
 - **Leitura.** A imagem da câmara é descodificada no seu dispositivo e nunca é carregada.
 
-## Uma verificação automática
+## Uma verificação, quando a pedir
 
-Quando escreve um endereço web que começa por https, a aplicação pede ao seu próprio dispositivo que contacte esse endereço para ver se alguma coisa responde. Isto vai diretamente do seu dispositivo para esse site, sem passar pela UNI·SIM, e nada sobre isso é registado por nós. O site que escreveu verá um pedido normal a partir da sua ligação, tal como aconteceria se o visitasse.
+Quando toca em Verificar ligação junto a um endereço web que começa por https, a aplicação pede ao seu próprio dispositivo que contacte esse endereço para ver se alguma coisa responde. Nada é contactado antes de tocar. O pedido vai diretamente do seu dispositivo para esse site, sem passar pela UNI·SIM, e nada sobre isso é registado por nós. O site verá um pedido normal a partir da sua ligação, tal como aconteceria se o visitasse.
 
 ## Só quando escolher
 
@@ -226,7 +226,7 @@ Quando o nosso servidor encaminha o telemóvel para o seu destino, pede ao naveg
 
 ## O que todas as aplicações Universal enviam
 
-Enquanto a aplicação está aberta, envia ao nosso servidor um pequeno sinal de que está a ser usada, para que o menu possa mostrar quantas pessoas a usam. Esse sinal contém o nome da aplicação, o tipo de dispositivo (web, telemóvel ou computador), um ID aleatório criado neste dispositivo e, se tiver sessão iniciada, a sua conta. Se tiver sessão iniciada, a aplicação regista também que a abriu, para a página de atividade da sua conta. Nenhum dos dois inclui qualquer informação sobre os códigos que cria ou lê. Não há análises de terceiros nem publicidade.
+No site, enquanto a aplicação está aberta, envia ao nosso servidor um pequeno sinal de que está a ser usada, para que o menu possa mostrar quantas pessoas a usam. Esse sinal contém o nome da aplicação, um ID aleatório criado no seu navegador e, se tiver sessão iniciada, a sua conta. As aplicações para telemóvel e computador não enviam este sinal nem guardam nenhum ID deste tipo. Se tiver sessão iniciada, a aplicação regista também que a abriu, para a página de atividade da sua conta. Nenhum dos dois inclui qualquer informação sobre os códigos que cria ou lê. Não há análises de terceiros nem publicidade.
 
 ## Os códigos estáticos são privados por natureza
 

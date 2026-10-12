@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { UniversalProvider } from '@unisim/sdk'
+import { UniversalProvider, isNativeShell } from '@unisim/sdk'
 import type { ProductCode } from '@unisim/sdk'
 import App from './App'
 import { I18nRoot } from './i18n'
@@ -48,6 +48,11 @@ const universalConfig = {
   // value only scopes changelog/usage, neither of which this tool uses.
   product: 'qr' as unknown as ProductCode,
   cookieDomain: import.meta.env.PROD ? '.unisim.co.uk' : undefined,
+  // The suite user count (the SDK's presence beat) runs on the website only.
+  // The phone app (Capacitor) and the desktop app (Electron, the `desktop`
+  // build mode, which the phone bundle is also built with) never send it, so
+  // they keep no install id and the store privacy answers carry no Device ID.
+  presence: !isNativeShell() && import.meta.env.MODE !== 'desktop',
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

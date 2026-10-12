@@ -16,6 +16,7 @@
 // repo's own test style (plain Node, no test runner).
 
 import { strict as assert } from 'node:assert'
+import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 
 const read = (rel) => readFileSync(new URL(`../${rel}`, import.meta.url), 'utf8')
@@ -71,6 +72,16 @@ check('it puts the dark class on <html> before anything is painted', () => {
 
 check('it never removes the class — light is the default, so it only ever adds', () => {
   assert.ok(!headScript().includes("classList.remove('dark')"), "index.html <head> removes the dark class")
+})
+
+// public/_headers allows this one inline script by its sha256 (script-src has
+// no 'unsafe-inline'). Edit the script without updating the hash and the live
+// site refuses it: dark-mode visitors get the light page first again.
+check("public/_headers' Content-Security-Policy carries the pre-paint script's sha256", () => {
+  const match = /<script>([\s\S]*?)<\/script>/.exec(headScript())
+  assert.ok(match, 'no bare <script> in index.html <head>')
+  const hash = `'sha256-${createHash('sha256').update(match[1]).digest('base64')}'`
+  assert.ok(read('public/_headers').includes(hash), `public/_headers script-src lacks ${hash}`)
 })
 
 if (failures) {

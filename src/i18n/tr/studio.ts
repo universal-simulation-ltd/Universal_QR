@@ -84,6 +84,8 @@ const studio: Messages['studio'] = {
 
   // Link test (under the address box)
   'test_link': 'Bağlantıyı test et',
+  'check_link': 'Bağlantıyı kontrol et',
+  'check_link_title': 'Adreste bir şeyin yanıt verip vermediğini sorar. İstek UNI·SIM üzerinden değil, doğrudan bu cihazdan o siteye gider.',
   'no_scheme': 'Başında {https} yok — bazı tarayıcılar bunu açar, bazıları ise düz metin olarak okur.',
   'add_https': 'https:// ekle',
   'insecure': 'Bir {http} adresi. Açılır, ancak telefonlar bunu “Güvenli değil” olarak gösterir — ve bu sayfadan kontrol edilemez.',

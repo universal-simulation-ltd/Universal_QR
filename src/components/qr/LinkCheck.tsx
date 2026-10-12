@@ -1,18 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { parseLink, probeLink, type ProbeResult } from '../../lib/linkCheck'
 import { useT } from '../../i18n'
 
 // "Test link is working" — the honest test (a tab, a human, a real page), plus
-// a best-effort tick from the browser. See lib/linkCheck.ts for why the tick is
+// a best-effort tick from the browser, asked for only when the visitor presses
+// "Check link". See lib/linkCheck.ts for why the tick is
 // worded as narrowly as it is: an opaque cross-origin response cannot tell a
 // real page from a 404, so the tick claims only that the address answered.
-
-/** Successful probes only, keyed by href, for the life of the tab. A miss is
- *  deliberately NOT cached — the usual cause is the network, and a visitor who
- *  fixes theirs should get a fresh answer rather than a stale cross. */
-const ANSWERED = new Set<string>()
-
-const DEBOUNCE_MS = 900
 
 export default function LinkCheck({
   value,
@@ -25,39 +19,36 @@ export default function LinkCheck({
 }) {
   const t = useT()
   const shape = useMemo(() => parseLink(value), [value])
-  const [status, setStatus] = useState<'idle' | 'checking' | ProbeResult>('idle')
+  // The result belongs to the address it was asked about, so an answer that
+  // arrives after the address has changed is never shown against the new one.
+  const [result, setResult] = useState<{ href: string; status: 'checking' | ProbeResult } | null>(null)
+  const latest = useRef<string | null>(null)
 
   // Only https gets probed. An http:// address from this https page is blocked
   // as mixed content before it leaves the browser, so probing one would report
   // every plain-http site on earth as dead.
   const probeHref = shape.kind === 'web' ? shape.href : null
+  latest.current = probeHref
+  // A new address starts with no answer: going back to one checked earlier
+  // asks again rather than showing what it said then.
+  const [askedOf, setAskedOf] = useState(probeHref)
+  if (askedOf !== probeHref) {
+    setAskedOf(probeHref)
+    setResult(null)
+  }
+  const status = result && result.href === probeHref ? result.status : 'idle'
 
-  useEffect(() => {
-    if (!probeHref) {
-      setStatus('idle')
-      return
-    }
-    if (ANSWERED.has(probeHref)) {
-      setStatus('ok')
-      return
-    }
-    setStatus('idle')
-    let cancelled = false
-    // Debounced: this fires while someone is still typing their URL, and every
-    // keystroke reaching out to a half-finished hostname is both wasteful and
-    // a stream of red herrings.
-    const timer = setTimeout(async () => {
-      setStatus('checking')
-      const result = await probeLink(probeHref)
-      if (cancelled) return
-      if (result === 'ok') ANSWERED.add(probeHref)
-      setStatus(result)
-    }, DEBOUNCE_MS)
-    return () => {
-      cancelled = true
-      clearTimeout(timer)
-    }
-  }, [probeHref])
+  // Nothing is fetched until the visitor presses "Check link". Probing while
+  // they type would reach out to every half-finished hostname, and to the site
+  // itself, without being asked.
+  const check = async () => {
+    if (!probeHref || status === 'checking') return
+    const href = probeHref
+    setResult({ href, status: 'checking' })
+    const answer = await probeLink(href)
+    if (latest.current !== href) return
+    setResult({ href, status: answer })
+  }
 
   if (shape.kind === 'empty' || shape.kind === 'other') return null
 
@@ -79,6 +70,21 @@ export default function LinkCheck({
           </svg>
           {t('studio.test_link')}
         </a>
+        {probeHref && (
+          <button
+            type="button"
+            onClick={check}
+            disabled={status === 'checking'}
+            title={t('studio.check_link_title')}
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 hover:text-orange-800 transition-colors disabled:cursor-wait disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-orange-500/60 dark:hover:bg-orange-500/10 dark:hover:text-orange-300"
+          >
+            <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="10" cy="10" r="7.5" />
+              <path d="M6.8 10.2l2.2 2.2 4.2-4.6" />
+            </svg>
+            {t('studio.check_link')}
+          </button>
+        )}
         <Status status={status} shape={shape.kind} />
       </div>
 

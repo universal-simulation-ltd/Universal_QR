@@ -162,7 +162,7 @@ Placer un code sur un cercle, un hexagone ou une étoile, ou ajouter une décora
 2. Imprimez un exemplaire à la taille réelle et sur le support réel, puis scannez-le de nouveau sous l'éclairage où il sera utilisé.
 3. Vérifiez que la page qui s'ouvre est bien celle que vous vouliez.
 
-Universal QR vérifie au fil de la saisie qu'une adresse web est dans une forme utilisable, et demande discrètement si quelque chose y répond. Une coche verte signifie que quelque chose a répondu, pas qu'il s'agit de la bonne page : ouvrez donc toujours le lien vous-même aussi.`,
+Universal QR vérifie au fil de la saisie qu'une adresse web est dans une forme utilisable. Appuyez sur Vérifier le lien et il demande aussi si quelque chose répond à cette adresse. Une coche verte signifie que quelque chose a répondu, pas qu'il s'agit de la bonne page : ouvrez donc toujours le lien vous-même aussi.`,
   },
   {
     id: 'scanning-safely',
@@ -203,9 +203,9 @@ Si vous avez saisi des informations sur une page dont vous doutez à présent, c
 - **Enregistrer sur cet appareil** conserve une petite galerie de créations dans ce même stockage local. Aucun compte n'est nécessaire. Effacer les données de l'application, ou les données de site de votre navigateur, la supprime.
 - **Le scan.** L'image de l'appareil photo est décodée sur votre appareil et n'est jamais envoyée en ligne.
 
-## Une vérification automatique
+## Une vérification, quand vous la demandez
 
-Quand vous saisissez une adresse web commençant par https, l'application demande à votre propre appareil de contacter cette adresse pour voir si quelque chose répond. Cette requête va directement de votre appareil à ce site web, sans passer par UNI·SIM, et nous n'en enregistrons rien. Le site que vous avez saisi verra une requête ordinaire provenant de votre connexion, comme si vous le visitiez.
+Quand vous appuyez sur Vérifier le lien à côté d'une adresse web commençant par https, l'application demande à votre propre appareil de contacter cette adresse pour voir si quelque chose répond. Rien n'est contacté avant que vous appuyiez. Cette requête va directement de votre appareil à ce site web, sans passer par UNI·SIM, et nous n'en enregistrons rien. Le site verra une requête ordinaire provenant de votre connexion, comme si vous le visitiez.
 
 ## Uniquement si vous le choisissez
 
@@ -226,7 +226,7 @@ Lorsque notre serveur redirige le téléphone vers votre destination, il demande
 
 ## Ce que chaque application Universal envoie
 
-Pendant que l'application est ouverte, elle envoie à notre serveur un petit signal indiquant qu'elle est utilisée, afin que le menu puisse afficher combien de personnes l'utilisent. Ce signal contient le nom de l'application, le type d'appareil (web, téléphone ou ordinateur), un identifiant aléatoire créé sur cet appareil et, si vous êtes connecté, votre compte. Si vous êtes connecté, l'application enregistre aussi que vous l'avez ouverte, pour la page d'activité de votre compte. Ni l'un ni l'autre ne contient quoi que ce soit sur les codes que vous créez ou scannez. Il n'y a aucun outil d'analyse ni aucune publicité tiers.
+Sur le site web, pendant que l'application est ouverte, elle envoie à notre serveur un petit signal indiquant qu'elle est utilisée, afin que le menu puisse afficher combien de personnes l'utilisent. Ce signal contient le nom de l'application, un identifiant aléatoire créé dans votre navigateur et, si vous êtes connecté, votre compte. Les applications pour téléphone et pour ordinateur n'envoient pas ce signal et ne conservent aucun identifiant de ce type. Si vous êtes connecté, l'application enregistre aussi que vous l'avez ouverte, pour la page d'activité de votre compte. Ni l'un ni l'autre ne contient quoi que ce soit sur les codes que vous créez ou scannez. Il n'y a aucun outil d'analyse ni aucune publicité tiers.
 
 ## Les codes statiques sont privés par nature
 

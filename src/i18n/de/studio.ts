@@ -84,6 +84,8 @@ const studio: Messages['studio'] = {
 
   // Link test (under the address box)
   'test_link': 'Link testen',
+  'check_link': 'Link prüfen',
+  'check_link_title': 'Fragt bei der Adresse nach, ob dort etwas antwortet. Die Anfrage geht direkt von diesem Gerät an die Website, nicht über UNI·SIM.',
   'no_scheme': 'Kein {https} am Anfang – manche Scanner öffnen das, andere lesen es als reinen Text.',
   'add_https': 'https:// hinzufügen',
   'insecure': 'Eine {http}-Adresse. Sie öffnet sich, aber Handys zeigen sie als „Nicht sicher“ an – und von dieser Seite aus lässt sie sich nicht prüfen.',

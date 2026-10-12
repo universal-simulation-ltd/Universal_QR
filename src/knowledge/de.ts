@@ -162,7 +162,7 @@ Wenn Sie einen Code auf einen Kreis, ein Sechseck oder einen Stern setzen oder V
 2. Drucken Sie ein Exemplar in der echten Größe und auf dem echten Material, und scannen Sie es noch einmal in dem Licht, in dem es verwendet wird.
 3. Prüfen Sie, ob die Seite, die sich öffnet, die gewünschte ist.
 
-Universal QR prüft schon beim Tippen, ob eine Webadresse eine brauchbare Form hat, und fragt im Hintergrund nach, ob unter ihr etwas antwortet. Ein grünes Häkchen bedeutet, dass etwas geantwortet hat, nicht, dass es die richtige Seite ist. Öffnen Sie den Link deshalb immer auch selbst.`,
+Universal QR prüft schon beim Tippen, ob eine Webadresse eine brauchbare Form hat. Wenn Sie auf Link prüfen tippen, fragt es außerdem nach, ob unter dieser Adresse etwas antwortet. Ein grünes Häkchen bedeutet, dass etwas geantwortet hat, nicht, dass es die richtige Seite ist. Öffnen Sie den Link deshalb immer auch selbst.`,
   },
   {
     id: 'scanning-safely',
@@ -203,9 +203,9 @@ Wenn Sie auf einer Seite, der Sie jetzt misstrauen, Daten eingegeben haben, änd
 - **Auf diesem Gerät speichern** legt eine kleine Galerie mit Designs im selben lokalen Speicher an. Dafür ist kein Konto nötig. Wenn Sie die Daten der App oder die Websitedaten Ihres Browsers löschen, wird sie entfernt.
 - **Scannen.** Das Kamerabild wird auf Ihrem Gerät ausgewertet und nie hochgeladen.
 
-## Eine automatische Prüfung
+## Eine Prüfung, wenn Sie sie anfordern
 
-Wenn Sie eine Webadresse eingeben, die mit https beginnt, lässt die App Ihr eigenes Gerät diese Adresse kontaktieren, um zu sehen, ob dort etwas antwortet. Das geht direkt von Ihrem Gerät zu dieser Website, nicht über UNI·SIM, und wir zeichnen nichts davon auf. Die eingegebene Website sieht eine gewöhnliche Anfrage von Ihrer Verbindung, so als würden Sie sie besuchen.
+Wenn Sie neben einer Webadresse, die mit https beginnt, auf Link prüfen tippen, lässt die App Ihr eigenes Gerät diese Adresse kontaktieren, um zu sehen, ob dort etwas antwortet. Vorher wird nichts kontaktiert. Die Anfrage geht direkt von Ihrem Gerät zu dieser Website, nicht über UNI·SIM, und wir zeichnen nichts davon auf. Die Website sieht eine gewöhnliche Anfrage von Ihrer Verbindung, so als würden Sie sie besuchen.
 
 ## Nur wenn Sie es wählen
 
@@ -226,7 +226,7 @@ Wenn unser Server das Telefon an Ihr Ziel weiterleitet, bittet er den Browser, d
 
 ## Was jede Universal-App sendet
 
-Solange die App geöffnet ist, sendet sie unserem Server ein kleines Signal, dass sie in Gebrauch ist, damit das Menü anzeigen kann, wie viele Menschen sie nutzen. Dieses Signal enthält den Namen der App, die Art des Geräts (Web, Telefon oder Desktop), eine auf diesem Gerät erzeugte Zufalls-ID und, wenn Sie angemeldet sind, Ihr Konto. Wenn Sie angemeldet sind, vermerkt die App außerdem für die Aktivitätsseite Ihres Kontos, dass Sie sie geöffnet haben. Keines von beiden enthält etwas über die Codes, die Sie erstellen oder scannen. Es gibt keine Analyse- oder Werbedienste von Drittanbietern.
+Auf der Website sendet die App, solange sie geöffnet ist, unserem Server ein kleines Signal, dass sie in Gebrauch ist, damit das Menü anzeigen kann, wie viele Menschen sie nutzen. Dieses Signal enthält den Namen der App, eine in Ihrem Browser erzeugte Zufalls-ID und, wenn Sie angemeldet sind, Ihr Konto. Die Apps für Telefon und Desktop senden dieses Signal nicht und speichern keine solche ID. Wenn Sie angemeldet sind, vermerkt die App außerdem für die Aktivitätsseite Ihres Kontos, dass Sie sie geöffnet haben. Keines von beiden enthält etwas über die Codes, die Sie erstellen oder scannen. Es gibt keine Analyse- oder Werbedienste von Drittanbietern.
 
 ## Statische Codes sind von Natur aus privat
 

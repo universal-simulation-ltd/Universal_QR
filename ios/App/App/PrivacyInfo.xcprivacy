@@ -19,17 +19,14 @@
     account (the SDK's <UsageTracker />). Nothing about the code. Declared as
     product interaction, for analytics, because that is what it is.
 
-  The one exception to "only when the user asks": the suite user count
-  (@unisim/sdk presence.js, started by <UniversalProvider>). From the moment
-  the app opens, signed in OR NOT, and every 45 s while it is in front, it
-  sends a random install id this app makes itself (kept in the WebView's
-  localStorage), the platform and the product name, with the account id once
-  signed in, so "N users" can be counted. Declared as Device ID and Product
-  Interaction, analytics, linked (a signed-in beat names the account), not
-  tracking — the same answers as Universal PDF and Ergo Assess.
+  No user count from the phone: <UniversalProvider> is configured with
+  presence off in the native build (src/main.tsx), so the SDK's presence beat
+  never runs here and no install id is made or sent. Only the website counts
+  users. Hence no Device ID below.
 
-  The link check asks the linked site itself whether anything answers (a
-  direct request from the phone, like opening it); nothing goes to our servers.
+  The link check runs only when the user presses "Check link": it asks the
+  linked site itself whether anything answers (a direct request from the
+  phone, like opening it); nothing goes to our servers.
 
   All of it goes to our own servers. Nothing is used for tracking, and there
   are no third-party analytics or advertising SDKs.
@@ -100,21 +97,7 @@
 			</array>
 		</dict>
 		<dict>
-			<!-- The user count's random install id, sent signed in or not. -->
-			<key>NSPrivacyCollectedDataType</key>
-			<string>NSPrivacyCollectedDataTypeDeviceID</string>
-			<key>NSPrivacyCollectedDataTypeLinked</key>
-			<true/>
-			<key>NSPrivacyCollectedDataTypeTracking</key>
-			<false/>
-			<key>NSPrivacyCollectedDataTypePurposes</key>
-			<array>
-				<string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
-			</array>
-		</dict>
-		<dict>
-			<!-- The user-count beat (signed in or not) and, while signed in, one
-			     "session.opened" event per launch. -->
+			<!-- While signed in, one "session.opened" event per launch. -->
 			<key>NSPrivacyCollectedDataType</key>
 			<string>NSPrivacyCollectedDataTypeProductInteraction</string>
 			<key>NSPrivacyCollectedDataTypeLinked</key>

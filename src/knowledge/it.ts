@@ -162,7 +162,7 @@ Mettere un codice su un cerchio, un esagono o una stella, o aggiungere decorazio
 2. Stampa una copia alla dimensione reale e sul materiale reale, poi scansionala di nuovo con la luce del luogo in cui verrà usata.
 3. Verifica che la pagina che si apre sia quella che intendevi.
 
-Mentre digiti, Universal QR controlla che un indirizzo web sia in una forma utilizzabile e verifica discretamente se a quell'indirizzo risponde qualcosa. Una spunta verde significa che qualcosa ha risposto, non che sia la pagina giusta, quindi apri sempre anche tu il link.`,
+Mentre digiti, Universal QR controlla che un indirizzo web sia in una forma utilizzabile. Se premi Verifica il link, verifica anche se a quell'indirizzo risponde qualcosa. Una spunta verde significa che qualcosa ha risposto, non che sia la pagina giusta, quindi apri sempre anche tu il link.`,
   },
   {
     id: 'scanning-safely',
@@ -203,9 +203,9 @@ Se hai inserito dei dati in una pagina di cui ora dubiti, cambia la password che
 - **Salva su questo dispositivo** conserva una piccola galleria di progetti nella stessa memoria locale. Non richiede un account. Cancellando i dati dell'app, o i dati del sito nel browser, la galleria viene eliminata.
 - **Scansione.** L'immagine della fotocamera viene decodificata sul tuo dispositivo e non viene mai caricata online.
 
-## Un controllo automatico
+## Un controllo, quando lo chiedi tu
 
-Quando digiti un indirizzo web che inizia con https, l'app chiede al tuo dispositivo di contattare quell'indirizzo per vedere se risponde qualcosa. La richiesta va direttamente dal tuo dispositivo a quel sito, non passa per UNI·SIM, e noi non ne registriamo nulla. Il sito che hai digitato vedrà una normale richiesta dalla tua connessione, come se lo visitassi.
+Quando premi Verifica il link accanto a un indirizzo web che inizia con https, l'app chiede al tuo dispositivo di contattare quell'indirizzo per vedere se risponde qualcosa. Nulla viene contattato finché non lo premi. La richiesta va direttamente dal tuo dispositivo a quel sito, non passa per UNI·SIM, e noi non ne registriamo nulla. Il sito vedrà una normale richiesta dalla tua connessione, come se lo visitassi.
 
 ## Solo se lo scegli tu
 
@@ -226,7 +226,7 @@ Quando il nostro server rimanda il telefono alla tua destinazione, chiede al bro
 
 ## Cosa invia ogni app Universal
 
-Mentre l'app è aperta, invia al nostro server un piccolo segnale per indicare che è in uso, così il menu può mostrare quante persone la usano. Il segnale contiene il nome dell'app, il tipo di dispositivo (web, telefono o computer), un ID casuale creato su questo dispositivo e, se hai effettuato l'accesso, il tuo account. Se hai effettuato l'accesso, l'app registra anche che l'hai aperta, per la pagina delle attività del tuo account. Nessuno dei due include qualcosa sui codici che crei o scansioni. Non ci sono strumenti di analisi o pubblicità di terze parti.
+Sul sito web, mentre l'app è aperta, invia al nostro server un piccolo segnale per indicare che è in uso, così il menu può mostrare quante persone la usano. Il segnale contiene il nome dell'app, un ID casuale creato nel tuo browser e, se hai effettuato l'accesso, il tuo account. Le app per telefono e computer non inviano questo segnale e non conservano alcun ID di questo tipo. Se hai effettuato l'accesso, l'app registra anche che l'hai aperta, per la pagina delle attività del tuo account. Nessuno dei due include qualcosa sui codici che crei o scansioni. Non ci sono strumenti di analisi o pubblicità di terze parti.
 
 ## I codici statici sono privati per natura
 

@@ -162,7 +162,7 @@ Colocar um código em um círculo, hexágono ou estrela, ou adicionar enfeites e
 2. Imprima uma cópia no tamanho real e no material real, e leia de novo na iluminação do lugar onde ela será usada.
 3. Confira se a página que abre é a que você queria.
 
-O Universal QR verifica, enquanto você digita, se um endereço da web está em um formato utilizável e, discretamente, pergunta se há algo respondendo nele. Um sinal verde significa que algo respondeu, não que é a página certa, então sempre abra o link você mesmo também.`,
+O Universal QR verifica, enquanto você digita, se um endereço da web está em um formato utilizável. Toque em Verificar link e ele também pergunta se há algo respondendo nesse endereço. Um sinal verde significa que algo respondeu, não que é a página certa, então sempre abra o link você mesmo também.`,
   },
   {
     id: 'scanning-safely',
@@ -203,9 +203,9 @@ Se você informou dados em uma página da qual agora desconfia, troque a senha q
 - **Salvar neste dispositivo** mantém uma pequena galeria de designs no mesmo armazenamento local. Não exige conta. Limpar os dados do app, ou os dados do site no navegador, apaga essa galeria.
 - **Leitura.** A imagem da câmera é decodificada no seu dispositivo e nunca é enviada.
 
-## Uma verificação automática
+## Uma verificação, quando você pede
 
-Quando você digita um endereço da web que começa com https, o app pede ao seu próprio dispositivo que acesse esse endereço para ver se há algo respondendo. Isso vai diretamente do seu dispositivo para esse site, sem passar pela UNI·SIM, e nada disso é registrado por nós. O site que você digitou verá uma solicitação comum vinda da sua conexão, como se você o tivesse visitado.
+Quando você toca em Verificar link ao lado de um endereço da web que começa com https, o app pede ao seu próprio dispositivo que acesse esse endereço para ver se há algo respondendo. Nada é acessado antes de você tocar. A solicitação vai diretamente do seu dispositivo para esse site, sem passar pela UNI·SIM, e nada disso é registrado por nós. O site verá uma solicitação comum vinda da sua conexão, como se você o tivesse visitado.
 
 ## Só quando você escolhe
 
@@ -226,7 +226,7 @@ Quando nosso servidor encaminha o celular para o seu destino, ele pede ao navega
 
 ## O que todo app Universal envia
 
-Enquanto o app está aberto, ele envia ao nosso servidor um pequeno sinal de que está em uso, para que o menu possa mostrar quantas pessoas o usam. Esse sinal contém o nome do app, o tipo de dispositivo (web, celular ou computador), um ID aleatório criado neste dispositivo e, se você tiver entrado, a sua conta. Se você tiver entrado, o app também registra que você o abriu, para a página de atividade da sua conta. Nenhum dos dois inclui nada sobre os códigos que você cria ou lê. Não há análise de dados nem publicidade de terceiros.
+No site, enquanto o app está aberto, ele envia ao nosso servidor um pequeno sinal de que está em uso, para que o menu possa mostrar quantas pessoas o usam. Esse sinal contém o nome do app, um ID aleatório criado no seu navegador e, se você tiver entrado, a sua conta. Os apps para celular e computador não enviam esse sinal e não guardam nenhum ID desse tipo. Se você tiver entrado, o app também registra que você o abriu, para a página de atividade da sua conta. Nenhum dos dois inclui nada sobre os códigos que você cria ou lê. Não há análise de dados nem publicidade de terceiros.
 
 ## Códigos estáticos são privados por natureza
 
