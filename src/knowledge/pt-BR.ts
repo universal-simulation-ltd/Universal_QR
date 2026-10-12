@@ -226,7 +226,7 @@ Quando nosso servidor encaminha o celular para o seu destino, ele pede ao navega
 
 ## O que todo app Universal envia
 
-No site, enquanto o app está aberto, ele envia ao nosso servidor um pequeno sinal de que está em uso, para que o menu possa mostrar quantas pessoas o usam. Esse sinal contém o nome do app, um ID aleatório criado no seu navegador e, se você tiver entrado, a sua conta. Os apps para celular e computador não enviam esse sinal e não guardam nenhum ID desse tipo. Se você tiver entrado, o app também registra que você o abriu, para a página de atividade da sua conta. Nenhum dos dois inclui nada sobre os códigos que você cria ou lê. Não há análise de dados nem publicidade de terceiros.
+No site, na primeira vez que você abre o app a cada dia, ele soma um à contagem anônima de aberturas do dia, enviada depois do seu primeiro clique ou tecla pressionada. Essa contagem contém só o nome do app e o tipo de plataforma ("web" no site): nenhum identificador, nenhuma conta e nada sobre o que você faz. Uma marca de "já contado hoje" fica no seu dispositivo e nunca é enviada. Os apps para celular e computador não a enviam. Se você tiver entrado, o app também registra que você o abriu, para a página de atividade da sua conta. Nenhum dos dois inclui nada sobre os códigos que você cria ou lê. Não há análise de dados nem publicidade de terceiros.
 
 ## Códigos estáticos são privados por natureza
 

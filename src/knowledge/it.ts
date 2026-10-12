@@ -226,7 +226,7 @@ Quando il nostro server rimanda il telefono alla tua destinazione, chiede al bro
 
 ## Cosa invia ogni app Universal
 
-Sul sito web, mentre l'app è aperta, invia al nostro server un piccolo segnale per indicare che è in uso, così il menu può mostrare quante persone la usano. Il segnale contiene il nome dell'app, un ID casuale creato nel tuo browser e, se hai effettuato l'accesso, il tuo account. Le app per telefono e computer non inviano questo segnale e non conservano alcun ID di questo tipo. Se hai effettuato l'accesso, l'app registra anche che l'hai aperta, per la pagina delle attività del tuo account. Nessuno dei due include qualcosa sui codici che crei o scansioni. Non ci sono strumenti di analisi o pubblicità di terze parti.
+Sul sito web, la prima volta che apri l'app ogni giorno, aggiunge uno al conteggio anonimo delle aperture del giorno, inviato dopo il tuo primo clic o tasto premuto. Quel conteggio contiene solo il nome dell'app e il tipo di piattaforma («web» sul sito): nessun identificativo, nessun account e niente su ciò che fai. Un segno «già contato oggi» resta sul tuo dispositivo e non viene mai inviato. Le app per telefono e computer non lo inviano. Se hai effettuato l'accesso, l'app registra anche che l'hai aperta, per la pagina delle attività del tuo account. Nessuno dei due include qualcosa sui codici che crei o scansioni. Non ci sono strumenti di analisi o pubblicità di terze parti.
 
 ## I codici statici sono privati per natura
 

@@ -226,7 +226,7 @@ When our server sends the phone on to your destination, it asks the browser not 
 
 ## What every Universal app sends
 
-On the website, while the app is open, it sends our server a small signal that it is in use, so the menu can show how many people use it. That signal holds the app's name, a random ID created in your browser and, if you are signed in, your account. The phone and desktop apps do not send this signal and keep no such ID. If you are signed in, the app also records that you opened it, for your account's activity page. Neither includes anything about the codes you make or scan. There is no third-party analytics or advertising.
+On the website, the first time you open the app each day, it adds one to an anonymous count of daily opens, sent after your first click or key press. That count holds only the app's name and the kind of platform (on the website, "web"): no identifier, no account and nothing about what you do. A "counted today" mark stays on your device and is never sent. The phone and desktop apps do not send it. If you are signed in, the app also records that you opened it, for your account's activity page. Neither includes anything about the codes you make or scan. There is no third-party analytics or advertising.
 
 ## Static codes are private by nature
 

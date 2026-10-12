@@ -226,7 +226,7 @@ Wenn unser Server das Telefon an Ihr Ziel weiterleitet, bittet er den Browser, d
 
 ## Was jede Universal-App sendet
 
-Auf der Website sendet die App, solange sie geöffnet ist, unserem Server ein kleines Signal, dass sie in Gebrauch ist, damit das Menü anzeigen kann, wie viele Menschen sie nutzen. Dieses Signal enthält den Namen der App, eine in Ihrem Browser erzeugte Zufalls-ID und, wenn Sie angemeldet sind, Ihr Konto. Die Apps für Telefon und Desktop senden dieses Signal nicht und speichern keine solche ID. Wenn Sie angemeldet sind, vermerkt die App außerdem für die Aktivitätsseite Ihres Kontos, dass Sie sie geöffnet haben. Keines von beiden enthält etwas über die Codes, die Sie erstellen oder scannen. Es gibt keine Analyse- oder Werbedienste von Drittanbietern.
+Auf der Website zählt sie beim ersten Öffnen jedes Tages eins zur anonymen Tageszählung der Öffnungen hinzu, gesendet nach Ihrem ersten Klick oder Tastendruck. Diese Zählung enthält nur den Namen der App und die Art der Plattform („web“ auf der Website): keine Kennung, kein Konto und nichts darüber, was Sie tun. Eine Markierung „heute schon gezählt“ bleibt auf Ihrem Gerät und wird nie gesendet. Die Telefon- und Desktop-Apps senden sie nicht. Wenn Sie angemeldet sind, vermerkt die App außerdem für die Aktivitätsseite Ihres Kontos, dass Sie sie geöffnet haben. Keines von beiden enthält etwas über die Codes, die Sie erstellen oder scannen. Es gibt keine Analyse- oder Werbedienste von Drittanbietern.
 
 ## Statische Codes sind von Natur aus privat
 

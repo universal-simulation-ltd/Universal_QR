@@ -226,7 +226,7 @@ Sunucumuz telefonu hedefinize yönlendirirken tarayıcıdan, o siteye kısa bağ
 
 ## Her Universal uygulamasının gönderdikleri
 
-Web sitesinde uygulama açıkken, menünün onu kaç kişinin kullandığını gösterebilmesi için sunucumuza kullanımda olduğunu belirten küçük bir sinyal gönderir. Bu sinyal uygulamanın adını, tarayıcınızda oluşturulan rastgele bir kimliği ve oturum açtıysanız hesabınızı içerir. Telefon ve masaüstü uygulamaları bu sinyali göndermez ve böyle bir kimlik tutmaz. Oturum açtıysanız uygulama, hesabınızın etkinlik sayfası için uygulamayı açtığınızı da kaydeder. Bunların hiçbiri oluşturduğunuz ya da taradığınız kodlarla ilgili bir şey içermez. Üçüncü taraf analiz ya da reklam yoktur.
+Web sitesinde, uygulamayı her gün ilk açışınızda, ilk tıklamanızdan veya tuşa basmanızdan sonra anonim günlük açılış sayısına bir ekler. Bu sayım yalnızca uygulamanın adını ve platform türünü (sitede "web") içerir: hiçbir tanımlayıcı, hesap ya da ne yaptığınıza dair bir şey yoktur. "Bugün sayıldı" işareti cihazınızda kalır ve asla gönderilmez. Telefon ve bilgisayar uygulamaları bunu göndermez. Oturum açtıysanız uygulama, hesabınızın etkinlik sayfası için uygulamayı açtığınızı da kaydeder. Bunların hiçbiri oluşturduğunuz ya da taradığınız kodlarla ilgili bir şey içermez. Üçüncü taraf analiz ya da reklam yoktur.
 
 ## Statik kodlar doğaları gereği gizlidir
 

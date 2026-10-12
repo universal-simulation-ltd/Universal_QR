@@ -19,10 +19,12 @@
     account (the SDK's <UsageTracker />). Nothing about the code. Declared as
     product interaction, for analytics, because that is what it is.
 
-  No user count from the phone: <UniversalProvider> is configured with
-  presence off in the native build (src/main.tsx), so the SDK's presence beat
-  never runs here and no install id is made or sent. Only the website counts
-  users. Hence no Device ID below.
+  No usage count from the phone: the suite user count (a random install id
+  every 45 s) was retired in @unisim/sdk 0.187.0, and its replacement, the
+  anonymous daily open count (product + kind of platform, no identifier), is
+  off in the native build (src/main.tsx `openCount: !isNativeShell() &&
+  MODE !== 'desktop'`). Only the website sends it, and the website is not
+  covered by this manifest. Hence no Device ID below.
 
   The link check runs only when the user presses "Check link": it asks the
   linked site itself whether anything answers (a direct request from the
