@@ -48,11 +48,12 @@ const universalConfig = {
   // value only scopes changelog/usage, neither of which this tool uses.
   product: 'qr' as unknown as ProductCode,
   cookieDomain: import.meta.env.PROD ? '.unisim.co.uk' : undefined,
-  // The suite user count (the SDK's presence beat) runs on the website only.
-  // The phone app (Capacitor) and the desktop app (Electron, the `desktop`
-  // build mode, which the phone bundle is also built with) never send it, so
-  // they keep no install id and the store privacy answers carry no Device ID.
-  presence: !isNativeShell() && import.meta.env.MODE !== 'desktop',
+  // The SDK's anonymous daily open count (0.187.0: once a day, product + kind
+  // of device, no identifier) runs on the website only. The phone app
+  // (Capacitor) and the desktop app (Electron, the `desktop` build mode, which
+  // the phone bundle is also built with) never send it, so the store privacy
+  // answers stay "no data".
+  openCount: !isNativeShell() && import.meta.env.MODE !== 'desktop',
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
