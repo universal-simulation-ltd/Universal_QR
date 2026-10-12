@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useState } from 'react'
-import { Chip, SignInDialog, useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding } from '@unisim/sdk'
+import { Chip, SignInDialog, useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding, withReturnUrl } from '@unisim/sdk'
 import { CONTAINER } from '../../lib/layout'
 import { DEFAULT_CONFIG, type QrDesign } from '@unisim/qr'
 import { useQrStore } from '../../stores/qrStore'
@@ -401,7 +401,7 @@ export default function DynamicStudio() {
             )}
             {error && <p className="mt-3 text-sm text-rose-600 dark:text-rose-400">{error}</p>}
             {error && error === t('dynamic.error_no_org') && (
-              <a href={SET_UP_COMPANY_URL} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
+              <a href={withReturnUrl(SET_UP_COMPANY_URL)} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
                 {t('dynamic.setup_company_button')}
               </a>
             )}

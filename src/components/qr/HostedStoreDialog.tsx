@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { SignInDialog, useUniversal, useUser, useOrg, useHostedUploads, type HostedUpload } from '@unisim/sdk'
+import { SignInDialog, useUniversal, useUser, useOrg, useHostedUploads, withReturnUrl, type HostedUpload } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { useFreeAllowance, isNearLimit } from '../../lib/useFreeAllowance'
 import { storeCurrentQr, deleteHostedQr, openHostedQr, HostedObjectMissingError } from '../../lib/hostedStore'
@@ -184,7 +184,7 @@ export default function HostedStoreDialog() {
                 {noCompany ? (
                   <div className="mt-3">
                     <p className="text-sm text-slate-600 dark:text-slate-300">{t('dynamic.error_no_org')}</p>
-                    <a href={SET_UP_COMPANY_URL} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
+                    <a href={withReturnUrl(SET_UP_COMPANY_URL)} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
                       {t('dynamic.setup_company_button')}
                     </a>
                   </div>
