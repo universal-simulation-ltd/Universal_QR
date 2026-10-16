@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 import { ChipToggle, isNativeShell, useFileDrop } from '@unisim/sdk'
 import { useQrStore, type ContentKind } from '../../stores/qrStore'
 import {
@@ -931,6 +931,7 @@ export function ContentCard() {
   const current: ContentKind | 'barcode' = isBarcode ? 'barcode' : kind
   const inMore = MORE_KINDS.some((k) => k.id === current)
   const [moreOpen, setMoreOpen] = useState(inMore)
+  const moreRowId = useId()
 
   function setField(key: string, val: string) {
     const next = { ...f, [key]: val }
@@ -978,6 +979,7 @@ export function ContentCard() {
           className="u-chip u-chip--pick"
           aria-pressed={inMore}
           aria-expanded={moreOpen || inMore}
+          aria-controls={moreRowId}
           // A second tap closes the row AND drops a choice made inside it, back
           // to Link (James, 2026-09-30) — the row can't hide a ticked chip, so
           // shutting it means "none of these".
@@ -1009,7 +1011,7 @@ export function ContentCard() {
         </button>
       </div>
       {(moreOpen || inMore) && (
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('controls.more_kinds_aria')}>
+        <div id={moreRowId} className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('controls.more_kinds_aria')}>
           {MORE_KINDS.map((k) => (
             <Kind key={k.id} {...k} />
           ))}

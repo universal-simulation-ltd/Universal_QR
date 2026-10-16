@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { useUniversal } from '@unisim/sdk'
+import { useRevealOnOpen, useUniversal } from '@unisim/sdk'
 import { type QrDesign } from '@unisim/qr'
 import QrCanvas from './QrCanvas'
 import { downloadQr } from '../../lib/download'
@@ -47,6 +47,8 @@ export default function DynamicCodeCard({
   const config = useMemo(() => dynamicQrConfig(code, studioBrand), [code, studioBrand])
 
   const [editing, setEditing] = useState(false)
+  // The editor replaces its "Change destination" link, so it scrolls itself on screen.
+  const editorRef = useRevealOnOpen()
   const [draftUrl, setDraftUrl] = useState(code.target_url)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -205,7 +207,7 @@ export default function DynamicCodeCard({
               )}
             </div>
             {editing ? (
-              <div className="mt-2 space-y-2">
+              <div ref={editorRef} className="mt-2 space-y-2">
                 <input
                   type="url"
                   inputMode="url"
