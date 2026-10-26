@@ -54,6 +54,11 @@ const universalConfig = {
   // the phone bundle is also built with) never send it, so the store privacy
   // answers stay "no data".
   openCount: !isNativeShell() && import.meta.env.MODE !== 'desktop',
+  // No "Sign in" in the profile menu for a guest (James, 2026-10-26: only
+  // where signing in adds little). What needs an account asks for it in
+  // place: dynamic codes in the dynamic-code studio, the online store in its
+  // dialog. Signed in, the account rows and Sign out are back (SDK 0.205.0).
+  signInInMenu: false,
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
