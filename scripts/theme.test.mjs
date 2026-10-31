@@ -80,7 +80,9 @@ check('it never removes the class — light is the default, so it only ever adds
 check("public/_headers' Content-Security-Policy carries the pre-paint script's sha256", () => {
   const match = /<script>([\s\S]*?)<\/script>/.exec(headScript())
   assert.ok(match, 'no bare <script> in index.html <head>')
-  const hash = `'sha256-${createHash('sha256').update(match[1]).digest('base64')}'`
+  // Hash the script as deployed: the site builds from git, where index.html is
+  // LF (.gitattributes pins it; an older Windows checkout may still hold CRLF).
+  const hash = `'sha256-${createHash('sha256').update(match[1].replace(/\r\n/g, '\n')).digest('base64')}'`
   assert.ok(read('public/_headers').includes(hash), `public/_headers script-src lacks ${hash}`)
 })
 
