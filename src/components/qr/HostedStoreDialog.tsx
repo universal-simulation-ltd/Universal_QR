@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { SignInDialog, useUniversal, useUser, useOrg, useHostedUploads, withReturnUrl, type HostedUpload } from '@unisim/sdk'
+import { SignInDialog, useUniversal, useUser, useOrg, useHostedUploads, withReturnUrl, type HostedUpload, buttonClass } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { useFreeAllowance, isNearLimit } from '../../lib/useFreeAllowance'
 import { storeCurrentQr, deleteHostedQr, openHostedQr, HostedObjectMissingError } from '../../lib/hostedStore'
@@ -172,7 +172,7 @@ export default function HostedStoreDialog() {
             {!signedIn ? (
               <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
                 <p className="text-sm text-slate-700 dark:text-slate-200">{t.rich('dynamic.backup_sign_in', { id: <strong>Universal ID</strong> })}</p>
-                <button type="button" onClick={() => setSignInOpen(true)} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
+                <button type="button" onClick={() => setSignInOpen(true)} className={`${buttonClass('primary')} mt-2`}>
                   {t('dynamic.signin_button')}
                 </button>
                 <SignInDialog open={signInOpen} onClose={() => setSignInOpen(false)} hubLoginHref={SIGNIN_URL} initialMode="signup" />
@@ -184,7 +184,7 @@ export default function HostedStoreDialog() {
                 {noCompany ? (
                   <div className="mt-3">
                     <p className="text-sm text-slate-600 dark:text-slate-300">{t('dynamic.error_no_org')}</p>
-                    <a href={withReturnUrl(SET_UP_COMPANY_URL)} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
+                    <a href={withReturnUrl(SET_UP_COMPANY_URL)} className={`${buttonClass('primary')} mt-2`}>
                       {t('dynamic.setup_company_button')}
                     </a>
                   </div>
@@ -192,7 +192,7 @@ export default function HostedStoreDialog() {
                   <button
                     onClick={onStore}
                     disabled={busy}
-                    className="mt-3 w-full rounded-lg bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800 disabled:opacity-50"
+                    className={`${buttonClass('primary')} mt-3 w-full`}
                   >
                     {busy ? t('dynamic.backup_backing_up') : justStored ? t('dynamic.backup_backed_up') : t('dynamic.backup_back_up_online')}
                   </button>
@@ -237,8 +237,8 @@ export default function HostedStoreDialog() {
                               <span className="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">{u.file_name || 'qr-code.png'}</span>
                               <span className="block text-[10px] text-slate-400">{new Date(u.created_at).toLocaleDateString(intlLocale(t.lang))}</span>
                             </span>
-                            <button onClick={() => onOpen(u)} disabled={busy} className="shrink-0 rounded-md bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800 disabled:opacity-50">{t('dynamic.backup_open')}</button>
-                            <button onClick={() => onDelete(u)} disabled={busy} className="shrink-0 rounded-md px-2 py-1.5 text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50 dark:hover:text-rose-400" title={t('dynamic.backup_delete_title')}>{t('dynamic.delete')}</button>
+                            <button onClick={() => onOpen(u)} disabled={busy} className={`${buttonClass(undefined, 'sm')} shrink-0`}>{t('dynamic.backup_open')}</button>
+                            <button onClick={() => onDelete(u)} disabled={busy} className={`${buttonClass('quiet', 'sm')} shrink-0`} title={t('dynamic.backup_delete_title')}>{t('dynamic.delete')}</button>
                           </div>
 
                           {/* A save with nothing behind it. Say which file, say
@@ -261,7 +261,7 @@ export default function HostedStoreDialog() {
                                 type="button"
                                 onClick={() => onDelete(u)}
                                 disabled={busy}
-                                className="mt-2 inline-flex rounded-md bg-amber-700 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-amber-800 disabled:opacity-50"
+                                className={`${buttonClass('danger', 'sm')} mt-2`}
                               >
                                 {t('dynamic.backup_remove_entry')}
                               </button>

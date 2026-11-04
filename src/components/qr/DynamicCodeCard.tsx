@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { useRevealOnOpen, useUniversal } from '@unisim/sdk'
+import { useRevealOnOpen, useUniversal, buttonClass } from '@unisim/sdk'
 import { type QrDesign } from '@unisim/qr'
 import QrCanvas from './QrCanvas'
 import { downloadQr } from '../../lib/download'
@@ -189,7 +189,7 @@ export default function DynamicCodeCard({
               type="button"
               onClick={() => onDelete(code)}
               disabled={busy}
-              className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50 dark:hover:text-rose-400"
+              className={`${buttonClass('quiet', 'sm')} shrink-0`}
               title={t('dynamic.delete_title')}
             >
               {t('dynamic.delete')}
@@ -217,10 +217,10 @@ export default function DynamicCodeCard({
                   className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/40 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-100"
                 />
                 <div className="flex gap-2">
-                  <button type="button" onClick={onSave} disabled={saving || !draftUrl.trim()} className="rounded-lg bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800 disabled:opacity-50">
+                  <button type="button" onClick={onSave} disabled={saving || !draftUrl.trim()} className={buttonClass('primary', 'sm')}>
                     {saving ? t('dynamic.saving') : t('dynamic.save_destination')}
                   </button>
-                  <button type="button" onClick={() => { setEditing(false); setError(null) }} className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">{t('dynamic.cancel')}</button>
+                  <button type="button" onClick={() => { setEditing(false); setError(null) }} className={buttonClass('quiet', 'sm')}>{t('dynamic.cancel')}</button>
                 </div>
                 <p className="text-[11px] text-slate-400">{t('dynamic.destination_hint')}</p>
               </div>
@@ -294,11 +294,11 @@ export default function DynamicCodeCard({
               type="button"
               onClick={onSaveBranding}
               disabled={savingBrand}
-              className="rounded-lg bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800 disabled:opacity-50"
+              className={buttonClass('primary', 'sm')}
             >
               {savingBrand ? t('dynamic.saving') : t('dynamic.save_branding')}
             </button>
-            <button type="button" onClick={() => { setBrandOpen(false); setBrandError(null) }} className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">{t('dynamic.cancel')}</button>
+            <button type="button" onClick={() => { setBrandOpen(false); setBrandError(null) }} className={buttonClass('quiet', 'sm')}>{t('dynamic.cancel')}</button>
             <p className="text-[11px] text-slate-400">
               {t('dynamic.brand_save_hint')}
             </p>

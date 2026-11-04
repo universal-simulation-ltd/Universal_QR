@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ChipToggle, isNativeShell, useDefaultView, useFileDrop } from '@unisim/sdk'
+import { ChipToggle, isNativeShell, useDefaultView, useFileDrop, buttonClass } from '@unisim/sdk'
 import Controls, { ContentCard, UnisimMarkToggle, logoPickerLabel, presetLabel } from './Controls'
 import QrPreview from './QrPreview'
 import PinnedPreview from './PinnedPreview'
@@ -224,7 +224,7 @@ export default function QrStudio() {
                 <button
                   type="button"
                   onClick={reset}
-                  className="text-xs font-medium text-slate-500 hover:text-orange-700 border border-slate-200 px-3 py-1.5 rounded-lg hover:border-orange-300 transition-colors dark:text-slate-400 dark:hover:text-orange-400 dark:border-slate-700 dark:hover:border-orange-500/60"
+                  className={buttonClass(undefined, 'sm')}
                 >
                   {t('studio.reset_all')}
                 </button>
@@ -351,11 +351,11 @@ function ExportButton({
           type="button"
           onClick={() => onDownload('png')}
           disabled={!hasData || busy}
-          className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-l-xl bg-orange-700 text-white text-sm font-semibold shadow-sm hover:bg-orange-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className={`${buttonClass('primary')} flex-1 justify-start rounded-r-none`}
         >
-          <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <span className="u-btn__key" aria-hidden="true"><svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 16h12" />
-          </svg>
+          </svg></span>
           {busy ? t('studio.preparing') : t(SAVE_LABEL)}
         </button>
         <button
@@ -365,7 +365,7 @@ function ExportButton({
           aria-expanded={menuOpen}
           aria-label={t('studio.more_export_aria')}
           title={t('studio.more_options')}
-          className="shrink-0 inline-flex items-center justify-center w-11 rounded-r-xl border-l border-orange-800/40 bg-orange-700 text-white shadow-sm hover:bg-orange-800 transition-colors"
+          className={`${buttonClass('primary')} shrink-0 w-11 px-0 -ml-px rounded-l-none`}
         >
           <svg
             viewBox="0 0 20 20"
@@ -472,13 +472,12 @@ function ModeToggle({ mode, setMode }: { mode: StudioMode; setMode: (m: StudioMo
   // A single tap is still forgotten on reload (store v7); see openingDefault.
   const dv = useDefaultView<StudioMode>('mode', 'simple', { views: STUDIO_MODES })
   return (
-    <div className="inline-flex p-1 bg-slate-200/70 rounded-xl dark:bg-slate-800" role="tablist" aria-label={t('studio.mode_aria')}>
+    <div className="u-tabs" role="tablist" aria-label={t('studio.mode_aria')}>
       {tabs.map((tab) => {
         const label = t(tab.label)
+        // The suite's tray tabs (SDK 0.216, BRANDING.md → Tabs): aria-selected
+        // selects, and buttonProps' data-default-view draws the opens-here dot.
         const dvProps = dv.buttonProps(tab.id, label)
-        // The mode it opens in is orange: filled while you are in it,
-        // outlined while you are not — Jukebox's library tabs.
-        const isDefault = dvProps['data-default-view'] === 'true'
         return (
           <button
             key={tab.id}
@@ -487,15 +486,7 @@ function ModeToggle({ mode, setMode }: { mode: StudioMode; setMode: (m: StudioMo
             aria-selected={mode === tab.id}
             {...dvProps}
             onClick={() => { dv.tap(tab.id); setMode(tab.id) }}
-            className={`relative px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              mode === tab.id
-                ? isDefault
-                  ? 'bg-gradient-to-br from-[#FE8C01] to-[#E05504] text-white shadow-sm'
-                  : 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white'
-                : isDefault
-                  ? 'text-orange-700 ring-1 ring-inset ring-orange-400/70 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950/40'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
-            }`}
+            className="u-tab py-2"
           >
             {label}
           </button>

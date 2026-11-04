@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useState } from 'react'
-import { Chip, SignInDialog, useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding, withReturnUrl } from '@unisim/sdk'
+import { Chip, SignInDialog, useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding, withReturnUrl, buttonClass } from '@unisim/sdk'
 import { CONTAINER } from '../../lib/layout'
 import { DEFAULT_CONFIG, type QrDesign } from '@unisim/qr'
 import { useQrStore } from '../../stores/qrStore'
@@ -261,7 +261,7 @@ export default function DynamicStudio() {
               qr: <button type="button" className="font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300" onClick={() => setView('static')}>{t('dynamic.signin_body_qr_tab')}</button>,
             })}
           </p>
-          <button type="button" onClick={() => setSignInOpen(true)} className="mt-4 inline-flex rounded-lg bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800">
+          <button type="button" onClick={() => setSignInOpen(true)} className={`${buttonClass('primary')} mt-4`}>
             {t('dynamic.signin_button')}
           </button>
           <SignInDialog open={signInOpen} onClose={() => setSignInOpen(false)} hubLoginHref={SIGNIN_URL} initialMode="signup" />
@@ -373,7 +373,7 @@ export default function DynamicStudio() {
                 type="button"
                 onClick={onCreate}
                 disabled={busy || !target.trim()}
-                className="mt-4 w-full rounded-xl bg-orange-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-800 disabled:opacity-50"
+                className={`${buttonClass('primary')} mt-4 w-full`}
               >
                 {busy ? t('dynamic.creating') : t('dynamic.create')}
               </button>
@@ -401,7 +401,7 @@ export default function DynamicStudio() {
             )}
             {error && <p className="mt-3 text-sm text-rose-600 dark:text-rose-400">{error}</p>}
             {error && error === t('dynamic.error_no_org') && (
-              <a href={withReturnUrl(SET_UP_COMPANY_URL)} className="mt-2 inline-flex rounded-lg bg-orange-700 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-800">
+              <a href={withReturnUrl(SET_UP_COMPANY_URL)} className={`${buttonClass('primary')} mt-2`}>
                 {t('dynamic.setup_company_button')}
               </a>
             )}

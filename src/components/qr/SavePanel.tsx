@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Chip } from '@unisim/sdk'
+import { Chip, buttonClass } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { qrDisplayName } from '@unisim/qr'
 import { renderThumbnailDataUrl } from '../../lib/download'
@@ -72,11 +72,11 @@ export default function SavePanel() {
         type="button"
         onClick={onSave}
         disabled={!hasData || busy}
-        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold shadow-sm hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+        className={`${buttonClass()} w-full justify-start`}
       >
-        <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <span className="u-btn__key" aria-hidden="true"><svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M5 3h8l2 2v12H5V3z M8 3v4h4 M7 12h6 M7 15h6" />
-        </svg>
+        </svg></span>
         {justSaved
           ? t('studio.saved')
           : busy
@@ -107,7 +107,7 @@ export default function SavePanel() {
               <button
                 type="button"
                 onClick={() => onOpen(design)}
-                className="shrink-0 rounded-md bg-orange-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-800"
+                className={`${buttonClass(undefined, 'sm')} shrink-0`}
               >
                 {t('studio.open')}
               </button>
@@ -115,7 +115,7 @@ export default function SavePanel() {
                 type="button"
                 onClick={() => onRemove(design.id)}
                 aria-label={design.name ? t('studio.remove_design_aria', { name: design.name }) : t('studio.remove_saved_design_aria')}
-                className="shrink-0 rounded-md px-2 py-1.5 text-xs font-medium text-slate-400 hover:text-rose-600 dark:hover:text-rose-400"
+                className={`${buttonClass('quiet', 'sm')} shrink-0`}
               >
                 {t('studio.remove')}
               </button>

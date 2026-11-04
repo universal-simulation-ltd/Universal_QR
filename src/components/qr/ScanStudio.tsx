@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { buttonClass } from '@unisim/sdk'
 import type { IScannerControls } from '@zxing/browser'
 import { CONTAINER } from '../../lib/layout'
 import {
@@ -239,7 +240,8 @@ export default function ScanStudio() {
                 type="button"
                 onClick={start}
                 disabled={starting}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-orange-700 text-white text-sm font-semibold shadow-sm hover:bg-orange-800 disabled:opacity-60 transition-colors"
+                // Once there is a result, its action below is the view's primary.
+                className={buttonClass(result ? undefined : 'primary')}
               >
                 {starting ? t('scan.button_starting') : result ? t('scan.button_scan_again') : t('scan.button_start')}
               </button>
@@ -249,7 +251,7 @@ export default function ScanStudio() {
             <button
               type="button"
               onClick={stop}
-              className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-lg bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow hover:bg-white"
+              className={`${buttonClass(undefined, 'sm')} absolute bottom-3 right-3 shadow`}
             >
               {t('scan.button_stop')}
             </button>
@@ -304,13 +306,13 @@ export default function ScanStudio() {
             type="button"
             onClick={() => fileRef.current?.click()}
             disabled={readingImage}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 disabled:opacity-60 transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-orange-500/10"
+            className={buttonClass()}
           >
-            <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <span className="u-btn__key" aria-hidden="true"><svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <rect x="2.5" y="4" width="15" height="12" rx="2" />
               <circle cx="7" cy="8.5" r="1.5" />
               <path d="M17.5 13l-4-4-7 7" />
-            </svg>
+            </svg></span>
             {readingImage ? t('scan.reading_image') : t('scan.scan_image')}
           </button>
         </div>
@@ -330,7 +332,7 @@ export default function ScanStudio() {
               <button
                 type="button"
                 onClick={() => void onCopy(result.text, 'text')}
-                className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:border-orange-400 hover:bg-orange-50/40 transition-colors dark:border-slate-700 dark:text-slate-200 dark:hover:bg-orange-500/10"
+                className={`${buttonClass()} flex-1`}
               >
                 {copied === 'text' ? t('scan.copied') : t('scan.copy')}
               </button>
@@ -408,7 +410,7 @@ function ResultDetails({
               <button
                 type="button"
                 onClick={() => void onCopy(content.password, 'password')}
-                className="rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:border-orange-400 dark:border-slate-700 dark:text-slate-200"
+                className={buttonClass(undefined, 'sm')}
               >
                 {copied === 'password' ? t('scan.copied') : t('scan.copy_password')}
               </button>
@@ -425,8 +427,7 @@ function ResultDetails({
   return null
 }
 
-const ACTION_CLASS =
-  'flex-1 inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm font-semibold transition-colors'
+const ACTION_CLASS = 'flex-1 whitespace-normal py-2'
 
 /** The one thing to DO with the code, when there is one. A `blocked` scheme
  *  never gets here as a link: it is only ever text to copy. */
@@ -441,15 +442,15 @@ function ResultAction({ content }: { content: ScanContent }) {
         rel="noopener noreferrer"
         className={`${ACTION_CLASS} ${
           warned
-            ? 'border border-amber-400 bg-white text-amber-900 hover:bg-amber-50 dark:border-amber-500/60 dark:bg-slate-900 dark:text-amber-200 dark:hover:bg-amber-500/10'
-            : 'bg-orange-700 text-white hover:bg-orange-800'
+            ? `${buttonClass()} border-amber-400 text-amber-900 dark:border-amber-500/60 dark:text-amber-200`
+            : buttonClass('primary')
         }`}
       >
         {warned ? t('scan.open_link_anyway') : t('scan.open_link')}
       </a>
     )
   }
-  const primary = `${ACTION_CLASS} bg-orange-700 text-white hover:bg-orange-800 break-all`
+  const primary = `${buttonClass('primary')} ${ACTION_CLASS} break-all`
   if (content.kind === 'tel') return <a href={content.href} className={primary}>{t('scan.call', { number: content.number })}</a>
   if (content.kind === 'sms') return <a href={content.href} className={primary}>{t('scan.send_text', { number: content.number })}</a>
   if (content.kind === 'email') return <a href={content.href} className={primary}>{t('scan.write_email', { address: content.address })}</a>

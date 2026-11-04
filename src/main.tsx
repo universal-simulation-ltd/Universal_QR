@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { UniversalProvider, isNativeShell } from '@unisim/sdk'
+import { UniversalProvider, installButtonStyles, installTabStyles, isNativeShell } from '@unisim/sdk'
 import type { ProductCode } from '@unisim/sdk'
 import App from './App'
 import { I18nRoot } from './i18n'
@@ -9,6 +9,11 @@ import { useQrStore } from './stores/qrStore'
 import './index.css'
 
 console.log(`build: ${import.meta.env.VITE_BUILD_SHA}`)
+
+// The suite's key buttons and tray tabs, used as class strings (SDK 0.216,
+// BRANDING.md → Buttons, Tabs).
+installButtonStyles()
+installTabStyles()
 
 if (import.meta.env.DEV) {
   ;(window as unknown as { __stores: unknown }).__stores = {

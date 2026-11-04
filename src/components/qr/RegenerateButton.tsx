@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { buttonClass } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { presetLabel } from './Controls'
 import { useT } from '../../i18n'
@@ -28,7 +29,7 @@ export default function RegenerateButton({ full = false }: { full?: boolean } = 
         setTurns((n) => n + 1)
       }}
       title={presetName ? t('studio.regenerate_title_from', { preset: presetLabel(presetName, t) }) : t('studio.regenerate_title')}
-      className={`${full ? 'flex w-full' : 'inline-flex'} items-center justify-center gap-2 rounded-xl border border-orange-300 bg-orange-50 px-3.5 py-2 text-sm font-semibold text-orange-800 shadow-sm transition-colors hover:border-orange-400 hover:bg-orange-100 dark:border-orange-500/40 dark:bg-orange-500/10 dark:text-orange-300 dark:hover:bg-orange-500/20`}
+      className={`${buttonClass('soft')} ${full ? 'w-full' : ''}`}
     >
       <svg
         viewBox="0 0 24 24"
