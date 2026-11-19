@@ -25,15 +25,20 @@ export default function QrApp() {
 
   return (
     <div>
-      <div className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      {/* On a phone the tray docks at the foot of the screen (owner rule
+          2026-11-19, BRANDING.md → "On a phone, navigation sits at the
+          bottom"; SDK 0.222 `u-tabs--dock`), web and the phone app alike, so
+          this strip has nothing left in it there: no border, no padding.
+          From 768px up it is unchanged. */}
+      <div className="border-slate-200 md:border-b md:bg-white dark:border-slate-800 md:dark:bg-slate-900">
         {/* No horizontal scroll: below `md` the tabs drop their hint lines and
             shrink their padding so they all fit the narrowest viewport. The
             hints only fit from ~600px, so they wait for `md` rather than `sm`
             — at `sm` they used to clear the container by 3px, which one font
             swap ate. Three tabs now, but the rule is kept: it costs nothing and
             the Dynamic hint is the longest of them. */}
-        <div className={`${CONTAINER} py-3`}>
-          <div className="u-tabs" role="tablist">
+        <div className={`${CONTAINER} md:py-3`}>
+          <div className="u-tabs u-tabs--dock" role="tablist">
             <TopTab id="static" current={view} onClick={setView} dv={dv} label={t('app.tab_qr')} hint={t('app.tab_qr_hint')} />
             <TopTab id="scan" current={view} onClick={setView} dv={dv} label={t('app.tab_scan')} hint={t('app.tab_scan_hint')} />
             <TopTab id="dynamic" current={view} onClick={setView} dv={dv} label={t('app.tab_dynamic')} hint={t('app.tab_dynamic_hint')} />

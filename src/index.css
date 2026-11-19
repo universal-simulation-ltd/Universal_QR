@@ -123,5 +123,8 @@ input[type="color"]::-moz-color-swatch { border: none; border-radius: 8px; }
 @media (max-width: 1023px) {
   input, textarea, select {
     scroll-margin-top: calc(4rem + env(safe-area-inset-top) + var(--qr-pinned-h, 0px) + 0.5rem);
+    /* …and off the docked section tray at the foot (SDK 0.222, phones only;
+       0 where there is no dock). */
+    scroll-margin-bottom: calc(var(--u-dock-space, 0px) + 0.5rem);
   }
 }
