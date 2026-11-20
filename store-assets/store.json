@@ -14,6 +14,8 @@
     { "id": "05-shape", "layout": "feature", "raw": "04-shape", "hot": 0 },
     { "id": "06-wifi", "layout": "feature", "raw": "05-wifi", "hot": 0 },
     { "id": "07-barcode", "layout": "feature", "raw": "06-barcode", "hot": 0 },
-    { "id": "header", "layout": "code-header", "raw": ["01-designer", "04-shape"], "strings": "01-hero", "on": ["header"] }
+    { "id": "header", "layout": "code-header", "raw": ["01-designer", "04-shape"], "strings": "01-hero", "on": ["header"] },
+    { "id": "header-back", "layout": "code-header-back", "raw": ["01-designer", "04-shape"], "strings": "01-hero", "on": ["header"] },
+    { "id": "header-front", "layout": "code-header-front", "raw": ["01-designer", "04-shape"], "strings": "01-hero", "on": ["header"], "alpha": true }
   ]
 }

@@ -67,7 +67,14 @@ function stage(ctx, inner) {
   return `<div class="canvas qrh" style="--fit:${ctx.fit}"><div class="stage clip" style="--stage-w:${c.stage[0]}px;--stage-h:${c.stage[1]}px">${inner}</div></div>`
 }
 
-export function codeHeader(ctx, t, [l, r]) {
+/**
+ * `layer` splits the header for the portal's live scene (spotlight/scenes.js
+ * qr()): 'back' is the ground and the empty white card, 'front' the phones and
+ * mark alone on a transparent ground ("alpha": true in store.json). The scene
+ * draws the code between them from MATRIX (below), so its finished state is
+ * the flat header.
+ */
+function codeHeader(ctx, t, [l, r], layer = 'full') {
   const { device } = ctx.kit
   const c = ctx.cls, [W, H] = c.stage
   if (c.frame !== 'iphone' || W !== 3840) throw new Error('code-header is drawn for the 3840×1646 header class only')
@@ -79,11 +86,34 @@ export function codeHeader(ctx, t, [l, r]) {
   const devW = 600, top = Math.round(H * 0.13)
   const [size, inset] = c.mark
   return stage(ctx, `
-    <div class="qr-paper" style="left:0;width:${W / 2}px"></div><div class="qr-orange" style="left:${W / 2}px;width:${W / 2}px"></div>
-    <div class="qr-card" style="left:${Math.round(cx - half)}px;top:${Math.round(cy - half)}px;width:${card}px;height:${card}px">${svg}</div>
-    ${device(ctx, l, { w: devW, left: Math.round(cx - half - devW * 0.97), top, rot: -6, z: 3 })}
+    ${layer === 'front' ? '' : `<div class="qr-paper" style="left:0;width:${W / 2}px"></div><div class="qr-orange" style="left:${W / 2}px;width:${W / 2}px"></div>
+    <div class="qr-card" style="left:${Math.round(cx - half)}px;top:${Math.round(cy - half)}px;width:${card}px;height:${card}px">${layer === 'full' ? svg : ''}</div>`}
+    ${layer === 'back' ? '' : `${device(ctx, l, { w: devW, left: Math.round(cx - half - devW * 0.97), top, rot: -6, z: 3 })}
     ${device(ctx, r, { w: devW, left: Math.round(cx + half + devW * 0.02), top, rot: 6, z: 3 })}
-    <img class="unisim-mark" src="/kit/brand/unisim-icon-white.png" alt="UNI·SIM" style="width:${size}px;right:${inset}px;top:${inset}px">`)
+    <img class="unisim-mark" src="/kit/brand/unisim-icon-white.png" alt="UNI·SIM" style="width:${size}px;right:${inset}px;top:${inset}px">`}`)
 }
 
-export const LAYOUTS = { 'code-header': codeHeader }
+/**
+ * The code's modules as hex, row by row (n × n bits, MSB first), for the
+ * portal's live scene, which pastes it in as QR_MATRIX:
+ *   node -e "import('./store-assets/layouts.mjs').then(m => console.log(m.MATRIX))"
+ * run from Universal_QR. Re-paste it if URL changes.
+ */
+export const MATRIX = (() => {
+  const qr = qrcode(0, 'H')
+  qr.addData(URL)
+  qr.make()
+  const n = qr.getModuleCount()
+  let bits = ''
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) bits += qr.isDark(r, c) ? '1' : '0'
+  while (bits.length % 4) bits += '0'
+  let hex = ''
+  for (let i = 0; i < bits.length; i += 4) hex += parseInt(bits.slice(i, i + 4), 2).toString(16)
+  return { n, hex }
+})()
+
+export const LAYOUTS = {
+  'code-header': (ctx, t, caps) => codeHeader(ctx, t, caps),
+  'code-header-back': (ctx, t, caps) => codeHeader(ctx, t, caps, 'back'),
+  'code-header-front': (ctx, t, caps) => codeHeader(ctx, t, caps, 'front'),
+}
