@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Chip, buttonClass } from '@unisim/sdk'
+import { Chip, SelectCheckbox, SelectionBar, buttonClass, useSelection } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { qrDisplayName } from '@unisim/qr'
 import { renderThumbnailDataUrl } from '../../lib/download'
 import {
   loadLocalDesigns,
   saveLocalDesign,
-  removeLocalDesign,
+  removeLocalDesigns,
   type LocalDesign,
 } from '../../lib/localDesigns'
 import { useT } from '../../i18n'
@@ -25,6 +25,8 @@ export default function SavePanel() {
   const [justSaved, setJustSaved] = useState(false)
 
   const hasData = config.data.trim().length > 0
+  // Tick boxes on the saved list: select several, then Delete selected.
+  const sel = useSelection(saved.map((d) => d.id))
 
   useEffect(() => {
     setSaved(loadLocalDesigns())
@@ -54,8 +56,10 @@ export default function SavePanel() {
     setMode('advanced')
   }
 
-  function onRemove(id: string) {
-    setSaved(removeLocalDesign(id))
+  // One Remove and Delete selected share the same removal. The single Remove
+  // has never asked first; Delete selected asks (the SelectionBar's confirm).
+  function onRemove(ids: string[]) {
+    setSaved(removeLocalDesigns(ids))
   }
 
   return (
@@ -87,13 +91,26 @@ export default function SavePanel() {
       </button>
 
       {saved.length > 0 && (
+        <SelectionBar
+          sel={sel}
+          noun={{ one: t('studio.design_noun_one'), other: t('studio.design_noun_other') }}
+          onDelete={onRemove}
+        />
+      )}
+
+      {saved.length > 0 && (
         <ul className="space-y-2">
           {saved.map((design) => (
             <li
               key={design.id}
-              className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-2 dark:border-slate-700 dark:bg-slate-800"
+              className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 sm:gap-3 dark:border-slate-700 dark:bg-slate-800"
             >
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded bg-white ring-1 ring-slate-200 dark:ring-slate-600">
+              <SelectCheckbox
+                checked={sel.has(design.id)}
+                onChange={() => sel.toggle(design.id)}
+                label={t('studio.select_aria', { name: design.name || t('studio.untitled_design') })}
+              />
+              <span className="flex h-10 w-10 shrink-0 sm:h-12 sm:w-12 items-center justify-center overflow-hidden rounded bg-white ring-1 ring-slate-200 dark:ring-slate-600">
                 <img src={design.thumbnail} alt="" className="h-full w-full object-contain" />
               </span>
               <span className="min-w-0 flex-1">
@@ -113,7 +130,7 @@ export default function SavePanel() {
               </button>
               <button
                 type="button"
-                onClick={() => onRemove(design.id)}
+                onClick={() => onRemove([design.id])}
                 aria-label={design.name ? t('studio.remove_design_aria', { name: design.name }) : t('studio.remove_saved_design_aria')}
                 className={`${buttonClass('quiet', 'sm')} shrink-0`}
               >

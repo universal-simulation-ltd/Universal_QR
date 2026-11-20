@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useState } from 'react'
-import { Chip, SignInDialog, useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding, withReturnUrl, buttonClass } from '@unisim/sdk'
+import { Chip, SignInDialog, SelectionBar, phoneConfirm, useSelection, useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding, withReturnUrl, buttonClass } from '@unisim/sdk'
 import { CONTAINER } from '../../lib/layout'
 import { DEFAULT_CONFIG, type QrDesign } from '@unisim/qr'
 import { useQrStore } from '../../stores/qrStore'
@@ -139,6 +139,8 @@ export default function DynamicStudio() {
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Tick boxes on "Your dynamic codes": select several, then Delete selected.
+  const sel = useSelection(codes?.map((c) => c.id) ?? [])
 
   const signedIn = !!session?.user && session.user.is_anonymous !== true
   const tokens = credits ?? 0
@@ -213,15 +215,25 @@ export default function DynamicStudio() {
     }
   }
 
-  async function onDelete(code: DynamicCode) {
-    if (busy) return
-    if (!window.confirm(t('dynamic.confirm_delete', { name: code.name?.trim() || code.code }))) return
+  // One Delete and Delete selected share this, after their own confirm. Each
+  // code is deleted in turn (which returns its token); the first one that
+  // fails stops the run and says so, and the list is re-read so it shows what
+  // is really left.
+  async function deleteCodes(ids: string[]) {
+    if (busy || ids.length === 0) return
     setBusy(true)
     setError(null)
+    let removed = 0
     try {
-      const res = await deleteDynamicCode(supabase, code.id)
-      if (!res.ok) setError(res.error ?? t('dynamic.error_could_not_delete'))
-      else {
+      for (const id of ids) {
+        const res = await deleteDynamicCode(supabase, id)
+        if (!res.ok) {
+          setError(res.error ?? t('dynamic.error_could_not_delete'))
+          break
+        }
+        removed++
+      }
+      if (removed > 0) {
         refreshCredits()
         refreshFreeToken()
         refreshAllowance()
@@ -230,6 +242,22 @@ export default function DynamicStudio() {
     } finally {
       setBusy(false)
     }
+  }
+
+  async function onDelete(code: DynamicCode) {
+    if (busy) return
+    if (!window.confirm(t('dynamic.confirm_delete', { name: code.name?.trim() || code.code }))) return
+    await deleteCodes([code.id])
+  }
+
+  // Delete selected's confirm: the SDK's "Delete 3 dynamic codes? This cannot
+  // be undone." plus the same warning the single Delete gives about scans.
+  function confirmDeleteSelected(message: string) {
+    return phoneConfirm({
+      message: `${message} ${t('dynamic.confirm_delete_many_note')}`,
+      confirmLabel: t('dynamic.delete'),
+      danger: true,
+    })
   }
 
   return (
@@ -417,6 +445,14 @@ export default function DynamicStudio() {
                 <p className="text-sm text-slate-500 dark:text-slate-400">{t('dynamic.empty')}</p>
               </div>
             ) : (
+              <>
+              <SelectionBar
+                sel={sel}
+                noun={{ one: t('dynamic.code_noun_one'), other: t('dynamic.code_noun_other') }}
+                onDelete={deleteCodes}
+                confirm={confirmDeleteSelected}
+                className="mb-3"
+              />
               <ul className="space-y-3">
                 {codes.map((c) => (
                   <DynamicCodeCard
@@ -427,9 +463,12 @@ export default function DynamicStudio() {
                     busy={busy}
                     onChanged={refreshList}
                     onDelete={onDelete}
+                    selected={sel.has(c.id)}
+                    onToggleSelect={() => sel.toggle(c.id)}
                   />
                 ))}
               </ul>
+              </>
             )}
           </section>
         </div>

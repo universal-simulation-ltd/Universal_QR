@@ -110,6 +110,11 @@ const dynamic: Messages['dynamic'] = {
   'backup_could_not_delete': 'Impossibile eliminare questo codice QR.',
   'backup_could_not_save_now': 'Impossibile salvare in questo momento.',
   'backup_could_not_delete_now': 'Impossibile eliminare questo backup in questo momento.',
+  'code_noun_one': 'codice dinamico',
+  'code_noun_other': 'codici dinamici',
+  'backup_noun_one': 'backup',
+  'backup_noun_other': 'backup',
+  'confirm_delete_many_note': 'Chi scansiona un codice eliminato finirà su una pagina «non attivo».',
 }
 
 export default dynamic

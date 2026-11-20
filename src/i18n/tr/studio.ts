@@ -115,6 +115,9 @@ const studio: Messages['studio'] = {
   'open': 'Aç',
   'remove_design_aria': 'Kaldır: {name}',
   'remove_saved_design_aria': 'Kayıtlı tasarımı kaldır',
+  'select_aria': '{name} seç',
+  'design_noun_one': 'QR kod',
+  'design_noun_other': 'QR kod',
 }
 
 export default studio

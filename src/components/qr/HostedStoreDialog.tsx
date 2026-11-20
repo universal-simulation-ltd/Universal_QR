@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { SignInDialog, useUniversal, useUser, useOrg, useHostedUploads, withReturnUrl, type HostedUpload, buttonClass } from '@unisim/sdk'
+import { SignInDialog, SelectCheckbox, SelectionBar, useSelection, useUniversal, useUser, useOrg, useHostedUploads, withReturnUrl, type HostedUpload, buttonClass } from '@unisim/sdk'
 import { useQrStore } from '../../stores/qrStore'
 import { useFreeAllowance, isNearLimit } from '../../lib/useFreeAllowance'
 import { storeCurrentQr, deleteHostedQr, openHostedQr, HostedObjectMissingError } from '../../lib/hostedStore'
@@ -39,6 +39,8 @@ export default function HostedStoreDialog() {
   const noCompany = !orgsLoading && !orgsError && orgs.length === 0
   const { user } = useUser()
   const { uploads, loading: listLoading, refresh: refreshList } = useHostedUploads('qr')
+  // Tick boxes on "Your backups": select several, then Delete selected.
+  const sel = useSelection(uploads.map((u) => u.id))
   // Fetched only while the dialog is open — it is mounted on every page.
   const { status: allowance, refresh: refreshAllowance } = useFreeAllowance(
     'qr_static',
@@ -110,22 +112,43 @@ export default function HostedStoreDialog() {
     }
   }
 
-  async function onDelete(upload: HostedUpload) {
-    if (busy) return
+  // One Delete and Delete selected share this. Each backup is removed in turn
+  // (its storage objects, then its slot); the first one that fails stops the
+  // run and says so, and the list is re-read so it shows what is really left.
+  // The single Delete has never asked first; Delete selected asks (the
+  // SelectionBar's confirm).
+  async function deleteUploads(targets: HostedUpload[]) {
+    if (busy || targets.length === 0) return
     setBusy(true)
     setError(null)
+    let removed = 0
     try {
-      const res = await deleteHostedQr(supabase, upload)
-      if (!res.ok) setError(res.error ?? t('dynamic.backup_could_not_delete'))
-      else {
-        setOutOfTokens(false)
+      for (const upload of targets) {
+        const res = await deleteHostedQr(supabase, upload)
+        if (!res.ok) {
+          setError(res.error ?? t('dynamic.backup_could_not_delete'))
+          break
+        }
+        removed++
         setMissingId((id) => (id === upload.id ? null : id))
+      }
+      if (removed > 0) {
+        setOutOfTokens(false)
         refreshList()
         refreshAllowance()
       }
     } finally {
       setBusy(false)
     }
+  }
+
+  function onDelete(upload: HostedUpload) {
+    return deleteUploads([upload])
+  }
+
+  function onDeleteSelected(ids: string[]) {
+    const chosen = new Set(ids)
+    return deleteUploads(uploads.filter((u) => chosen.has(u.id)))
   }
 
   return createPortal(
@@ -229,10 +252,22 @@ export default function HostedStoreDialog() {
                   ) : uploads.length === 0 ? (
                     <p className="text-xs text-slate-400">{t('dynamic.backup_none_yet')}</p>
                   ) : (
+                    <>
+                    <SelectionBar
+                      sel={sel}
+                      noun={{ one: t('dynamic.backup_noun_one'), other: t('dynamic.backup_noun_other') }}
+                      onDelete={onDeleteSelected}
+                      className="mb-2"
+                    />
                     <ul className="space-y-2">
                       {uploads.map((u) => (
                         <li key={u.id} className="rounded-lg border border-slate-200 bg-slate-50 p-2 dark:border-slate-700 dark:bg-slate-800">
                           <div className="flex items-center gap-2">
+                            <SelectCheckbox
+                              checked={sel.has(u.id)}
+                              onChange={() => sel.toggle(u.id)}
+                              label={t('studio.select_aria', { name: u.file_name || 'qr-code.png' })}
+                            />
                             <span className="min-w-0 flex-1">
                               <span className="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">{u.file_name || 'qr-code.png'}</span>
                               <span className="block text-[10px] text-slate-400">{new Date(u.created_at).toLocaleDateString(intlLocale(t.lang))}</span>
@@ -270,6 +305,7 @@ export default function HostedStoreDialog() {
                         </li>
                       ))}
                     </ul>
+                    </>
                   )}
                 </div>
               </div>

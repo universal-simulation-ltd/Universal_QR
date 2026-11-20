@@ -115,4 +115,9 @@ export default {
   'backup_could_not_delete': 'Could not delete this QR code.',
   'backup_could_not_save_now': 'Could not save right now.',
   'backup_could_not_delete_now': 'Could not delete this backup right now.',
+  'code_noun_one': 'dynamic code', // the thing being deleted in "Delete {count} {noun}? This cannot be undone." (one)
+  'code_noun_other': 'dynamic codes', // the same, several
+  'backup_noun_one': 'backup', // the thing being deleted in "Delete {count} {noun}? This cannot be undone." (one)
+  'backup_noun_other': 'backups', // the same, several
+  'confirm_delete_many_note': 'Anyone who scans a deleted code will hit a "not active" page.', // added after "Delete 3 dynamic codes? This cannot be undone." when several codes are deleted at once
 } as const

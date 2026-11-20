@@ -109,6 +109,11 @@ const dynamic: Messages['dynamic'] = {
   'backup_could_not_delete': 'Bu QR kod silinemedi.',
   'backup_could_not_save_now': 'Şu anda kaydedilemedi.',
   'backup_could_not_delete_now': 'Bu yedek şu anda silinemedi.',
+  'code_noun_one': 'dinamik kod',
+  'code_noun_other': 'dinamik kod',
+  'backup_noun_one': 'yedek',
+  'backup_noun_other': 'yedek',
+  'confirm_delete_many_note': 'Silinen bir kodu tarayan herkes “etkin değil” sayfasıyla karşılaşır.',
 }
 
 export default dynamic

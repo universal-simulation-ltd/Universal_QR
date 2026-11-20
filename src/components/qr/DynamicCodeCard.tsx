@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { useRevealOnOpen, useUniversal, buttonClass } from '@unisim/sdk'
+import { SelectCheckbox, useRevealOnOpen, useUniversal, buttonClass } from '@unisim/sdk'
 import { type QrDesign } from '@unisim/qr'
 import QrCanvas from './QrCanvas'
 import { downloadQr } from '../../lib/download'
@@ -29,6 +29,8 @@ export default function DynamicCodeCard({
   busy,
   onChanged,
   onDelete,
+  selected,
+  onToggleSelect,
 }: {
   code: DynamicCode
   /** The Dynamic tab's "branding for new codes". Two jobs, neither of which is
@@ -41,6 +43,9 @@ export default function DynamicCodeCard({
   busy: boolean
   onChanged: () => void
   onDelete: (code: DynamicCode) => void
+  /** Ticked for Delete selected (the list's SelectionBar). */
+  selected: boolean
+  onToggleSelect: () => void
 }) {
   const t = useT()
   const { supabase } = useUniversal()
@@ -171,7 +176,13 @@ export default function DynamicCodeCard({
         {/* Details */}
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
+            <SelectCheckbox
+              checked={selected}
+              onChange={onToggleSelect}
+              label={t('studio.select_aria', { name: code.name?.trim() || targetLabel(code.target_url) })}
+              className="mt-0.5"
+            />
+            <div className="min-w-0 flex-1">
               <h3 className="truncate font-semibold text-slate-900 dark:text-slate-100">{code.name?.trim() || targetLabel(code.target_url)}</h3>
               <div className="mt-0.5 flex items-center gap-1.5">
                 <code className="truncate text-xs text-slate-500 dark:text-slate-400" title={link}>{link.replace(/^https:\/\//, '')}</code>

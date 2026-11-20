@@ -121,4 +121,7 @@ export default {
   'open': 'Open', // verb, small button: reopens a saved design
   'remove_design_aria': 'Remove {name}', // screen-reader label of Remove; {name} is the saved design's name
   'remove_saved_design_aria': 'Remove saved design', // screen-reader label of Remove when the design has no name
+  'select_aria': 'Select {name}', // screen-reader label of a row's tick box (select several, then Delete selected); {name} is the saved code's name
+  'design_noun_one': 'QR code', // the thing being deleted in "Delete {count} {noun}? This cannot be undone." (one)
+  'design_noun_other': 'QR codes', // the same, several
 } as const

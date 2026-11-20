@@ -116,6 +116,9 @@ const studio: Messages['studio'] = {
   'open': 'Apri',
   'remove_design_aria': 'Rimuovi {name}',
   'remove_saved_design_aria': 'Rimuovi il progetto salvato',
+  'select_aria': 'Seleziona {name}',
+  'design_noun_one': 'codice QR',
+  'design_noun_other': 'codici QR',
 }
 
 export default studio

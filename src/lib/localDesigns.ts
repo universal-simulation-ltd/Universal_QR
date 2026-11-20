@@ -91,5 +91,11 @@ export function saveLocalDesign(input: SaveDesignInput): LocalDesign[] {
 }
 
 export function removeLocalDesign(id: string): LocalDesign[] {
-  return persist(loadLocalDesigns().filter((d) => d.id !== id))
+  return removeLocalDesigns([id])
+}
+
+/** Remove several saved designs at once (the list's "Delete selected"). */
+export function removeLocalDesigns(ids: readonly string[]): LocalDesign[] {
+  const gone = new Set(ids)
+  return persist(loadLocalDesigns().filter((d) => !gone.has(d.id)))
 }

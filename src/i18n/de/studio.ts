@@ -115,6 +115,9 @@ const studio: Messages['studio'] = {
   'open': 'Öffnen',
   'remove_design_aria': '{name} entfernen',
   'remove_saved_design_aria': 'Gespeichertes Design entfernen',
+  'select_aria': '{name} auswählen',
+  'design_noun_one': 'QR-Code',
+  'design_noun_other': 'QR-Codes',
 }
 
 export default studio
