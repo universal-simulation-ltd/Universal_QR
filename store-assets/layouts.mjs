@@ -7,7 +7,9 @@
 //                and the square's peek (backoffice/opensource-portal
 //                scripts/spotlight-art.sh). Built the way Jukebox's
 //                sleeve-header is: the icon's own idea blown up on a two-tone
-//                join, one phone either side. Here it is a real code, styled
+//                join, with the app either side of it — but a laptop on the
+//                left and a phone on the right (James, 2026-11-20: QR is
+//                web-first, unlike Jukebox). Here it is a real code, styled
 //                the way the app styles one (dot modules, rounded eyes with
 //                orange pupils, the app's icon as the logo, modules cleared
 //                behind it), on a white card standing on the paper / orange
@@ -16,7 +18,9 @@
 //
 // The matrix comes from qrcode-generator, the encoder the app itself draws
 // with (a dependency of qr-code-styling), so `npm install` the app first.
-// `raw` is [left phone, right phone]. Geometry is in stage pixels.
+// `raw` is [phone]; the laptop shows LAPTOP, a capture from generate.mjs's
+// opt-in laptop device (npm run build:desktop, then DEVICE=laptop node
+// store-assets/generate.mjs 01). Geometry is in stage pixels.
 
 import { createRequire } from 'node:module'
 
@@ -24,6 +28,11 @@ const require = createRequire(import.meta.url)
 const qrcode = require('qrcode-generator')
 
 const URL = 'https://opensource.unisim.co.uk/qr'
+const LAPTOP = '/app/raw/laptop/01-designer.png'
+// The card's centre and size. spotlight/scenes.js qr() in the open-source
+// portal repeats the card's left, top and size from these: change both.
+export const CARD_CX = 2230
+export const CARD = 1152
 const INK = '#1c1714'
 
 /** The code as SVG in module units, `q` modules of quiet zone round it. */
@@ -74,12 +83,12 @@ function stage(ctx, inner) {
  * draws the code between them from MATRIX (below), so its finished state is
  * the flat header.
  */
-function codeHeader(ctx, t, [l, r], layer = 'full') {
-  const { device } = ctx.kit
+function codeHeader(ctx, t, [r], layer = 'full') {
+  const { device, laptop } = ctx.kit
   const c = ctx.cls, [W, H] = c.stage
   if (c.frame !== 'iphone' || W !== 3840) throw new Error('code-header is drawn for the 3840×1646 header class only')
   const cx = W / 2
-  const card = Math.round(H * 0.76)
+  const card = CARD
   const half = card / 2
   const cy = Math.round(H * 0.47)
   const { svg } = code(URL, 4)
@@ -87,9 +96,9 @@ function codeHeader(ctx, t, [l, r], layer = 'full') {
   const [size, inset] = c.mark
   return stage(ctx, `
     ${layer === 'front' ? '' : `<div class="qr-paper" style="left:0;width:${W / 2}px"></div><div class="qr-orange" style="left:${W / 2}px;width:${W / 2}px"></div>
-    <div class="qr-card" style="left:${Math.round(cx - half)}px;top:${Math.round(cy - half)}px;width:${card}px;height:${card}px">${layer === 'full' ? svg : ''}</div>`}
-    ${layer === 'back' ? '' : `${device(ctx, l, { w: devW, left: Math.round(cx - half - devW * 0.97), top, rot: -6, z: 3 })}
-    ${device(ctx, r, { w: devW, left: Math.round(cx + half + devW * 0.02), top, rot: 6, z: 3 })}
+    <div class="qr-card" style="left:${Math.round(CARD_CX - half)}px;top:${Math.round(cy - half)}px;width:${card}px;height:${card}px">${layer === 'full' ? svg : ''}</div>`}
+    ${layer === 'back' ? '' : `${laptop(LAPTOP, { w: 1500, left: Math.round(CARD_CX - half + 60 - 1500), top: Math.round(H * 0.14), z: 3 })}
+    ${device(ctx, r, { w: devW, left: Math.round(CARD_CX + half + devW * 0.02), top, rot: 6, z: 3 })}
     <img class="unisim-mark" src="/kit/brand/unisim-icon-white.png" alt="UNI·SIM" style="width:${size}px;right:${inset}px;top:${inset}px">`}`)
 }
 
