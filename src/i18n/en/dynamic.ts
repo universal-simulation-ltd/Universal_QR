@@ -61,6 +61,7 @@ export default {
 
   // Dynamic tab — the list of codes
   'your_codes': 'Your dynamic codes', // small uppercase list heading
+  'card_key': 'Dynamic code', // the key tab on each dynamic code's card; shown in capitals, keep short
   'empty': 'No dynamic codes yet. Create your first one on the left — you can re-point it and watch the scans roll in.',
 
   // A dynamic code's card

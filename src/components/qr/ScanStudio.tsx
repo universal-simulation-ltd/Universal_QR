@@ -218,7 +218,12 @@ export default function ScanStudio() {
       </header>
 
       <div className="mt-6 max-w-xl space-y-4">
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-sm dark:border-slate-800">
+        {/* The viewfinder: the suite's Viewfinder box (BRANDING.md → Boxes,
+            D). All four corners muted while the camera is off, the leading one
+            lit while it is looking. The brackets sit on the box's own fill,
+            round the picture, so the clipped camera view lives one level in. */}
+        <div className={`u-box u-box--frame ${scanning ? '' : 'u-box--empty'} rounded-lg bg-white p-2 dark:bg-slate-900`}>
+        <div className="relative overflow-hidden rounded-md bg-slate-900">
           <video
             ref={videoRef}
             className="aspect-[4/3] w-full object-cover"
@@ -256,6 +261,7 @@ export default function ScanStudio() {
               {t('scan.button_stop')}
             </button>
           )}
+        </div>
         </div>
 
         {/* Only ever shown while nobody has answered. Once permission is
@@ -318,12 +324,11 @@ export default function ScanStudio() {
         </div>
 
         {result && (
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3 dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wide text-orange-700 dark:text-orange-400">
-                {result.format}
-              </span>
-            </div>
+          // What was read: a record carrying a value, so the suite's Key box
+          // (BRANDING.md → Boxes, C), its neutral tab naming the kind of code.
+          // Any warning keeps its own amber or red below.
+          <div className="u-box u-box--key mt-3 bg-white px-4 pb-4 pt-6 shadow-sm space-y-3 dark:bg-slate-900">
+            <span className="u-box__key">{result.format}</span>
             <p className="break-all rounded-lg bg-slate-50 px-3 py-2 font-mono text-sm text-slate-800 dark:bg-slate-800 dark:text-slate-100">
               {result.text}
             </p>

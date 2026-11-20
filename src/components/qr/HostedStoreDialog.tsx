@@ -261,7 +261,9 @@ export default function HostedStoreDialog() {
                     />
                     <ul className="space-y-2">
                       {uploads.map((u) => (
-                        <li key={u.id} className="rounded-lg border border-slate-200 bg-slate-50 p-2 dark:border-slate-700 dark:bg-slate-800">
+                        // A backup is a row you open, as a saved design is:
+                        // the suite's Orbit corner (BRANDING.md → Boxes, A).
+                        <li key={u.id} className="u-box u-box--orbit u-box--row bg-slate-50 p-2 dark:bg-slate-800">
                           <div className="flex items-center gap-2">
                             <SelectCheckbox
                               checked={sel.has(u.id)}

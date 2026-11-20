@@ -101,9 +101,13 @@ export default function SavePanel() {
       {saved.length > 0 && (
         <ul className="space-y-2">
           {saved.map((design) => (
+            // A saved design is a row you open: the suite's Orbit corner
+            // (BRANDING.md → Boxes, A). The row stays a plain list item rather
+            // than one big button, because its tick box, Open and Remove are
+            // controls of their own.
             <li
               key={design.id}
-              className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 sm:gap-3 dark:border-slate-700 dark:bg-slate-800"
+              className="u-box u-box--orbit u-box--row flex items-center gap-2 bg-slate-50 p-2 sm:gap-3 dark:bg-slate-800"
             >
               <SelectCheckbox
                 checked={sel.has(design.id)}

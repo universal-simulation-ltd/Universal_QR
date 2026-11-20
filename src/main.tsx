@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { UniversalProvider, installButtonStyles, installTabStyles, isNativeShell } from '@unisim/sdk'
+import { UniversalProvider, installBoxStyles, installButtonStyles, installTabStyles, isNativeShell } from '@unisim/sdk'
 import type { ProductCode } from '@unisim/sdk'
 import App from './App'
 import { I18nRoot } from './i18n'
@@ -14,6 +14,9 @@ console.log(`build: ${import.meta.env.VITE_BUILD_SHA}`)
 // BRANDING.md → Buttons, Tabs).
 installButtonStyles()
 installTabStyles()
+// The suite's box marks (BRANDING.md → Boxes), also as class strings
+// (u-box u-box--orbit / --key / --frame): the sheet goes in once.
+installBoxStyles()
 
 if (import.meta.env.DEV) {
   ;(window as unknown as { __stores: unknown }).__stores = {

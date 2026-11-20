@@ -129,7 +129,11 @@ export default function DynamicCodeCard({
   }
 
   return (
-    <li className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+    // One dynamic code is a record carrying values (where it goes, how often
+    // it is scanned): the suite's Key box (BRANDING.md → Boxes, C), its tab
+    // neutral and naming what the record is.
+    <li className="u-box u-box--key bg-white px-4 pb-4 pt-6 shadow-sm dark:bg-slate-900">
+      <span className="u-box__key">{t('dynamic.card_key')}</span>
       <div className="flex flex-col gap-4 sm:flex-row">
         {/* Live QR of the redirect — click to enlarge for scanning */}
         <div className="shrink-0 self-center sm:self-start">
@@ -143,17 +147,21 @@ export default function DynamicCodeCard({
               setPlaceholder(placeholderFromPreview(previewRef.current))
               setEnlarged(true)
             }}
-            className="w-28 cursor-zoom-in rounded-xl border border-slate-200 bg-white p-2 transition-colors hover:border-orange-300 dark:border-slate-700"
+            // The code in frame: a small Viewfinder box (BRANDING.md → Boxes,
+            // D), its leading corner lit, round a white plate of its own.
+            className="group u-box u-box--frame u-box--row w-28 cursor-zoom-in rounded-lg bg-transparent p-1"
             title={t('dynamic.tap_to_enlarge')}
             aria-label={t('dynamic.enlarge_label', { target: targetLabel(code.target_url) })}
           >
-            <QrCanvas
-              config={config}
-              size={256}
-              margin={8}
-              label={t('dynamic.qr_label', { target: targetLabel(code.target_url) })}
-              className="leading-[0]"
-            />
+            <span className="block rounded-lg border border-slate-200 bg-white p-1.5 transition-colors group-hover:border-orange-300 dark:border-slate-700">
+              <QrCanvas
+                config={config}
+                size={256}
+                margin={8}
+                label={t('dynamic.qr_label', { target: targetLabel(code.target_url) })}
+                className="leading-[0]"
+              />
+            </span>
           </button>
           <div className="mt-2 flex justify-center gap-2">
             <button type="button" onClick={() => downloadQr({ ...config, size: 1024 }, 'png')} className="text-[11px] font-semibold text-slate-500 hover:text-orange-700 dark:text-slate-400 dark:hover:text-orange-400">PNG</button>

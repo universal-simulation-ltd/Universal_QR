@@ -129,6 +129,17 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
 
   return (
     <div className={compact ? 'flex items-center gap-3' : 'flex flex-col items-center gap-4'}>
+      {/* Where the code is framed: the suite's Viewfinder box (BRANDING.md →
+          Boxes, D). Four corner brackets round the plate, all muted while
+          there is nothing to show yet, the leading one lit once a code is in
+          frame. The brackets sit on the page's own ground, a step out from the
+          plate, because the plate is content (any colour the code is given)
+          and a bracket drawn on it could vanish into it. */}
+      <div
+        className={`u-box u-box--frame ${hasData ? '' : 'u-box--empty'} rounded-lg bg-transparent ${
+          compact ? 'u-box--row shrink-0 p-1.5' : 'w-full max-w-[360px] p-2'
+        }`}
+      >
       <div
         // A shaped code needs the checker behind it too, even with an opaque
         // plate colour: painting that same colour on the square card behind the
@@ -145,7 +156,7 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
         className={`relative shadow-sm border border-slate-200 dark:border-slate-700 group ${
           compact
             ? 'w-[7.5rem] shrink-0 rounded-xl p-2'
-            : 'w-full max-w-[360px] rounded-2xl p-3 sm:p-4'
+            : 'w-full rounded-2xl p-3 sm:p-4'
         } ${checker ? `checker-bg ${compact ? 'dark:bg-white' : 'dark:bg-slate-100'}` : ''} ${hasData ? 'cursor-pointer' : ''}`}
         style={checker ? undefined : { background: config.bgColor }}
         onClick={handlePreviewClick}
@@ -216,6 +227,7 @@ export default function QrPreview({ compact = false }: { compact?: boolean } = {
             </div>
           )}
         </div>
+      </div>
       </div>
 
       <div className={compact ? 'min-w-0 flex-1 text-left' : 'text-center min-w-0 max-w-[360px]'}>

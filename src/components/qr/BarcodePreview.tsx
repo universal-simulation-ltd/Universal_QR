@@ -54,7 +54,9 @@ export default function BarcodePreview({ onError }: { onError: (message: string 
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="w-full max-w-[360px] rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 dark:bg-slate-900 dark:border-slate-800">
+      {/* The same Viewfinder box as the QR preview (BRANDING.md → Boxes, D):
+          all four corners muted until there are bars to show. */}
+      <div className={`u-box u-box--frame ${drawable ? '' : 'u-box--empty'} w-full max-w-[360px] rounded-lg bg-white p-3 sm:p-4 dark:bg-slate-900`}>
         {/* The plate the bars are drawn on is content, not chrome: it stays
             slate-50 in both themes, and so does the dark placeholder text on it
             (an element that opts out of theming for its ground opts out for its

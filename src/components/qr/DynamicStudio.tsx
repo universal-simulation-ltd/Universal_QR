@@ -441,7 +441,10 @@ export default function DynamicStudio() {
             {codes === null ? (
               <p className="text-sm text-slate-400">{t('dynamic.loading')}</p>
             ) : codes.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center dark:border-slate-700 dark:bg-slate-900/60">
+              // No codes yet: an empty state, so the suite's Viewfinder box with
+              // nothing in frame (BRANDING.md → Boxes, D), all four corners
+              // muted and no dashed outline.
+              <div className="u-box u-box--frame u-box--empty p-8">
                 <p className="text-sm text-slate-500 dark:text-slate-400">{t('dynamic.empty')}</p>
               </div>
             ) : (
@@ -453,7 +456,8 @@ export default function DynamicStudio() {
                 confirm={confirmDeleteSelected}
                 className="mb-3"
               />
-              <ul className="space-y-3">
+              {/* space-y-5: room above each card for its key tab. */}
+              <ul className="space-y-5">
                 {codes.map((c) => (
                   <DynamicCodeCard
                     key={c.id}

@@ -161,14 +161,19 @@ export default function BrandingControls({
 // when a single card is being re-skinned.
 function BrandPreview({ config, data, label }: { config: QrDesign; data: string; label: string }) {
   return (
-    <div className="grid aspect-square w-full max-w-[16rem] place-items-center rounded-xl border border-slate-200 bg-white p-2 sm:w-64 dark:border-slate-700">
-      <QrCanvas
-        config={{ ...config, data }}
-        size={360}
-        margin={8}
-        label={label}
-        className="h-full w-full leading-[0]"
-      />
+    // A live code in frame: the suite's Viewfinder box (BRANDING.md → Boxes,
+    // D), its leading corner lit. The brackets sit a step out from the white
+    // plate the code needs, so they read on the page's ground in either theme.
+    <div className="u-box u-box--frame w-full max-w-[16rem] rounded-lg bg-transparent p-1.5 sm:w-64">
+      <div className="grid aspect-square w-full place-items-center rounded-lg border border-slate-200 bg-white p-2 dark:border-slate-700">
+        <QrCanvas
+          config={{ ...config, data }}
+          size={360}
+          margin={8}
+          label={label}
+          className="h-full w-full leading-[0]"
+        />
+      </div>
     </div>
   )
 }

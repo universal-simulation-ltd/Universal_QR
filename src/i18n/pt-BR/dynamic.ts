@@ -56,6 +56,7 @@ const dynamic: Messages['dynamic'] = {
 
   // Dynamic tab — the list of codes
   'your_codes': 'Seus códigos dinâmicos',
+  'card_key': 'Código dinâmico',
   'empty': 'Nenhum código dinâmico ainda. Crie o primeiro à esquerda — você pode redirecioná-lo quando quiser e acompanhar as leituras chegando.',
 
   // A dynamic code's card
