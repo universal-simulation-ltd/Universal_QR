@@ -70,7 +70,13 @@ not a mathematical guarantee.
 
 - **Signing in.** Only if you choose to, through Universal ID (our accounts
   service, run on Supabase). Signing in with Apple, Google or Microsoft goes
-  through that provider's own sign-in page. You can delete your account from
+  through that provider's own sign-in page.
+  In the desktop app, signing in opens UNI·SIM's sign-in page in your own
+  browser, and the app waits for that one sign-in on a local-only address
+  (127.0.0.1) that nothing outside your computer can reach, closing it as soon
+  as the sign-in ends ([`electron/main.cjs`](electron/main.cjs),
+  `installBrowserSignIn` in `@unisim/sdk`).
+  You can delete your account from
   **Delete my account** in Global Tuning, in the profile menu; that deletes it
   in every UNI·SIM app.
 - **"You opened the app".** When you are signed in, the app records one event
