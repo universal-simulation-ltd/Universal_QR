@@ -2,7 +2,9 @@
   "app": "Universal QR",
   "icon": "../ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png",
   "captures": "draw",
-  "devices": ["iphone", "ipad", "android"],
+  "layouts": "layouts.mjs",
+  "css": "store.css",
+  "devices": ["iphone", "ipad", "android", "header"],
   "video": { "raw": ["01-designer", "03-enlarge", "04-shape", "06-barcode"], "hero": 1 },
   "screens": [
     { "id": "01-hero", "layout": "hero-open", "raw": ["03-enlarge", "04-shape"] },
@@ -11,6 +13,7 @@
     { "id": "04-brand", "layout": "feature", "raw": "02-branding", "hot": 0 },
     { "id": "05-shape", "layout": "feature", "raw": "04-shape", "hot": 0 },
     { "id": "06-wifi", "layout": "feature", "raw": "05-wifi", "hot": 0 },
-    { "id": "07-barcode", "layout": "feature", "raw": "06-barcode", "hot": 0 }
+    { "id": "07-barcode", "layout": "feature", "raw": "06-barcode", "hot": 0 },
+    { "id": "header", "layout": "code-header", "raw": ["01-designer", "04-shape"], "strings": "01-hero", "on": ["header"] }
   ]
 }
