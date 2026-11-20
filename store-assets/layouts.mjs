@@ -29,10 +29,25 @@ const qrcode = require('qrcode-generator')
 
 const URL = 'https://opensource.unisim.co.uk/qr'
 const LAPTOP = '/app/raw/laptop/01-designer.png'
-// The card's centre and size. spotlight/scenes.js qr() in the open-source
-// portal repeats the card's left, top and size from these: change both.
-export const CARD_CX = 2230
+// ── Geometry (James, 2026-11-20: "it doesn't look quite right") ─────────────
+// The same rules as Universal PDF's page-header (its layouts.mjs says why):
+// the paper / orange join runs under the card's centre; laptop and phone near
+// true scale (phone ≈ 0.85 of the lid), upright on one baseline with contact
+// shadows; the whole group centred, and the grid square's crop pointed at the
+// card (PEEK_X). spotlight/scenes.js qr() in the open-source portal repeats
+// the card's left, top and size (CARD_LEFT, CARD_TOP, CARD): change both.
+const W = 3840, H = 1646
 export const CARD = 1152
+const LAP_W = 1500, PHONE_W = 400, OVERLAP = 60
+const BASELINE = Math.round(H * 0.86)
+const lapBase = (w) => Math.round(w * 1.14)
+const GROUP = (lapBase(LAP_W) - LAP_W) / 2 + LAP_W + (CARD - OVERLAP) + (PHONE_W - OVERLAP)
+const LAP_LEFT = Math.round((W - GROUP) / 2 + (lapBase(LAP_W) - LAP_W) / 2)
+export const CARD_CX = LAP_LEFT + LAP_W - OVERLAP + CARD / 2
+export const CARD_CY = Math.round(H * 0.47)
+export const CARD_LEFT = CARD_CX - CARD / 2
+export const CARD_TOP = CARD_CY - CARD / 2
+export const PEEK_X = `${Math.round((100 * (CARD_CX - H / 2)) / (W - H))}%`
 const INK = '#1c1714'
 
 /** The code as SVG in module units, `q` modules of quiet zone round it. */
@@ -84,21 +99,23 @@ function stage(ctx, inner) {
  * the flat header.
  */
 function codeHeader(ctx, t, [r], layer = 'full') {
-  const { device, laptop } = ctx.kit
-  const c = ctx.cls, [W, H] = c.stage
-  if (c.frame !== 'iphone' || W !== 3840) throw new Error('code-header is drawn for the 3840×1646 header class only')
-  const cx = W / 2
-  const card = CARD
-  const half = card / 2
-  const cy = Math.round(H * 0.47)
+  const { device, deviceHeight } = ctx.kit
+  const c = ctx.cls
+  if (c.frame !== 'iphone' || c.stage[0] !== W) throw new Error('code-header is drawn for the 3840×1646 header class only')
   const { svg } = code(URL, 4)
-  const devW = 600, top = Math.round(H * 0.13)
+  // laptop()'s own proportions: lid = bezel + 16:10 screen + chin, then base.
+  const bezel = Math.round(LAP_W * 0.024), chin = Math.round(LAP_W * 0.034)
+  const lidH = bezel + Math.round((LAP_W - 2 * bezel) * 0.625) + chin, baseH = Math.round(LAP_W * 0.028)
+  const phoneH = deviceHeight(c.frame, PHONE_W, r.aspect)
+  const phoneLeft = CARD_CX + CARD / 2 - OVERLAP
+  const floor = (cx, w, h) => `<div class="floor qr-floor" style="left:${Math.round(cx - w / 2)}px;top:${Math.round(BASELINE - h / 2)}px;width:${Math.round(w)}px;height:${Math.round(h)}px"></div>`
   const [size, inset] = c.mark
   return stage(ctx, `
-    ${layer === 'front' ? '' : `<div class="qr-paper" style="left:0;width:${W / 2}px"></div><div class="qr-orange" style="left:${W / 2}px;width:${W / 2}px"></div>
-    <div class="qr-card" style="left:${Math.round(CARD_CX - half)}px;top:${Math.round(cy - half)}px;width:${card}px;height:${card}px">${layer === 'full' ? svg : ''}</div>`}
-    ${layer === 'back' ? '' : `${laptop(LAPTOP, { w: 1500, left: Math.round(CARD_CX - half + 60 - 1500), top: Math.round(H * 0.14), z: 3 })}
-    ${device(ctx, r, { w: devW, left: Math.round(CARD_CX + half + devW * 0.02), top, rot: 6, z: 3 })}
+    ${layer === 'front' ? '' : `<div class="qr-paper" style="left:0;width:${CARD_CX}px"></div><div class="qr-orange" style="left:${CARD_CX}px;width:${W - CARD_CX}px"></div>
+    <div class="qr-card" style="left:${CARD_LEFT}px;top:${CARD_TOP}px;width:${CARD}px;height:${CARD}px">${layer === 'full' ? svg : ''}</div>`}
+    ${layer === 'back' ? '' : `${floor(LAP_LEFT + LAP_W / 2, lapBase(LAP_W) * 1.1, 90)}${floor(phoneLeft + PHONE_W / 2, PHONE_W * 1.5, 60)}
+    ${ctx.kit.laptop(LAPTOP, { w: LAP_W, left: LAP_LEFT, top: BASELINE - lidH - baseH, z: 3 })}
+    ${device(ctx, r, { w: PHONE_W, left: phoneLeft, top: Math.round(BASELINE - phoneH), rot: 0, z: 3 })}
     <img class="unisim-mark" src="/kit/brand/unisim-icon-white.png" alt="UNI·SIM" style="width:${size}px;right:${inset}px;top:${inset}px">`}`)
 }
 

@@ -141,7 +141,10 @@ const top = (page) => page.evaluate(() => window.scrollTo(0, 0))
 
 const SCREENS = {
   // First open: the designer, with a code already drawn.
-  async '01-designer'(page) {
+  async '01-designer'(page, { dev }) {
+    // The laptop's copy sits beside the store header's big code, so it shows
+    // the same address: whichever code a camera finds, it opens the app.
+    if (dev.desk) await setUrl(page, 'https://opensource.unisim.co.uk/qr')
     await tab(page, 'Branding')
     await preset(page, 'Classic')
     await tab(page, 'Simple')
