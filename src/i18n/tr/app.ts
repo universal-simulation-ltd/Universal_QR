@@ -30,6 +30,8 @@ const app: Messages['app'] = {
   'error_export_failed': 'Dışa aktarma başarısız oldu',
   'error_render_svg': 'SVG oluşturulamadı',
   'error_render_qr': 'QR kod oluşturulamadı',
+  'personal_title': '{name} · QR kodlar',
+  'personal_title_mine': 'QR kodlarım',
 }
 
 export default app

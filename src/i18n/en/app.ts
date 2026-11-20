@@ -42,4 +42,6 @@ export default {
   'error_export_failed': 'Export failed',
   'error_render_svg': 'Could not render SVG', // SVG is a file format, never translated
   'error_render_qr': 'Could not render QR code',
+  'personal_title': '{name}’s QR Codes', // the bar's name for the app once signed in; {name} is the person's first name
+  'personal_title_mine': 'My QR Codes', // signed in, no name known
 } as const

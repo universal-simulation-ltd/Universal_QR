@@ -30,6 +30,8 @@ const app: Messages['app'] = {
   'error_export_failed': 'Échec de l’exportation',
   'error_render_svg': 'Impossible de générer le SVG',
   'error_render_qr': 'Impossible de générer le QR code',
+  'personal_title': 'Les QR codes de {name}',
+  'personal_title_mine': 'Mes QR codes',
 }
 
 export default app
