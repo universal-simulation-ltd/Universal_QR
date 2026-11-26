@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useState } from 'react'
-import { Chip, SignInDialog, SelectionBar, phoneConfirm, useSelection, useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding, withReturnUrl, buttonClass } from '@unisim/sdk'
+import { Chip, SignInDialog, SelectionBar, phoneConfirm, useSelection, useUniversal, useUser, useCredits, useAppFreeToken, useOrgBranding, withReturnUrl, buttonClass, useTwoStepVerifiedTick } from '@unisim/sdk'
 import { CONTAINER } from '../../lib/layout'
 import { DEFAULT_CONFIG, type QrDesign } from '@unisim/qr'
 import { useQrStore } from '../../stores/qrStore'
@@ -153,7 +153,10 @@ export default function DynamicStudio() {
       .catch(() => setCodes([]))
   }, [supabase, signedIn])
 
-  useEffect(() => { refreshList() }, [refreshList, activeOrgId])
+  // Re-read once a two-step code is accepted: platform 0347 hides a company's
+  // rows from a session that owes one, and a refused read is just empty.
+  const twoStepTick = useTwoStepVerifiedTick()
+  useEffect(() => { refreshList() }, [refreshList, activeOrgId, twoStepTick])
 
   // Pick up a sign-in that completed on the hub (another tab / full-page login)
   // without needing a manual refresh. When signed out, watch for the tab regaining
